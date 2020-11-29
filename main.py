@@ -29,12 +29,16 @@ parameters = [ [sg.Text('Parameters: ', font=("Helvetica", 12, 'underline bold')
                [sg.Text(' ')]
                ]
 
-motor_status = [[sg.Text('Motor Status: ', font=("Helvetica", 12, 'underline bold'))],
+motor_status_az = [[sg.Text('Azimuthal Motor Status: ', font=("Helvetica", 11, 'underline bold')), sg.Text('        ')],
                [sg.Text('Voltage:', font=("Helvetica", 10, 'underline'))],
                 [sg.Text('Current:', font=("Helvetica", 10, 'underline'))],
                [sg.Text('Temperature:', font=("Helvetica", 10, 'underline'))],
-                [sg.Text(' ')],
-                [sg.Text(' ')]
+                ]
+
+motor_status_al = [[sg.Text('Altitudinal Motor Status: ', font=("Helvetica", 11, 'underline bold'))],
+               [sg.Text('Voltage:', font=("Helvetica", 10, 'underline'))],
+                [sg.Text('Current:', font=("Helvetica", 10, 'underline'))],
+               [sg.Text('Temperature:', font=("Helvetica", 10, 'underline'))],
                 ]
 # layout
 layout = [ [sg.Menu(menu_def, tearoff=True)],
@@ -42,8 +46,10 @@ layout = [ [sg.Menu(menu_def, tearoff=True)],
           [sg.Text(" ")],
            [sg.Button('Start Calibration', size=(15,1), font=("Helvetica", 13)), sg.Button('EMERGENCY STOP!!', size=(20,1), font=("Helvetica", 15))],
             [sg.Text(" ")],
-           [sg.Column(coord_entry, element_justification='c'), sg.VSeparator(), sg.Column(parameters, element_justification='c'), sg.VSeparator(), sg.Column(motor_status, element_justification = 'l')],
-          [sg.Text(" ")],
+           [sg.Column(coord_entry, element_justification='c'), sg.VSeparator(), sg.Column(parameters, element_justification='c')],
+           [sg.Text(" ")],
+           [sg.Column(motor_status_az, element_justification = 'l'), sg.VSeparator(), sg.Column(motor_status_al, element_justification='l')],
+         [sg.Text(" ")],
           # [sg.Frame(layout=[
           # [sg.Text('Manual Coordinate Entry:')],
          #  [sg.Text('Altitudinal:'), sg.Text(size=(15,1), font=("Helvetica", 10), key='-OUTPUT-')],
