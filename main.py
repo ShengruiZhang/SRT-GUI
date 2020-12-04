@@ -1,5 +1,7 @@
+#   TODO
+#   1. Input protection for coord. input
+#   2. Update the Target position after an coord. is entered
 import PySimpleGUI as sg
-import serial
 
 #sg.theme('LightGrey5')
 sg.theme_input_background_color('ghost white')
@@ -14,21 +16,22 @@ menu_def = [    ['&File', ['&Open', '&Save', 'Prope&rties', 'E&xit',] ],
                 ['&Edit', ['Undo', 'Paste', ['Special', 'Normal']] ],
                 ['&Help', '&About...']  ]
 
-coord_entry = [ [sg.T('Coordinate Entry:',font=("Helvetica 12 underline bold"))],
-                [sg.T('Altitudinal:',size=(15,1),font=("Helvetica 10"))],
-                [sg.In(key='-IN-ALT-', size=(15,1))],
-                [sg.T('Azimuthal:',size=(15,1),font=("Helvetica 10"))],
-                [sg.In(key='-IN-AZ-',size=(15,1))],
-                [sg.Text('')],
-                [sg.B('Enter')]  ]
+#   Making the background Gray for debugging
+coord_entry = [ [sg.T('Coordinate Entry:',font=("Helvetica 12 underline bold"),background_color='gray')],
+                [sg.T('Altitudinal:',size=(15,1),font=("Helvetica 10"),background_color='gray')],
+                [sg.In(key='-IN-ALT-', size=(15,1),background_color='gray')],
+                [sg.T('Azimuthal:',size=(15,1),font=("Helvetica 10"),background_color='gray')],
+                [sg.In(key='-IN-AZ-',size=(15,1),background_color='gray')],
+                [sg.Text('',background_color='gray')],
+                [sg.B('Enter')]   ]
 
-parameters = [  [sg.T('Parameters:',font=("Helvetica 12 underline bold"))],
-                [sg.T('Current Position:',font=("Helvetica 10 underline"))],
-                [sg.T('32 degree N, 10 degree W',font=("Helvetica 10"))],
-                [sg.T('Target Position:',font=("Helvetica 10 underline"))],
-                [sg.T('59 degree N, 64 degree W')],
-                [sg.T('Wind Speed:',font=("Helvetica 10 underline"))],
-                [sg.T('2 m/s',justification='l')] ]
+parameters = [  [sg.T('Parameters:',font=("Helvetica 12 underline bold"),background_color='black')],
+                [sg.T('Current Position:',font=("Helvetica 10 underline"),background_color='black')],
+                [sg.T('32 degree N, 10 degree W',font=("Helvetica 10"),background_color='black')],
+                [sg.T('Target Position:',font=("Helvetica 10 underline"),background_color='black')],
+                [sg.T('59 degree N, 64 degree W',key='-POS-TGT-',background_color='black')],
+                [sg.T('Wind Speed:',font=("Helvetica 10 underline"),background_color='black')],
+                [sg.T('2 m/s',justification='l',background_color='black')] ]
 
 motor_status_az = [
                 #[sg.T('Azimuthal Motor Status:',font=("Helvetica 11 underline bold")),sg.T('        ')],
@@ -47,62 +50,47 @@ motor_status_alt = [
 layout = [
             [sg.Menu(menu_def, tearoff=True)],
             [sg.T('Student Radio Telescope Control',size=(30,1),justification='c',font=("Helvetica 25"),
-                relief=sg.RELIEF_FLAT)],
+                relief=sg.RELIEF_GROOVE)],
             [sg.T(" ")],
             [sg.B('Start Calibration',size=(15,1),font=("Helvetica 13")),
-                sg.B('EMERGENCY STOP',size=(20,1),font=("Helvetica 15")),
+                sg.B('EMERGENCY STOP',size=(20,3),font=("Helvetica 20"),key='-ESTOP-'),
                 sg.B('Stow Telescope',size=(15,1),font=("Helvetica 13"))],
             [sg.T(" ")],
-            [sg.Column(coord_entry, element_justification='c'), sg.VSeparator(), sg.Column(parameters, element_justification='c')],
-           [sg.Text(" ")],
-           [sg.Column(motor_status_az, element_justification = 'l'), sg.VSeparator(), sg.Column(motor_status_alt, element_justification='l')],
-         [sg.Text(" ")],
-          # [sg.Frame(layout=[
-          # [sg.Text('Manual Coordinate Entry:')],
-         #  [sg.Text('Altitudinal:'), sg.Text(size=(15,1), font=("Helvetica", 10), key='-OUTPUT-')],
-         #  [sg.Input(key='-IN-', size=(15,1))],
-         #  [sg.Text('Azimuthal:'), sg.Text(size=(15,1), font=("Helvetica", 10), key='-OUTPUT2-')],
-         #  [sg.Input(key='-IN2-', size=(15,1))],
-        #   [sg.OK()]], title= 'Coordinate Entry: ', font=("Helvetica", 12), size=(25, 25), title_color='white', relief=sg.RELIEF_RIDGE, background_color='maroon')],
-         #  [sg.Frame(layout=[
-         #  [sg.Button('EMERGENCY STOP!!', size=(20,1), font=("Helvetica", 15))]], title= 'Emergency Stop: ', font=("Helvetica", 12), title_color='white', relief=sg.RELIEF_RIDGE, background_color='maroon')],
-         #  [sg.Frame(layout=[
-         #  [sg.Text('Current Position:', font=("Helvetica", 10, 'underline bold'))],
-         #  [sg.Text('32 degree N, 10 degree W', font=("Helvetica", 10))],
-         #  [sg.Text('Target Position:', font=("Helvetica", 10, 'underline bold'))],
-         #  [sg.Text('59 degree N, 64 degree W')],
-         #  [sg.Text('Motor Status: ', font=("Helvetica", 10, 'underline bold'))],
-         #      [sg.Text('Voltage:     ')],
-          #     [sg.Text('Temperature:     ')],
-         #      [sg.Text('Current:     ')],
-         #  ], title= 'Parameters: ', font=("Helvetica", 12), title_color='white', relief=sg.RELIEF_RIDGE, background_color='maroon')],
-           #  [sg.Text('Start Calibration Routine:')],
-          # [sg.Graph(canvas_size= 100, graph_top_right=10, graph_bottom_left=10)],
-           [sg.Frame(layout=[
-           [sg.Button('Start Recording Data', font=("Helvetica", 10)), sg.Button('Stop Recording Data', font=("Helvetica", 10))],
-           [sg.Text('Choose A Folder to Save Your Graph To:', size=(35, 1), font=("Helvetica", 10))],
-           [sg.Text('Your Folder', size=(15, 1), auto_size_text=False, justification='right'),
-            sg.InputText('Default Folder', font=("Helvetica", 10)), sg.FolderBrowse()]], title= 'Data Output: ', font=("Helvetica", 12), title_color='white', relief=sg.RELIEF_RIDGE, background_color='maroon', element_justification='c')],
-           [sg.Exit()]]
-          # [sg.OK(), sg.Cancel()]]
+            [sg.Col(coord_entry, element_justification='l'),
+                sg.VSep( pad=( (50,50),(0,0) ) ),
+                sg.Col(parameters, element_justification='c')],
+            [sg.T(" ")],
+            [sg.Col(motor_status_az, element_justification = 'l'),
+                sg.VSep(),
+                sg.Col(motor_status_alt, element_justification='l')],
+            [sg.T(" ")],
+            [sg.Frame(  layout=[
+                [sg.B('Start Recording Data',font=("Helvetica 10")),
+                    sg.B('Stop Recording Data',font=("Helvetica 10"))],
+                [sg.T('Choose A Folder to Save Your Graph To:',size=(35,1),font=("Helvetica 10"))],
+                [sg.T('Save Path',size=(15,1),auto_size_text=False,justification='r'),
+                    sg.In('Default Folder',font=("Helvetica 10")), sg.FolderBrowse()]
+                ], title='Data Output:', font=("Helvetica 12"), title_color='white', relief=sg.RELIEF_RIDGE,
+                    background_color='maroon', element_justification='c')],
+            [sg.Exit()]
+            ]
 
 # create window
-window = sg.Window('Student Radio Telescope', layout, element_justification='c')
-#my_windows_size = window.Size
-# read window
+window = sg.Window('Student Radio Telescope Control', layout, element_justification='c')
+
+_TGT_POS = 0
 
 while True:  # Event Loop
-    button, values = window.read()
-    print(button, values)
-    if button == sg.WIN_CLOSED or button == 'Exit':
+    event, values = window.read()
+    print(event, values)
+    if event == sg.WIN_CLOSED or event == 'Exit':
+        # GUI is closed either by using 'X', or Exit button is clicked
         break
-    if button == 'OK':
-        # Update the "output" text element to be the value of "input" element
-        window['-OUTPUT-'].update(values['-IN-'])
-        window['-OUTPUT2-'].update(values['-IN2-'])
-  #  if button == 'Calibration':
-   #     calibrate()
-    if button == 'STOP':
-        break
+    if event == 'Enter':
+        _TGT_POS = values['-IN-ALT-'] + values['-IN-AZ-']
+        window['-POS-TGT-'].update(_TGT_POS)
+    if event == '-ESTOP-':
+        # If SW Stop is pressed, interrupt motor motions
+        print("Softeare E-Stop is pressed")
 
 window.close()
