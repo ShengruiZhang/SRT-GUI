@@ -8,6 +8,11 @@ sg.theme_text_element_background_color('maroon')
 sg.theme_text_color('ghost white')
 #sg.theme_button_color('midnight blue')
 
+#srt = serial.Serial('Serial Port')
+
+#def calibrate():
+ #   f = open("calibration.txt", "r")
+  #  srt.f.read()
 
 # ------ Menu Definition ------ #
 menu_def = [['&File', ['&Open', '&Save', 'E&xit', 'Properties']],
@@ -19,32 +24,35 @@ coord_entry = [ [sg.Text('Coordinate Entry: ', font=("Helvetica", 12, 'underline
            [sg.Input(key='-IN-', size=(15,1))],
            [sg.Text('Azimuthal:'), sg.Text(size=(15,1), font=("Helvetica", 10), key='-OUTPUT2-')],
            [sg.Input(key='-IN2-', size=(15,1))],
-           [sg.OK()]]
+            [sg.Text('')],
+           [sg.OK()],
+                ]
 
 parameters = [ [sg.Text('Parameters: ', font=("Helvetica", 12, 'underline bold'))],
            [sg.Text('Current Position:', font=("Helvetica", 10, 'underline'))],
            [sg.Text('32 degree N, 10 degree W', font=("Helvetica", 10))],
            [sg.Text('Target Position:', font=("Helvetica", 10, 'underline'))],
            [sg.Text('59 degree N, 64 degree W')],
-               [sg.Text(' ')]
+               [sg.Text('Wind Speed:', font=("Helvetica", 10, 'underline'))],
+            [sg.Text('2 m/s')]
                ]
 
 motor_status_az = [[sg.Text('Azimuthal Motor Status: ', font=("Helvetica", 11, 'underline bold')), sg.Text('        ')],
                [sg.Text('Voltage:', font=("Helvetica", 10, 'underline'))],
-                [sg.Text('Current:', font=("Helvetica", 10, 'underline'))],
+              #  [sg.Text('Current:', font=("Helvetica", 10, 'underline'))],
                [sg.Text('Temperature:', font=("Helvetica", 10, 'underline'))],
                 ]
 
 motor_status_al = [[sg.Text('Altitudinal Motor Status: ', font=("Helvetica", 11, 'underline bold'))],
                [sg.Text('Voltage:', font=("Helvetica", 10, 'underline'))],
-                [sg.Text('Current:', font=("Helvetica", 10, 'underline'))],
+              #  [sg.Text('Current:', font=("Helvetica", 10, 'underline'))],
                [sg.Text('Temperature:', font=("Helvetica", 10, 'underline'))],
                 ]
 # layout
 layout = [ [sg.Menu(menu_def, tearoff=True)],
            [sg.Text('Student Radio Telescope', size=(30,1), justification='center', font=("Helvetica", 25), relief=sg.RELIEF_FLAT)],
           [sg.Text(" ")],
-           [sg.Button('Start Calibration', size=(15,1), font=("Helvetica", 13)), sg.Button('EMERGENCY STOP!!', size=(20,1), font=("Helvetica", 15))],
+           [sg.Button('Start Calibration', size=(15,1), font=("Helvetica", 13)), sg.Button('EMERGENCY STOP!!', size=(20,1), font=("Helvetica", 15)), sg.Button('Stow Telescope', size=(15,1), font=("Helvetica", 13))],
             [sg.Text(" ")],
            [sg.Column(coord_entry, element_justification='c'), sg.VSeparator(), sg.Column(parameters, element_justification='c')],
            [sg.Text(" ")],
@@ -93,6 +101,8 @@ while True:  # Event Loop
         # Update the "output" text element to be the value of "input" element
         window['-OUTPUT-'].update(values['-IN-'])
         window['-OUTPUT2-'].update(values['-IN2-'])
+  #  if button == 'Calibration':
+   #     calibrate()
     if button == 'STOP':
         break
 
