@@ -22,7 +22,7 @@ coord_entry = [ [sg.T('Coordinate Entry:',font=("Helvetica 12 underline bold"),b
                 [sg.In(key='-IN-ALT-', size=(15,1),background_color='gray')],
                 [sg.T('Azimuthal:',size=(15,1),font=("Helvetica 10"),background_color='gray')],
                 [sg.In(key='-IN-AZ-',size=(15,1),background_color='gray')],
-                [sg.Text('',background_color='gray')],
+                [sg.T('',background_color='gray')],
                 [sg.B('Enter')]   ]
 
 parameters = [  [sg.T('Parameters:',font=("Helvetica 12 underline bold"),background_color='black')],
@@ -46,6 +46,14 @@ motor_status_alt = [
                 [sg.T('Voltage:',font=("Helvetica 10 underline"))],
                 [sg.T('Temperature:',font=("Helvetica 10 underline"))],
                 ]
+
+data_recording = [
+                [sg.B('Start Recording Data',font=("Helvetica 10")),
+                    sg.B('Stop Recording Data',font=("Helvetica 10"))],
+                [sg.T('Choose A Folder to Save Your Graph To:',size=(35,1),font=("Helvetica 10"))],
+                [sg.T('Save Path',size=(15,1),auto_size_text=False,justification='r'),
+                    sg.In('Default Folder',font=("Helvetica 10")), sg.FolderBrowse()]
+                ]
 # layout
 layout = [
             [sg.Menu(menu_def, tearoff=True)],
@@ -64,14 +72,9 @@ layout = [
                 sg.VSep(),
                 sg.Col(motor_status_alt, element_justification='l')],
             [sg.T(" ")],
-            [sg.Frame(  layout=[
-                [sg.B('Start Recording Data',font=("Helvetica 10")),
-                    sg.B('Stop Recording Data',font=("Helvetica 10"))],
-                [sg.T('Choose A Folder to Save Your Graph To:',size=(35,1),font=("Helvetica 10"))],
-                [sg.T('Save Path',size=(15,1),auto_size_text=False,justification='r'),
-                    sg.In('Default Folder',font=("Helvetica 10")), sg.FolderBrowse()]
-                ], title='Data Output:', font=("Helvetica 12"), title_color='white', relief=sg.RELIEF_RIDGE,
-                    background_color='maroon', element_justification='c')],
+            [sg.Frame(layout=data_recording, title='Data Output:',
+                font=("Helvetica 12"), title_color='white', relief=sg.RELIEF_RIDGE,
+                background_color='maroon', element_justification='c')],
             [sg.Exit()]
             ]
 
