@@ -8,6 +8,7 @@
 */
 
 char Command = 0;
+unsigned int WindSpeedRaw = 0;
 
 void setup() {
 	// Upon power up, turn on the LED as indicator
@@ -16,7 +17,6 @@ void setup() {
 
 	// Set Serial timeout = 5s
 	Serial.setTimeout(5000);
-
 	// RS-232 Baud rate = 9600
 	Serial.begin(9600);
 
@@ -32,16 +32,21 @@ void loop() {
 
 	// 'A' received, return ADC value
 	if ( Command == 'A' ) {
-		Serial.println("Return ADC value");
+		WindSpeedRaw = analogRead(A0);
+		Serial.println(WindSpeedRaw);
 	}
+
 	// 'B' received, activate brakes
 	else if ( Command == 'B' ) {
 		Serial.println("Engage brakes");
 	}
+
 	// 'C' received, deactivate brakes
 	else if ( Command == 'C' ) {
 		Serial.println("Release brakes");
 	}
+
+	// Anything else
 	else {
 		Serial.println("Not valid op.");
 	}
