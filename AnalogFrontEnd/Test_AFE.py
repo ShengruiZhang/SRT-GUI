@@ -2,7 +2,10 @@
 import serial
 import time
 
+# For GNU/Linux
 AFE = serial.Serial('/dev/ttyUSB0', 9600, timeout=2)
+# For Windows, replace COM with the respective one
+#AFE = serial.Serial(COM12, 9600, timeout=2)
 
 # Verify the Serial Port
 print(AFE.name)
