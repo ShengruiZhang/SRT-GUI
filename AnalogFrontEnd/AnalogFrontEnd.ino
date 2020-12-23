@@ -15,8 +15,16 @@ void setup() {
 	pinMode(13, OUTPUT);
 	digitalWrite(13, HIGH);
 
+	// Use pin 12 for brake control
+	pinMode(12, OUTPUT);
+	// Engage brake when power up
+	digitalWrite(12, HIGH);
+
+	// Set the analog reference voltage to default
+	analogReference(DEFAULT);
+
 	// Set Serial timeout = 5s
-	Serial.setTimeout(5000);
+	Serial.setTimeout(2000);
 	// RS-232 Baud rate = 9600
 	Serial.begin(9600);
 
@@ -33,33 +41,42 @@ void loop() {
 	// 'A' received, return ADC value
 	if ( Command == 'A' ) {
 		WindSpeedRaw = analogRead(A0);
-		Serial.println(WindSpeedRaw);
+		Serial.print(WindSpeedRaw);
+		Serial.print('\n');
 	}
 
 	// 'B' received, activate brakes
 	else if ( Command == 'B' ) {
-		Serial.println("Engage brakes");
+		digitalWrite(12, HIGH);
+		Serial.print("Brakes Engaged\n");
 	}
 
 	// 'C' received, deactivate brakes
 	else if ( Command == 'C' ) {
-		Serial.println("Release brakes");
+		digitalWrite(12, LOW);
+		Serial.print("Brakes Released\n");
 	}
 
 	// Anything else
 	else {
-		Serial.println("Not valid op.");
+		Serial.println(Command);
 	}
 	
 	// Clear command
 	Command = 0;
 
+	// Wait until data presents
+	while ( Serial.available() <= 0 ) {
+	}
 }
 
 /* Sends a byte to the Serial line every 1s, until a byte is received */
 void WaitingHost() {
+	int _temp_ = 0;
 	while ( (Serial.available() <= 0) ) {
-		Serial.println("Waiting...");
+		// Sends 10 bytes in 1s interval
+		Serial.print("Waiting...\n");
 		delay(1000);
 	}
+	_temp_ = Serial.read();
 }
