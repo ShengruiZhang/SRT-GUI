@@ -9,6 +9,7 @@
 
 char Command = 0;
 unsigned int WindSpeedRaw = 0;
+unsigned int counter = 0;
 
 void setup() {
 	// Upon power up, turn on the LED as indicator
@@ -41,8 +42,19 @@ void loop() {
 	// 'A' received, return ADC value
 	if ( Command == 'A' ) {
 		WindSpeedRaw = analogRead(A0);
+
+		// FOR Testing
+		Serial.print(counter);
+		Serial.print(" ");
 		Serial.print(WindSpeedRaw);
 		Serial.print('\n');
+
+		if (counter > 300) {
+			counter = 0;
+		}
+		else {
+			++counter;
+		}
 	}
 
 	// 'B' received, activate brakes
@@ -61,7 +73,7 @@ void loop() {
 	else {
 		Serial.println(Command);
 	}
-	
+
 	// Clear command
 	Command = 0;
 
@@ -75,8 +87,10 @@ void WaitingHost() {
 	int _temp_ = 0;
 	while ( (Serial.available() <= 0) ) {
 		// Sends 10 bytes in 1s interval
-		Serial.print("Waiting...\n");
+		Serial.print("Waiting Host\n");
 		delay(1000);
 	}
+	// Empty the data
 	_temp_ = Serial.read();
+	Serial.print("AFE Active\n");
 }

@@ -1,19 +1,24 @@
 # Test program for Analog Front-End
 import serial
 import time
+import sys
 
-AFE = serial.Serial('/dev/ttyUSB0', 9600, timeout=2)
+print(f"Arguments count: {len(sys.argv)}")
+for i, arg in enumerate(sys.argv):
+    print(f"Arguments {i:>2}: {arg}")
+
+AFE = serial.Serial('/dev/ttyUSB0', sys.argv[1], timeout=2)
 
 # Verify the Serial Port
-print(AFE.name)
+print(f'Current Serial Port: {AFE.name}')
 
 counter = 0;
-
 while counter <= 20:
     # Read one byte
-    line = AFE.readline()
-    print(counter)
-    print(line)
+    # The data read from serial is in binary format,
+    #   here decode such as ASCII
+    line = AFE.readline().decode('ascii')
+    print(f'{counter} {line}', end='')
     counter += 1
 
 # Send a byte to activate the Arduino
