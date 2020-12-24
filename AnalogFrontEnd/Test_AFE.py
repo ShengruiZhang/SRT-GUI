@@ -10,14 +10,10 @@ print(f"Arguments count: {len(sys.argv)}")
 for i, arg in enumerate(sys.argv):
     print(f"Arguments {i:>2}: {arg}")
 
-<<<<<<< HEAD
-AFE = serial.Serial('/dev/ttyUSB0', sys.argv[1], timeout=2)
-=======
 # For GNU/Linux
-AFE = serial.Serial('/dev/ttyUSB0', 9600, timeout=2)
+AFE = serial.Serial('/dev/ttyUSB0', sys.argv[1], timeout=2)
 # For Windows, replace COM with the respective one
-#AFE = serial.Serial(COM12, 9600, timeout=2)
->>>>>>> 01773a916c5f6d6848e72683d0b8545099699bd5
+#AFE = serial.Serial(COM12, sys.argv[1], timeout=2)
 
 # Verify the Serial Port
 print(f'Current Serial Port: {AFE.name}')
