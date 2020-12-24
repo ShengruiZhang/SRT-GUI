@@ -17,34 +17,37 @@ menu_def = [    ['&File', ['&Open', '&Save', 'Prope&rties', 'E&xit',] ],
                 ['&Help', '&About...']  ]
 
 #   Making the background Gray for debugging
-coord_entry = [ [sg.T('Coordinate Entry:',font=("Helvetica 12 underline bold"),background_color='gray')],
-                [sg.T('Altitudinal:',size=(15,1),font=("Helvetica 10"),background_color='gray')],
+coord_entry = [ [sg.T('Coordinate Entry:',font=("Helvetica 14 underline bold"),background_color='gray')],
+                [sg.T('Altitudinal:',size=(15,1),font=("Helvetica 12"),background_color='gray')],
                 [sg.In(key='-IN-ALT-', size=(15,1),background_color='gray')],
-                [sg.T('Azimuthal:',size=(15,1),font=("Helvetica 10"),background_color='gray')],
+                [sg.T('Azimuthal:',size=(15,1),font=("Helvetica 12"),background_color='gray')],
                 [sg.In(key='-IN-AZ-',size=(15,1),background_color='gray')],
                 [sg.T('',background_color='gray')],
                 [sg.B('Enter')]   ]
 
-parameters = [  [sg.T('Parameters:',font=("Helvetica 12 underline bold"),background_color='black')],
-                [sg.T('Current Position:',font=("Helvetica 10 underline"),background_color='black')],
+#   Making the background Black for debugging
+parameters = [  [sg.T('Parameters:',font=("Helvetica 14 underline bold"),background_color='black')],
+                [sg.T('Current Position:',font=("Helvetica 12 underline"),background_color='black')],
                 [sg.T('32 degree N, 10 degree W',font=("Helvetica 10"),background_color='black')],
-                [sg.T('Target Position:',font=("Helvetica 10 underline"),background_color='black')],
+                [sg.T('Target Position:',font=("Helvetica 12 underline"),background_color='black')],
                 [sg.T('59 degree N, 64 degree W',key='-POS-TGT-',background_color='black')],
-                [sg.T('Wind Speed:',font=("Helvetica 10 underline"),background_color='black')],
-                [sg.T('2 m/s',justification='l',background_color='black')] ]
+                [sg.T('Wind Speed:',font=("Helvetica 12 underline"),background_color='black',)],
+                [sg.T('2 m/s',size=(10,1),justification='l',background_color='black',key='-WIND-')],
+                [sg.B('Update',key='-UPDATE-')]
+                ]
 
 motor_status_az = [
                 #[sg.T('Azimuthal Motor Status:',font=("Helvetica 11 underline bold")),sg.T('        ')],
                 [sg.T('Azimuthal Motor Status:',font=("Helvetica 11 underline bold"))],
-                [sg.T('Voltage:',font=("Helvetica 10 underline"))],
-                [sg.T('Temperature:',font=("Helvetica 10 underline"))],
+                [sg.T('Voltage:',font=("Helvetica 10"))],
+                [sg.T('Temperature:',font=("Helvetica 10"))],
                 ]
 
 motor_status_alt = [
                 #[sg.T('Altitudinal Motor Status:',font=("Helvetica 11 underline bold")),sg.T('        ')],
                 [sg.T('Altitudinal Motor Status:',font=("Helvetica 11 underline bold"))],
-                [sg.T('Voltage:',font=("Helvetica 10 underline"))],
-                [sg.T('Temperature:',font=("Helvetica 10 underline"))],
+                [sg.T('Voltage:',font=("Helvetica 10"))],
+                [sg.T('Temperature:',font=("Helvetica 10"))],
                 ]
 
 data_recording = [
@@ -60,9 +63,9 @@ layout = [
             [sg.T('Student Radio Telescope Control',size=(30,1),justification='c',font=("Helvetica 25"),
                 relief=sg.RELIEF_GROOVE)],
             [sg.T(" ")],
-            [sg.B('Start Calibration',size=(15,1),font=("Helvetica 13")),
-                sg.B('EMERGENCY STOP',size=(20,3),font=("Helvetica 20"),key='-ESTOP-'),
-                sg.B('Stow Telescope',size=(15,1),font=("Helvetica 13"))],
+            [sg.B('Start Calibration',size=(15,1),font=("Helvetica 13"),key='-CALIB-'),
+                sg.B('TELESCOPE STOP',size=(20,2),font=("Helvetica 20"),key='-ESTOP-'),
+                sg.B('Stow Telescope',size=(15,1),font=("Helvetica 13"),key='-STOW-')],
             [sg.T(" ")],
             [sg.Col(coord_entry, element_justification='l'),
                 sg.VSep( pad=( (50,50),(0,0) ) ),
@@ -82,6 +85,9 @@ layout = [
 window = sg.Window('Student Radio Telescope Control', layout, element_justification='c')
 
 _TGT_POS = 0
+WindSpeed = 5.25
+WindSpeedstr = str(WindSpeed) + ' m/s'
+print(WindSpeedstr)
 
 while True:  # Event Loop
     event, values = window.read()
@@ -94,6 +100,9 @@ while True:  # Event Loop
         window['-POS-TGT-'].update(_TGT_POS)
     if event == '-ESTOP-':
         # If SW Stop is pressed, interrupt motor motions
-        print("Softeare E-Stop is pressed")
+        print("Software E-Stop is pressed")
+    if event == '-UPDATE-':
+        print('Manually update parameters')
+        window['-WIND-'].update(value=WindSpeedstr)
 
 window.close()
