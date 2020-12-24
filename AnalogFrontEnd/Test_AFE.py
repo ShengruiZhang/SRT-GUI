@@ -1,4 +1,7 @@
 # Test program for Analog Front-End
+#   Rest the Arduino AFE before running this
+#   Argument 1 sets the baud rate
+
 import serial
 import time
 import sys
@@ -13,7 +16,7 @@ AFE = serial.Serial('/dev/ttyUSB0', sys.argv[1], timeout=2)
 print(f'Current Serial Port: {AFE.name}')
 
 counter = 0;
-while counter <= 20:
+while counter < 10:
     # Read one byte
     # The data read from serial is in binary format,
     #   here decode such as ASCII
@@ -21,30 +24,32 @@ while counter <= 20:
     print(f'{counter} {line}', end='')
     counter += 1
 
-# Send a byte to activate the Arduino
-print("Activating")
+# Send an arbitrary byte to activate the Arduino
+print("Activate AFE...")
 #AFE.write('K'.encode('utf-8'))
 AFE.write(b'K')
+print( AFE.readline().decode('ascii'), end='' )
 time.sleep(1)
 
 counter = 0
-while counter <= 20:
+while counter < 20:
     # Get ADC value
-    AFE.write('A'.encode('utf-8'))
-    line = AFE.readline()
-    print("ADC: ", line)
+    AFE.write(b'A')
+    line = AFE.readline().decode('ascii')
+    print(f'ADC: {line}', end='')
     counter += 1
     time.sleep(1)
 
 counter = 0
-while counter <= 20:
+while counter < 10:
     # Toggle Brakes
     AFE.write(b'B')
-    print(AFE.readline())
+    print( AFE.readline().decode('ascii'), end='' )
 
     time.sleep(2)
+
     AFE.write(b'C')
-    print(AFE.readline())
+    print( AFE.readline().decode('ascii'), end='' )
     counter += 1
 
 AFE.close()
