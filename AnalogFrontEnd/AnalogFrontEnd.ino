@@ -44,8 +44,8 @@ void loop() {
 		WindSpeedRaw = analogRead(A0);
 
 		// FOR Testing
-		Serial.print(counter);
-		Serial.print(" ");
+		//Serial.print(counter);
+		//Serial.print(" ");
 		Serial.print(WindSpeedRaw);
 		Serial.print('\n');
 

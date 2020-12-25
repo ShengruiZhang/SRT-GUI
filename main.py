@@ -1,7 +1,12 @@
 #   TODO
 #   1. Input protection for coord. input
 #   2. Update the Target position after an coord. is entered
+
 import PySimpleGUI as sg
+
+import sys
+sys.path.append("~/SRT-GUI/AnalogFrontEnd")
+import AnalogFrontEnd.AFE as AFE
 
 #sg.theme('LightGrey5')
 sg.theme_input_background_color('ghost white')
@@ -85,9 +90,12 @@ layout = [
 window = sg.Window('Student Radio Telescope Control', layout, element_justification='c')
 
 _TGT_POS = 0
-WindSpeed = 5.25
+WindSpeed = -99
 WindSpeedstr = str(WindSpeed) + ' m/s'
-print(WindSpeedstr)
+
+# Serial connection to Analog Front-End Control
+AnalogControl = AFE.Init(9600)
+AFE.Activate(AnalogControl)
 
 while True:  # Event Loop
     event, values = window.read()
@@ -102,7 +110,11 @@ while True:  # Event Loop
         # If SW Stop is pressed, interrupt motor motions
         print("Software E-Stop is pressed")
     if event == '-UPDATE-':
+        # When Update is pressed, retreive ADC value from AFE
         print('Manually update parameters')
-        window['-WIND-'].update(value=WindSpeedstr)
+        WindSpeed = AFE.GetWindRaw(AnalogControl)
+        window['-WIND-'].update(value=WindSpeed)
 
+# Close the Serial Connection
+AFE.CloseSerial(AnalogControl)
 window.close()
