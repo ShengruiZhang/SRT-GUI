@@ -1,4 +1,4 @@
-import AFE
+from AnalogFrontEnd import AFE
 
 Arduino = AFE.Init(9600)
 

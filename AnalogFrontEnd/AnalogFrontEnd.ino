@@ -1,11 +1,11 @@
 /*  Team 21039: Radio Telescope
-    Created 2020.10.22
+    //Created 2020.10.22
     
-    Arduino for handling Brake Solenoid and analog signal from the Anemometer
+   // Arduino for handling Brake Solenoid and analog signal from the Anemometer
     
-    Function: ADC analog IN -> Pin A0
-              Brake Control -> TBD (Digital Pin)
-*/
+  //  Function: ADC analog IN -> Pin A0
+//              Brake Control -> TBD (Digital Pin)
+
 
 char Command = 0;
 unsigned int WindSpeedRaw = 0;

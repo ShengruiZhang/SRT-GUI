@@ -1,7 +1,7 @@
 # Modules for AFE
 
-import serial
 import time
+import serial
 
 # Open Serial port for AFE
 #
@@ -10,6 +10,7 @@ import time
 #
 # This also set the timeout for readline to 2s
 #
+
 def Init(_Baud_):
     _AFE_ = serial.Serial('/dev/ttyUSB0', _Baud_, timeout=2)
     return _AFE_
