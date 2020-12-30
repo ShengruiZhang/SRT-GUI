@@ -1,23 +1,24 @@
 # Modules for AFE
+#   Analog Front-End, handles the control of brakes and ADC for anemometer
 
 import serial
 import time
 
 # Open Serial port for AFE
 #
-# Input: Baud rate
-# Return: /? the serial object ?/
+# Input: Name of the serial port, Baud rate
+# Return: the serial object
 #
 # This also set the timeout for readline to 2s
 #
-def Init(_Baud_):
-    _AFE_ = serial.Serial('/dev/ttyUSB0', _Baud_, timeout=2)
+def Init(_port_, _Baud_):
+    _AFE_ = serial.Serial(_port_, _Baud_, timeout=2)
     return _AFE_
 
 
 # Activate AFE
 #
-# Input: /? The serial object ?/
+# Input: The serial object
 # Return: void
 #
 # Activate the AFE by sending an arbitrary byte
@@ -36,7 +37,7 @@ def Activate(_AFE_):
 
 # Get the raw ADC value
 #
-# Input: /? The serial object ?/
+# Input: The serial object
 # Return: Raw ADC value
 #
 def GetWindRaw(_AFE_):
@@ -47,7 +48,7 @@ def GetWindRaw(_AFE_):
 
 # Close Serial port
 #
-# Input: /? The serial object ?/
+# Input: The serial object
 # Return: Raw ADC value
 #
 def CloseSerial(_Serial_):

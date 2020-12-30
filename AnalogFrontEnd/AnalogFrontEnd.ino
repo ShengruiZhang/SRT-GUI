@@ -5,6 +5,8 @@
     
     Function: ADC analog IN -> Pin A0
               Brake Control -> TBD (Digital Pin)
+
+	TODO Add method to deactivate
 */
 
 char Command = 0;

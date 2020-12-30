@@ -1,3 +1,6 @@
+#    Team 21039: Radio Telescope
+#
+#   Graphical User Interface
 #   TODO
 #   1. Input protection for coord. input
 #   2. Update the Target position after an coord. is entered
