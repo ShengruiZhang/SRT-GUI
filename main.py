@@ -25,13 +25,13 @@ menu_def = [    ['&File', ['&Open', '&Save', 'Prope&rties', 'E&xit',] ],
                 ['&Help', '&About...']  ]
 
 #   Making the background Gray for debugging
-coord_entry = [ [sg.T('Coordinate Entry:',font=("Helvetica 14 underline bold"),background_color='gray')],
+CoordEntry = [  [sg.T('Coordinate Entry:',font=("Helvetica 14 underline bold"),background_color='gray')],
                 [sg.T('Altitudinal:',size=(15,1),font=("Helvetica 12"),background_color='gray')],
-                [sg.In(key='-IN-ALT-', size=(15,1),background_color='gray')],
+                [sg.In(key='-IN-ALT-',size=(20,1),justification='left',background_color='gray')],
                 [sg.T('Azimuthal:',size=(15,1),font=("Helvetica 12"),background_color='gray')],
-                [sg.In(key='-IN-AZ-',size=(15,1),background_color='gray')],
+                [sg.In(key='-IN-AZ-',size=(20,1),justification='left',background_color='gray')],
                 [sg.T('',background_color='gray')],
-                [sg.B('Enter')]   ]
+                [sg.B('Enter')] ]
 
 #   Making the background Black for debugging
 parameters = [  [sg.T('Parameters:',font=("Helvetica 14 underline bold"),background_color='black')],
@@ -42,6 +42,11 @@ parameters = [  [sg.T('Parameters:',font=("Helvetica 14 underline bold"),backgro
                 [sg.T('Wind Speed:',font=("Helvetica 10"),background_color='black',)],
                 [sg.T('2 m/s',size=(10,1),justification='l',background_color='black',key='-WIND-')],
                 [sg.B('Update',key='-UPDATE-')]
+                ]
+
+Jogging = [     [sg.T('Jogging',font=('Helvetica 14 underline bold'),background_color='blue')],
+                [sg.B('Azimuth +',size=(10,1),key='_AZ+_'), sg.B('Azimuth -',size=(10,1),key='_AZ-_')],
+                [sg.B('Altitude +',size=(10,1),key='_ALT+_'), sg.B('Altitude -',size=(10,1),key='_ALT-_')]
                 ]
 
 motor_status_az = [
@@ -66,8 +71,7 @@ data_recording = [
                     sg.In('Default Folder',font=("Helvetica 10")), sg.FolderBrowse()]
                 ]
 # layout
-layout = [
-            [sg.Menu(menu_def, tearoff=True)],
+layout = [  [sg.Menu(menu_def, tearoff=True)],
             [sg.T('Student Radio Telescope Control',size=(30,1),justification='c',font=("Helvetica 25"),
                 relief=sg.RELIEF_GROOVE)],
             [sg.T(" ")],
@@ -75,9 +79,11 @@ layout = [
                 sg.B('TELESCOPE STOP',size=(20,1),font=("Helvetica 20"),key='-ESTOP-'),
                 sg.B('Stow Telescope',size=(15,1),font=("Helvetica 13"),key='-STOW-')],
             [sg.T(" ")],
-            [sg.Col(coord_entry, element_justification='l'),
-                sg.VSep( pad=( (50,50),(0,0) ) ),
-                sg.Col(parameters, element_justification='c')],
+            [sg.Col(CoordEntry, element_justification='c', vertical_alignment='top'),
+                sg.VSep(pad=((30,30),(0,0))),
+                sg.Col(parameters, element_justification='c', vertical_alignment='top'),
+                sg.VSep(pad=((30,30),(0,0))),
+                sg.Col(Jogging, element_justification='c', vertical_alignment='top')],
             [sg.T(" ")],
             [sg.Col(motor_status_az, element_justification = 'l'),
                 sg.VSep(),

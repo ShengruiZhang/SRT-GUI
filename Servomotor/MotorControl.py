@@ -33,7 +33,7 @@ def CloseSerial(_Serial_):
 # Read the Polling Status Word (POL)
 #
 # Input:    Serial object
-# Return:   Print the status of each bit
+# Return:   print the status of each bit
 #           The binary int of PSW
 #
 # Refer to Command Reference page 11, and User Manual page 60
@@ -267,7 +267,8 @@ def MRV(_Serial_, _vel_):
 
     _command_ = "@16 135 -44000 10000 "
 
-    _command_ = _command_ + _vel_ + " 0 0 \r"
+    #_command_ = _command_ + _vel_ + " 0 0 \r"
+    _command_ += _vel_ + " 0 0 \r"
 
     print(_command_.encode())
 
@@ -276,6 +277,44 @@ def MRV(_Serial_, _vel_):
 
     print(_Serial_.readline().decode('ascii'))
 
+
+# Manual Jogging: Azimuth Servomotor
+#
+# Input:    Serial object
+# Return:   void
+#
+# Refer to Command Reference page 14, and User Manual page 63
+#   MRV is used here
+#
+def Jogging(_Serial_, _dir_):
+
+    if _dir_== 1:
+        # 2000 counts -> clockwise, half rev of Servomotor
+        _command_ = "@16 135 2000 20000 30000000 0 0 \r"
+
+    elif _dir_ == 0:
+        # counter-clockwise
+        _command_ = "@16 135 -2000 20000 30000000 0 0 \r"
+
+    _Serial_.write(_command_.encode())
+
+    print(_Serial_.readline().decode('ascii'))
+
+
+# Stop the SilverMax
+#
+# Input:    Serial object
+# Return:   void
+#
+# Refer to Command Reference page 20
+#   STP is used here
+#
+def Stop(_Serial_):
+    _command_ = "@16 3 0 \r"
+
+    _Serial_.write(_command_.encode())
+
+    print(_Serial_.readline().decode('ascii')
 
 # Testing for spliting strings
 #
