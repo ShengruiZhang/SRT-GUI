@@ -35,11 +35,11 @@ coord_entry = [ [sg.T('Coordinate Entry:',font=("Helvetica 14 underline bold"),b
 
 #   Making the background Black for debugging
 parameters = [  [sg.T('Parameters:',font=("Helvetica 14 underline bold"),background_color='black')],
-                [sg.T('Current Position:',font=("Helvetica 12 underline"),background_color='black')],
+                [sg.T('Current Position:',font=("Helvetica 10"),background_color='black')],
                 [sg.T('32 degree N, 10 degree W',font=("Helvetica 10"),background_color='black')],
-                [sg.T('Target Position:',font=("Helvetica 12 underline"),background_color='black')],
+                [sg.T('Target Position:',font=("Helvetica 10"),background_color='black')],
                 [sg.T('59 degree N, 64 degree W',key='-POS-TGT-',background_color='black')],
-                [sg.T('Wind Speed:',font=("Helvetica 12 underline"),background_color='black',)],
+                [sg.T('Wind Speed:',font=("Helvetica 10"),background_color='black',)],
                 [sg.T('2 m/s',size=(10,1),justification='l',background_color='black',key='-WIND-')],
                 [sg.B('Update',key='-UPDATE-')]
                 ]
@@ -72,7 +72,7 @@ layout = [
                 relief=sg.RELIEF_GROOVE)],
             [sg.T(" ")],
             [sg.B('Start Calibration',size=(15,1),font=("Helvetica 13"),key='-CALIB-'),
-                sg.B('TELESCOPE STOP',size=(20,2),font=("Helvetica 20"),key='-ESTOP-'),
+                sg.B('TELESCOPE STOP',size=(20,1),font=("Helvetica 20"),key='-ESTOP-'),
                 sg.B('Stow Telescope',size=(15,1),font=("Helvetica 13"),key='-STOW-')],
             [sg.T(" ")],
             [sg.Col(coord_entry, element_justification='l'),
@@ -97,8 +97,8 @@ WindSpeed = -99
 WindSpeedstr = str(WindSpeed) + ' m/s'
 
 # Serial connection to Analog Front-End Control
-AnalogControl = AFE.Init(9600)
-AFE.Activate(AnalogControl)
+#AnalogControl = AFE.Init(9600)
+#AFE.Activate(AnalogControl)
 
 while True:  # Event Loop
     event, values = window.read()
