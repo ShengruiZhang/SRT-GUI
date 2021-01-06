@@ -11,5 +11,5 @@ This is the GUI for the Student Radio Telescope at the Steward Observatory, Univ
 - Arduino IDE (for uploading the progarm, avrdude can be used)
 
 # Screenshot
-![](docs/gui_main.png)
+![](docs/gui.png)
 
