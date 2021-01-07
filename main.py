@@ -10,6 +10,8 @@ import PySimpleGUI as sg
 import sys
 sys.path.append("~/SRT-GUI/AnalogFrontEnd")
 import AnalogFrontEnd.AFE as AFE
+sys.path.append("~/SRT-GUI/Servomotor")
+import Servomotor.MotorControl as mc
 
 #sg.theme('LightGrey5')
 sg.theme_input_background_color('ghost white')
@@ -52,7 +54,7 @@ Jogging = [     [sg.T('Jogging',font=('Helvetica 14 underline bold'),background_
 motor_status_az = [
                 #[sg.T('Azimuthal Motor Status:',font=("Helvetica 11 underline bold")),sg.T('        ')],
                 [sg.T('Azimuthal Motor Status:',font=("Helvetica 11 underline bold"))],
-                [sg.T('Voltage:',font=("Helvetica 10"))],
+                [sg.T('Voltage:',font=("Helvetica 10")), sg.T(key='_volt-AZ_',size=(10,1),justification='l')],
                 [sg.T('Temperature:',font=("Helvetica 10"))],
                 ]
 
@@ -106,6 +108,9 @@ WindSpeedstr = str(WindSpeed) + ' m/s'
 #AnalogControl = AFE.Init(9600)
 #AFE.Activate(AnalogControl)
 
+# Serial Connection to Servomotor
+motor_AZ = mc.Init('/dev/ttyUSB0')
+
 while True:  # Event Loop
     event, values = window.read()
     print(event, values)
@@ -117,13 +122,39 @@ while True:  # Event Loop
         window['-POS-TGT-'].update(_TGT_POS)
     if event == '-ESTOP-':
         # If SW Stop is pressed, interrupt motor motions
+        # TODO Engage brakes
         print("Software E-Stop is pressed")
+        mc.Stop(motor_AZ)
+
     if event == '-UPDATE-':
         # When Update is pressed, retreive ADC value from AFE
         print('Manually update parameters')
-        WindSpeed = AFE.GetWindRaw(AnalogControl)
+
+        # Testing without AFE
+        #WindSpeed = AFE.GetWindRaw(AnalogControl)
+
         window['-WIND-'].update(value=WindSpeed)
 
-# Close the Serial Connection
+        # TESTING Update voltge
+        _VAZ_ = mc.GetVoltage(motor_AZ)
+
+        window['_volt-AZ_'].update(value=_VAZ_)
+
+    if event == '_AZ+_':
+        print('Jog AZ +')
+        mc.Jogging(motor_AZ, 0)
+    if event == '_AZ-_':
+        print('Jog AZ -')
+        mc.Jogging(motor_AZ, 1)
+    if event == '_ALT+_':
+        print('Jog ALT +')
+        mc.Jogging(motor_AZ, 0)
+    if event == '_ALT-_':
+        print('Jog ALT -')
+        mc.Jogging(motor_AZ, 1)
+
+
+# Close the Serial connection
 AFE.CloseSerial(AnalogControl)
+mc.CloseSerial(motor_AZ)
 window.close()

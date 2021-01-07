@@ -16,7 +16,7 @@ _Baud_SilverMax_ = 57600
 def Init(_port_):
 
     _Servo_ = serial.Serial(_port_, _Baud_SilverMax_,
-                            bytesize=8, parity='N', stopbits=2, timeout=2)
+                            bytesize=8, parity='N', stopbits=2, timeout=1)
 
     return _Servo_
 
@@ -38,16 +38,16 @@ def CloseSerial(_Serial_):
 #
 # Refer to Command Reference page 11, and User Manual page 60
 #
-def ReadPSW():
+def ReadPSW(_Serial_):
 
     print('Reading PSW')
 
     # Poll without cmd number
-    #_Serial_.write(b'@16 \r')
+    _Serial_.write(b'@16 \r')
 
     # TESTING making up PSW
-    #_response_ = _Serial_.readline().decode('ascii')
-    _response_ = '# 10 0000 0300 \r'
+    _response_ = _Serial_.readline().decode('ascii')
+    #_response_ = '# 10 0000 0300 \r'
 
     lines = _response_.split()
 
@@ -160,15 +160,15 @@ def ReadPSW():
 #
 # Refer to Command Reference page 14, and User Manual page 63
 #
-def ReadISW():
+def ReadISW(_Serial_):
 
     print('Reading ISW')
 
-    #_Serial_.write(b'@16 20 \r')
+    _Serial_.write(b'@16 20 \r')
 
     # For testing, making up ISW
-    _response_ = '# 10 0014 00F3'
-    #_response_ = _Serial_.readline().decode('ascii')
+    #_response_ = '# 10 0014 00F3'
+    _response_ = _Serial_.readline().decode('ascii')
 
     print(f'SilverMax Responsed: {_response_}')
 
@@ -290,11 +290,11 @@ def Jogging(_Serial_, _dir_):
 
     if _dir_== 1:
         # 2000 counts -> clockwise, half rev of Servomotor
-        _command_ = "@16 135 2000 20000 30000000 0 0 \r"
+        _command_ = "@16 135 40000 20000 30000000 0 0 \r"
 
     elif _dir_ == 0:
         # counter-clockwise
-        _command_ = "@16 135 -2000 20000 30000000 0 0 \r"
+        _command_ = "@16 135 -40000 20000 30000000 0 0 \r"
 
     _Serial_.write(_command_.encode())
 
@@ -310,12 +310,88 @@ def Jogging(_Serial_, _dir_):
 #   STP is used here
 #
 def Stop(_Serial_):
+
     _command_ = "@16 3 0 \r"
 
     _Serial_.write(_command_.encode())
 
-    print(_Serial_.readline().decode('ascii')
+    print(_Serial_.readline().decode('ascii'))
 
+
+# Get SilverMax temperature
+#
+# Input:    Serial object
+# Return:   temperature of SilverMax
+#
+# Refer to User Manual page 190
+#   TODO Reading register 215 lower word
+def GetTemp(_Serial_):
+
+    _tempRaw_ = ReadRegister(_Serial_, '216')
+
+    print(_tempRaw_)
+
+    lines = _tempRaw_.split()
+
+    #print(f'SilverMax V+ Voltage: {lines[3]}')
+    #print(f'SilverMax Controller temperature: {lines[4]}')
+
+
+# Get SilverMax voltage
+#
+# Input:    Serial object
+# Return:   Voltage of SilverMax
+#
+# Refer to User Manual page 190
+# Reading register 214 high word and 216 low word
+def GetVoltage(_Serial_):
+
+    lines1 = ReadRegister(_Serial_, '216')
+
+    lines2 = ReadRegister(_Serial_, '214')
+
+    #print(lines1)
+    #print(lines2)
+    #print(int(lines1[4],16))
+    #print(int(lines2[3],16))
+    voltage = round( int(lines2[3], 16) / int(lines1[4], 16), 2 )
+
+    print(f'V+ Voltage: {voltage}')
+
+    return voltage
+
+def GetPositionABS(_Serial_):
+
+    _posABS_ = ReadRegister(_Serial_, '1')
+
+    print(_posABS_)
+
+    return _posABS_
+
+
+# Read SilverMax register
+#
+# Input:    Serial object
+# Return:   Data of the register
+#
+# Refer to Command Reference page 159
+#   RRG is used here
+def ReadRegister(_Serial_, _reg_):
+
+    print(f'Read register {_reg_}')
+
+    _command_ = "@16 12 "
+
+    _command_ += _reg_ + " \r"
+
+    _Serial_.write(_command_.encode())
+
+    _lines_ = _Serial_.readline().decode('ascii').split()
+
+    return _lines_
+
+
+#
 # Testing for spliting strings
 #
 # Input: Text strings
