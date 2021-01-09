@@ -9,7 +9,7 @@ import PySimpleGUI as sg
 
 import sys
 sys.path.append("~/SRT-GUI/AnalogFrontEnd")
-import AnalogFrontEnd.AFE as AFE
+import AnalogFrontEnd.AFE
 sys.path.append("~/SRT-GUI/Servomotor")
 import Servomotor.MotorControl as mc
 
@@ -36,7 +36,7 @@ CoordEntry = [  [sg.T('Coordinate Entry:',font=("Helvetica 14 underline bold"),b
                 [sg.B('Enter')] ]
 
 #   Making the background Black for debugging
-parameters = [  [sg.T('Parameters:',font=("Helvetica 14 underline bold"),background_color='black')],
+Parameters = [  [sg.T('Parameters:',font=("Helvetica 14 underline bold"),background_color='black')],
                 [sg.T('Current Position:',font=("Helvetica 10"),background_color='black')],
                 [sg.T('32 degree N, 10 degree W',font=("Helvetica 10"),background_color='black')],
                 [sg.T('Target Position:',font=("Helvetica 10"),background_color='black')],
@@ -54,14 +54,14 @@ Jogging = [     [sg.T('Jogging',font=('Helvetica 14 underline bold'),background_
 motor_status_az = [
                 #[sg.T('Azimuthal Motor Status:',font=("Helvetica 11 underline bold")),sg.T('        ')],
                 [sg.T('Azimuthal Motor Status:',font=("Helvetica 11 underline bold"))],
-                [sg.T('Voltage:',font=("Helvetica 10")), sg.T(key='_volt-AZ_',size=(10,1),justification='l')],
+                [sg.T('Voltage:',font=("Helvetica 10")), sg.T(key='_voltAZ_',size=(10,1),justification='l')],
                 [sg.T('Temperature:',font=("Helvetica 10"))],
                 ]
 
 motor_status_alt = [
                 #[sg.T('Altitudinal Motor Status:',font=("Helvetica 11 underline bold")),sg.T('        ')],
                 [sg.T('Altitudinal Motor Status:',font=("Helvetica 11 underline bold"))],
-                [sg.T('Voltage:',font=("Helvetica 10"))],
+                [sg.T('Voltage:',font=("Helvetica 10")), sg.T(key='_voltALT_',size=(10,1),justification='l')],
                 [sg.T('Temperature:',font=("Helvetica 10"))],
                 ]
 
@@ -76,21 +76,23 @@ data_recording = [
 layout = [  [sg.Menu(menu_def, tearoff=True)],
             [sg.T('Student Radio Telescope Control',size=(30,1),justification='c',font=("Helvetica 25"),
                 relief=sg.RELIEF_GROOVE)],
-            [sg.T(" ")],
+            #[sg.T(" ")],
+            [sg.T("Date: (YYYY/MM/DD)",font=("DejaVuMathTeXGyre 10 italic")),
+                sg.T("Time: (HH/MM) MST",font=("DejaVuMathTeXGyre 10 italic"))],
             [sg.B('Start Calibration',size=(15,1),font=("Helvetica 13"),key='-CALIB-'),
                 sg.B('TELESCOPE STOP',size=(20,1),font=("Helvetica 20"),key='-ESTOP-'),
                 sg.B('Stow Telescope',size=(15,1),font=("Helvetica 13"),key='-STOW-')],
             [sg.T(" ")],
             [sg.Col(CoordEntry, element_justification='c', vertical_alignment='top'),
                 sg.VSep(pad=((30,30),(0,0))),
-                sg.Col(parameters, element_justification='c', vertical_alignment='top'),
+                sg.Col(Parameters, element_justification='c', vertical_alignment='top'),
                 sg.VSep(pad=((30,30),(0,0))),
                 sg.Col(Jogging, element_justification='c', vertical_alignment='top')],
             [sg.T(" ")],
             [sg.Col(motor_status_az, element_justification = 'l'),
                 sg.VSep(),
                 sg.Col(motor_status_alt, element_justification='l')],
-            [sg.T(" ")],
+            #[sg.T(" ")],
             [sg.Frame(layout=data_recording, title='Data Output:',
                 font=("Helvetica 12"), title_color='white', relief=sg.RELIEF_RIDGE,
                 background_color='maroon', element_justification='c')],
@@ -109,21 +111,29 @@ WindSpeedstr = str(WindSpeed) + ' m/s'
 #AFE.Activate(AnalogControl)
 
 # Serial Connection to Servomotor
-motor_AZ = mc.Init('/dev/ttyUSB0')
+#motor_AZ = mc.Init('/dev/ttyUSB0')
 
 while True:  # Event Loop
+
     event, values = window.read()
+
     print(event, values)
+
     if event == sg.WIN_CLOSED or event == 'Exit':
         # GUI is closed either by using 'X', or Exit button is clicked
         break
+
     if event == 'Enter':
+
         _TGT_POS = values['-IN-ALT-'] + values['-IN-AZ-']
+
         window['-POS-TGT-'].update(_TGT_POS)
+
     if event == '-ESTOP-':
         # If SW Stop is pressed, interrupt motor motions
         # TODO Engage brakes
         print("Software E-Stop is pressed")
+
         mc.Stop(motor_AZ)
 
     if event == '-UPDATE-':
@@ -132,29 +142,34 @@ while True:  # Event Loop
 
         # Testing without AFE
         #WindSpeed = AFE.GetWindRaw(AnalogControl)
-
         window['-WIND-'].update(value=WindSpeed)
 
-        # TESTING Update voltge
+        # TODO Update voltge
         _VAZ_ = mc.GetVoltage(motor_AZ)
+        _VALT_ = mc.GetVoltage(motor_ALT)
 
-        window['_volt-AZ_'].update(value=_VAZ_)
+        window['_voltAZ_'].update(value=_VAZ_)
+        window['_voltALT_'].update(value=_VALT_)
 
     if event == '_AZ+_':
         print('Jog AZ +')
         mc.Jogging(motor_AZ, 0)
+
     if event == '_AZ-_':
         print('Jog AZ -')
         mc.Jogging(motor_AZ, 1)
+
     if event == '_ALT+_':
         print('Jog ALT +')
         mc.Jogging(motor_AZ, 0)
+
     if event == '_ALT-_':
         print('Jog ALT -')
         mc.Jogging(motor_AZ, 1)
 
 
 # Close the Serial connection
-AFE.CloseSerial(AnalogControl)
-mc.CloseSerial(motor_AZ)
+#AFE.CloseSerial(AnalogControl)
+#mc.CloseSerial(motor_AZ)
+
 window.close()

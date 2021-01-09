@@ -1,16 +1,10 @@
 # Test program for Servomotor control module
 import MotorControl as mc
 
-motor = mc.Init('/dev/ttyUSB0')
+#motor = mc.Init('/dev/ttyUSB0')
 
-mc.ReadPSW(motor)
+#command = "@16 135 " + str(mc.acc2nat(10))
 
-mc.GetPositionABS(motor)
+#print(command)
 
-mc.Jogging(motor, 1)
-
-mc.GetPositionABS(motor)
-
-mc.ReadPSW(motor)
-
-mc.CloseSerial(motor)
+#mc.CloseSerial(motor)

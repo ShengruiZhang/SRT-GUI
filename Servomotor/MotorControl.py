@@ -36,7 +36,7 @@ def CloseSerial(_Serial_):
 # Return:   print the status of each bit
 #           The binary int of PSW
 #
-# Refer to Command Reference page 11, and User Manual page 60
+# Refer to Command Reference page 11, and User Manual page 60 and 156
 #
 def ReadPSW(_Serial_):
 
@@ -45,9 +45,9 @@ def ReadPSW(_Serial_):
     # Poll without cmd number
     _Serial_.write(b'@16 \r')
 
-    # TESTING making up PSW
-    _response_ = _Serial_.readline().decode('ascii')
+    # TESTING: making up PSW
     #_response_ = '# 10 0000 0300 \r'
+    _response_ = _Serial_.readline().decode('ascii')
 
     lines = _response_.split()
 
@@ -158,7 +158,7 @@ def ReadPSW(_Serial_):
 # Return:   Print the status of each bit
 #           The binary int of ISW
 #
-# Refer to Command Reference page 14, and User Manual page 63
+# Refer to Command Reference page 14, and User Manual page 63 and 156
 #
 def ReadISW(_Serial_):
 
@@ -263,34 +263,21 @@ def ReadISW(_Serial_):
     return int(bits)
 
 
-def MRV(_Serial_, _vel_):
-
-    _command_ = "@16 135 -44000 10000 "
-
-    #_command_ = _command_ + _vel_ + " 0 0 \r"
-    _command_ += _vel_ + " 0 0 \r"
-
-    print(_command_.encode())
-
-    #_Serial_.write(b'@16 135 -14000 20000 30000000 0 0 \r')
-    _Serial_.write(_command_.encode())
-
-    print(_Serial_.readline().decode('ascii'))
-
-
-# Manual Jogging: Azimuth Servomotor
+# Manual Jogging Servomotor based on input Serial object
 #
-# Input:    Serial object
+# Input:    Serial object, Jogging direction, Jogging distance
 # Return:   void
 #
-# Refer to Command Reference page 14, and User Manual page 63
+# Refer to Command Reference page 99, user manual 43 (acceleration)
 #   MRV is used here
+#   TODO
 #
-def Jogging(_Serial_, _dir_):
+def Jogging(_Serial_, _dir_, _dist_):
 
     if _dir_== 1:
-        # 2000 counts -> clockwise, half rev of Servomotor
-        _command_ = "@16 135 40000 20000 30000000 0 0 \r"
+        # clockwise
+        _command_ = "@16 135 " + str(_dist_) + ' ' + str(acc2nat(5)) + ' ' + str(rps2nat(5)) + " 0 0 \r"
+        #_command_ = "@16 135 40000 20000 30000000 0 0 \r"
 
     elif _dir_ == 0:
         # counter-clockwise
@@ -298,15 +285,17 @@ def Jogging(_Serial_, _dir_):
 
     _Serial_.write(_command_.encode())
 
-    print(_Serial_.readline().decode('ascii'))
+    # Try to speed this up
+    print(_Serial_.readline())
+    #print(_Serial_.readline().decode('ascii'))
 
 
 # Stop the SilverMax
 #
 # Input:    Serial object
-# Return:   void
+# Return:   0 if ACK received, otherwise 1
 #
-# Refer to Command Reference page 20
+# Refer to Command Reference page 20, User Manual page 156
 #   STP is used here
 #
 def Stop(_Serial_):
@@ -315,7 +304,12 @@ def Stop(_Serial_):
 
     _Serial_.write(_command_.encode())
 
-    print(_Serial_.readline().decode('ascii'))
+    lines = _Serial_.readline().decode('ascii')
+
+    if lines[0] == '*' and lines[1] == "10":
+        return 0
+    else:
+        return 1
 
 
 # Get SilverMax temperature
@@ -325,16 +319,14 @@ def Stop(_Serial_):
 #
 # Refer to User Manual page 190
 #   TODO Reading register 215 lower word
+#
 def GetTemp(_Serial_):
 
-    _tempRaw_ = ReadRegister(_Serial_, '216')
+    _tempRaw_ = ReadRegister(_Serial_, '215')
 
     print(_tempRaw_)
 
     lines = _tempRaw_.split()
-
-    #print(f'SilverMax V+ Voltage: {lines[3]}')
-    #print(f'SilverMax Controller temperature: {lines[4]}')
 
 
 # Get SilverMax voltage
@@ -344,22 +336,28 @@ def GetTemp(_Serial_):
 #
 # Refer to User Manual page 190
 # Reading register 214 high word and 216 low word
+#
 def GetVoltage(_Serial_):
 
     lines1 = ReadRegister(_Serial_, '216')
 
     lines2 = ReadRegister(_Serial_, '214')
 
-    #print(lines1)
-    #print(lines2)
-    #print(int(lines1[4],16))
-    #print(int(lines2[3],16))
     voltage = round( int(lines2[3], 16) / int(lines1[4], 16), 2 )
 
     print(f'V+ Voltage: {voltage}')
 
     return voltage
 
+
+# Get abs Position of SilverMax
+#
+# Input:    Serial object
+# Return:   abs Position in counts
+#
+# Refer to User Manual page 189
+#   RRG is used here
+#
 def GetPositionABS(_Serial_):
 
     _posABS_ = ReadRegister(_Serial_, '1')
@@ -376,29 +374,46 @@ def GetPositionABS(_Serial_):
 #
 # Refer to Command Reference page 159
 #   RRG is used here
+#
 def ReadRegister(_Serial_, _reg_):
 
     print(f'Read register {_reg_}')
 
-    _command_ = "@16 12 "
-
-    _command_ += _reg_ + " \r"
+    _command_ = "@16 12 " + _reg_ + " \r"
 
     _Serial_.write(_command_.encode())
 
-    _lines_ = _Serial_.readline().decode('ascii').split()
-
-    return _lines_
+    return __Serial_.readline().decode('ascii').split()
 
 
+# Convert human-readable velocity(rpm) into native units of SilverMax
 #
-# Testing for spliting strings
+# Input:    velocity in rpm
+# Return:   velocity in native units
 #
-# Input: Text strings
-# Return: Lines separated by space
+# Refer to User Manual page 43
 #
-def GetStr(rawStr):
-    lines = rawStr.split()
-    print(lines[2])
-    bits = bin(int(lines[2], 16))[2:].zfill(16)
-    print(bits)
+def rpm2nat(_rpm_):
+    return  round(_rpm_ * 536870.911)
+
+
+# Convert human-readable velocity(rps) into native units of SilverMax
+#
+# Input:    velocity in rps
+# Return:   velocity in native units
+#
+# Refer to User Manual page 43
+#
+def rps2nat(_rps_):
+    return  round(_rps_ * 60 * 536870.911)
+
+
+# Convert human-readable acceleration(rps/s) into native units of SilverMax
+#
+# Input:    acceleration in rps/s
+# Return:   acceleration in native units
+#
+# Refer to User Manual page 43
+#
+def acc2nat(_acc_):
+    return round(_acc_ * 3865)
