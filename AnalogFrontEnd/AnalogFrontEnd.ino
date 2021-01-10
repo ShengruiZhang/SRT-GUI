@@ -6,7 +6,6 @@
     Function: ADC analog IN -> Pin A0
               Brake Control -> TBD (Digital Pin)
 
-	TODO Add method to deactivate
 */
 
 char Command = 0;
@@ -44,19 +43,8 @@ void loop() {
 	// 'A' received, return ADC value
 	if ( Command == 'A' ) {
 		WindSpeedRaw = analogRead(A0);
-
-		// FOR Testing
-		//Serial.print(counter);
-		//Serial.print(" ");
 		Serial.print(WindSpeedRaw);
 		Serial.print('\n');
-
-		if (counter > 300) {
-			counter = 0;
-		}
-		else {
-			++counter;
-		}
 	}
 
 	// 'B' received, activate brakes

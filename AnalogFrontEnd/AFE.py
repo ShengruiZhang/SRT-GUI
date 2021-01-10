@@ -35,6 +35,32 @@ def Activate(_AFE_):
             break
 
 
+# Engage brake
+#
+# Input: The serial object
+# Return: ACK from AFE
+#
+# Engage the brake by sending 'B' to AFE
+#
+def EngageBrake(_AFE_):
+    _AFE_.is_open
+    _AFE_.write(b'B')
+    return _AFE_.readline().decode('ascii')
+
+
+# Release brake
+#
+# Input: The serial object
+# Return: ACK from AFE
+#
+# Release the brake by sending 'C' to AFE
+#
+def ReleaseBrake(_AFE_):
+    _AFE_.is_open
+    _AFE_.write(b'C')
+    return _AFE_.readline().decode('ascii')
+
+
 # Get the raw ADC value
 #
 # Input: The serial object
@@ -49,8 +75,10 @@ def GetWindRaw(_AFE_):
 # Close Serial port
 #
 # Input: The serial object
-# Return: Raw ADC value
+# Return: void
 #
-def CloseSerial(_Serial_):
-    _Serial_.close()
-    print(f'isSerialOpen: {_Serial_.is_open}')
+def CloseSerial(_AFE_):
+    _AFE_.close()
+    print(f'isSerialOpen: {_AFE_.is_open}')
+
+

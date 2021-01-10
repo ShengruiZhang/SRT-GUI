@@ -3,16 +3,17 @@
 import serial
 import time
 import binascii
+from datetime import datetime as dt
+
+_Baud_SilverMax_ = 57600
 
 # Open Serial port for Servomotor: Azimuth
 #
 # Input: Name of the serial port, Baud rate
 # Return: The serial object
 #
-# This sets serial 8N2, 2s timeout
+# This sets serial 8N2, 1s timeout
 #
-_Baud_SilverMax_ = 57600
-
 def Init(_port_):
 
     _Servo_ = serial.Serial(_port_, _Baud_SilverMax_,
@@ -265,23 +266,16 @@ def ReadISW(_Serial_):
 
 # Manual Jogging Servomotor based on input Serial object
 #
-# Input:    Serial object, Jogging direction, Jogging distance
+# Input:    Serial object, Jogging distance
 # Return:   void
 #
 # Refer to Command Reference page 99, user manual 43 (acceleration)
 #   MRV is used here
-#   TODO
+#   TODO: take telescope movement as input?
 #
-def Jogging(_Serial_, _dir_, _dist_):
+def Jogging(_Serial_, _dist_):
 
-    if _dir_== 1:
-        # clockwise
-        _command_ = "@16 135 " + str(_dist_) + ' ' + str(acc2nat(5)) + ' ' + str(rps2nat(5)) + " 0 0 \r"
-        #_command_ = "@16 135 40000 20000 30000000 0 0 \r"
-
-    elif _dir_ == 0:
-        # counter-clockwise
-        _command_ = "@16 135 -40000 20000 30000000 0 0 \r"
+    _command_ = "@16 135 " + str(_dist_) + ' ' + str(acc2nat(5)) + ' ' + str(rps2nat(5)) + " 0 0 \r"
 
     _Serial_.write(_command_.encode())
 
@@ -322,7 +316,7 @@ def Stop(_Serial_):
 #
 def GetTemp(_Serial_):
 
-    _tempRaw_ = ReadRegister(_Serial_, '215')
+    _tempRaw_ = ReadRegister(_Serial_, 215)
 
     print(_tempRaw_)
 
@@ -339,9 +333,9 @@ def GetTemp(_Serial_):
 #
 def GetVoltage(_Serial_):
 
-    lines1 = ReadRegister(_Serial_, '216')
+    lines1 = ReadRegister(_Serial_, 216)
 
-    lines2 = ReadRegister(_Serial_, '214')
+    lines2 = ReadRegister(_Serial_, 214)
 
     voltage = round( int(lines2[3], 16) / int(lines1[4], 16), 2 )
 
@@ -356,20 +350,22 @@ def GetVoltage(_Serial_):
 # Return:   abs Position in counts
 #
 # Refer to User Manual page 189
-#   RRG is used here
 #
-def GetPositionABS(_Serial_):
+def GetPosAbs(_Serial_):
 
-    _posABS_ = ReadRegister(_Serial_, '1')
+    _abs_ = ReadRegister(_Serial_, 1).split()
 
-    print(_posABS_)
+    # Debug
+    print(_abs_)
 
-    return _posABS_
+    if _abs_[0] == '#' and _abs_[1] == "10":
+
+        return int((_abs_[3] + _abs_[4]), 16)
 
 
 # Read SilverMax register
 #
-# Input:    Serial object
+# Input:    Serial object, register number
 # Return:   Data of the register
 #
 # Refer to Command Reference page 159
@@ -379,11 +375,114 @@ def ReadRegister(_Serial_, _reg_):
 
     print(f'Read register {_reg_}')
 
-    _command_ = "@16 12 " + _reg_ + " \r"
+    _command_ = "@16 12 " + str(_reg_) + " \r"
 
     _Serial_.write(_command_.encode())
 
     return __Serial_.readline().decode('ascii').split()
+
+
+# Store abs Position to SilverMax NVMEM
+#
+# Input:    Serial object
+# Return:   void
+#
+# Refer to User Manual page 98 and Command Reference 162
+#   RSN is used here
+#
+def SaveAbsPos(_Serial_):
+
+    # store to NVMEM address 1000
+    _command_ = "@16 198 1 1000 \r"
+
+    _Serial_.write(_command_.encode())
+
+    print(_Serial_.readline().decode('ascii'))
+
+
+# Store abs Position of both SilverMax to external file
+#
+# Input:    Serial object of each Servomotor, (Azimuth, Altitude)
+# Return:   void
+#
+# Refer to User Manual page 98 and Command Reference 162
+#   RSN is used here
+#   The Position data is stored to file with name 'absPos.dat'
+#
+#def SaveAbsPosExt(_az_, _alt_):
+def SaveAbsPosExt(_az_):
+
+    az = str(GetPosAbs(_az_)) + '\n'
+    #alt = str(GetPosAbs(_alt_)) + '\n'
+    alt = str(21039) + '\n'
+
+    with open('absPos.dat', 'a') as absPos:
+
+        absPos.writelines(dt.now().strftime('%Y-%m-%d %H:%M:%S\n'))
+        absPos.writelines(az+alt+'\n')
+
+
+# Load abs Position from NVMEM to data register
+#
+# Input:    Serial object
+# Return:   void
+#
+# Refer to User Manual page 98 and Command Reference 157
+#   RLN is used here
+#
+def LoadAbsPos(_Serial_):
+
+    # Restore from NVMEM address 1000
+    _command_ = "@16 197 1 1000 \r"
+
+    _Serial_.write(_command_.encode())
+
+    print(_Serial_.readline().decode('ascii'))
+
+
+# Load abs Position from external file to register of both SilverMax
+#
+# Input:    Serial object of each Servomotor, (Azimuth, Altitude)
+# Return:   void
+#
+# Refer to User Manual page 189 and Command Reference 166
+#   WRI is used here
+#   The Position data is restored from file with name 'absPos.dat'
+#
+#def LoadAbsPosExt(_az_, _alt_):
+def LoadAbsPosExt(_az_):
+
+    absPos = open('absPos.dat', 'r')
+
+    count = 1
+
+    for line in absPos:
+
+        if (count%4) == 2:
+            az = line
+
+        if (count%4) == 3:
+            alt = line
+
+        count += 1
+
+    _command_ = "@16 11 1 " + str(az) + " \r"
+
+    print(f'AZ Servomotor Last Position: {az}')
+
+    _az_.write(_command_.encode())
+
+    print(_Serial_.readline().decode('ascii'))
+
+#    _command_ = "@16 11 1 " + str(alt) + " \r"
+#
+#    print(f'ALT Servomotor Last Position: {alt}')
+#
+#    _alt_.write(_command_.encode())
+#
+#    print(_Serial_.readline().decode('ascii'))
+
+    absPos.close()
 
 
 # Convert human-readable velocity(rpm) into native units of SilverMax
@@ -417,3 +516,5 @@ def rps2nat(_rps_):
 #
 def acc2nat(_acc_):
     return round(_acc_ * 3865)
+
+

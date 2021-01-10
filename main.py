@@ -1,16 +1,17 @@
-#    Team 21039: Radio Telescope
+#   Team 21039: Radio Telescope
 #
 #   Graphical User Interface
 #   TODO
 #   1. Input protection for coord. input
 #   2. Update the Target position after an coord. is entered
 
-import PySimpleGUI as sg
 
+import PySimpleGUI as sg
 import sys
-sys.path.append("~/SRT-GUI/AnalogFrontEnd")
+from datetime import datetime as dt
+
+sys.path.append("~/SRT-GUI/")
 import AnalogFrontEnd.AFE
-sys.path.append("~/SRT-GUI/Servomotor")
 import Servomotor.MotorControl as mc
 
 #sg.theme('LightGrey5')
@@ -47,6 +48,7 @@ Parameters = [  [sg.T('Parameters:',font=("Helvetica 14 underline bold"),backgro
                 ]
 
 Jogging = [     [sg.T('Jogging',font=('Helvetica 14 underline bold'),background_color='blue')],
+                [sg.B('1 degree')],
                 [sg.B('Azimuth +',size=(10,1),key='_AZ+_'), sg.B('Azimuth -',size=(10,1),key='_AZ-_')],
                 [sg.B('Altitude +',size=(10,1),key='_ALT+_'), sg.B('Altitude -',size=(10,1),key='_ALT-_')]
                 ]
@@ -77,8 +79,7 @@ layout = [  [sg.Menu(menu_def, tearoff=True)],
             [sg.T('Student Radio Telescope Control',size=(30,1),justification='c',font=("Helvetica 25"),
                 relief=sg.RELIEF_GROOVE)],
             #[sg.T(" ")],
-            [sg.T("Date: (YYYY/MM/DD)",font=("DejaVuMathTeXGyre 10 italic")),
-                sg.T("Time: (HH/MM) MST",font=("DejaVuMathTeXGyre 10 italic"))],
+            [sg.T('',font=("DejaVu 10"),size=(15,1),key='-datetime-')],
             [sg.B('Start Calibration',size=(15,1),font=("Helvetica 13"),key='-CALIB-'),
                 sg.B('TELESCOPE STOP',size=(20,1),font=("Helvetica 20"),key='-ESTOP-'),
                 sg.B('Stow Telescope',size=(15,1),font=("Helvetica 13"),key='-STOW-')],
@@ -102,7 +103,6 @@ layout = [  [sg.Menu(menu_def, tearoff=True)],
 # create window
 window = sg.Window('Student Radio Telescope Control', layout, element_justification='c')
 
-_TGT_POS = 0
 WindSpeed = -99
 WindSpeedstr = str(WindSpeed) + ' m/s'
 
@@ -112,44 +112,48 @@ WindSpeedstr = str(WindSpeed) + ' m/s'
 
 # Serial Connection to Servomotor
 #motor_AZ = mc.Init('/dev/ttyUSB0')
+#motor_ALT = mc.Init('/dev/ttyUSB0')
 
 while True:  # Event Loop
 
-    event, values = window.read()
+    # check every 100 ms
+    event, values = window.read(timeout=100)
 
-    print(event, values)
+    # update time
+    time = dt.now().strftime('%Y-%m-%d   %H:%M')
+    window['-datetime-'].update(time)
+
+    #print(event, values)
 
     if event == sg.WIN_CLOSED or event == 'Exit':
-        # GUI is closed either by using 'X', or Exit button is clicked
+        # GUI is closed either by using 'X', or the Exit button
         break
 
     if event == 'Enter':
 
-        _TGT_POS = values['-IN-ALT-'] + values['-IN-AZ-']
-
-        window['-POS-TGT-'].update(_TGT_POS)
+        #TODO
+        window['-POS-TGT-'].update(9999)
 
     if event == '-ESTOP-':
-        # If SW Stop is pressed, interrupt motor motions
-        # TODO Engage brakes
         print("Software E-Stop is pressed")
 
         mc.Stop(motor_AZ)
+        #mc.Stop(motor_ALT)
+        AFE.ReleaseBrake(AnalogControl)
 
     if event == '-UPDATE-':
         # When Update is pressed, retreive ADC value from AFE
         print('Manually update parameters')
 
-        # Testing without AFE
         #WindSpeed = AFE.GetWindRaw(AnalogControl)
         window['-WIND-'].update(value=WindSpeed)
 
         # TODO Update voltge
         _VAZ_ = mc.GetVoltage(motor_AZ)
-        _VALT_ = mc.GetVoltage(motor_ALT)
+        #_VALT_ = mc.GetVoltage(motor_ALT)
 
         window['_voltAZ_'].update(value=_VAZ_)
-        window['_voltALT_'].update(value=_VALT_)
+        #window['_voltALT_'].update(value=_VALT_)
 
     if event == '_AZ+_':
         print('Jog AZ +')

@@ -1,10 +1,27 @@
 # Test program for Servomotor control module
 import MotorControl as mc
+from datetime import datetime as dt
 
-#motor = mc.Init('/dev/ttyUSB0')
+#absPos = open('absPos.dat', 'a')
 
-#command = "@16 135 " + str(mc.acc2nat(10))
+mc.LoadAbsPosExt()
 
-#print(command)
+#a='F000'
+#b='9B40'
+#az = int(a+b,16)
+#az=str(az) + '\n'
+#
+#with open('absPos.dat', 'a') as absPos:
+#
+#    absPos.writelines(dt.now().strftime('%Y-%m-%d %H:%M:%S\n'))
+#
+#a='020E'
+#b='9C4F'
+#alt = int(a+b,16)
+#alt=str(alt) + '\n'
+#
+#with open('absPos.dat', 'a') as absPos:
+#
+#    absPos.writelines(az+alt+'\n')
 
 #mc.CloseSerial(motor)
