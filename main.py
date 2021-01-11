@@ -48,7 +48,12 @@ Parameters = [  [sg.T('Parameters:',font=("Helvetica 14 underline bold"),backgro
                 ]
 
 Jogging = [     [sg.T('Jogging',font=('Helvetica 14 underline bold'),background_color='blue')],
-                [sg.B('1 degree')],
+                [sg.T('Steps in degrees',justification='l',size=(30,1))],
+                [sg.B('.5',size=(3,1),use_ttk_buttons=True,key='-STEP1-'),
+                    sg.B('1',size=(3,1),use_ttk_buttons=True,button_color=('black','gray'),key='-STEP2-'),
+                    sg.B('5',size=(3,1),use_ttk_buttons=True,button_color=('black','gray'),key='-STEP3-'),
+                    sg.B('10',size=(3,1),use_ttk_buttons=True,button_color=('black','gray'),key='-STEP4-')],
+                [sg.T(''),sg.T('')],
                 [sg.B('Azimuth +',size=(10,1),key='_AZ+_'), sg.B('Azimuth -',size=(10,1),key='_AZ-_')],
                 [sg.B('Altitude +',size=(10,1),key='_ALT+_'), sg.B('Altitude -',size=(10,1),key='_ALT-_')]
                 ]
@@ -74,12 +79,18 @@ data_recording = [
                 [sg.T('Save Path',size=(15,1),auto_size_text=False,justification='r'),
                     sg.In('Default Folder',font=("Helvetica 10")), sg.FolderBrowse()]
                 ]
+
+output =    [   [sg.T('Radio Telescope Control Output/Log')],
+                [sg.Output(size=(50,10),key='-OUTPUT-')],
+                [sg.B('Clear'), sg.B('Save Log'), sg.B('Quit')]
+                ]
+
 # layout
 layout = [  [sg.Menu(menu_def, tearoff=True)],
             [sg.T('Student Radio Telescope Control',size=(30,1),justification='c',font=("Helvetica 25"),
-                relief=sg.RELIEF_GROOVE)],
+                relief=sg.RELIEF_GROOVE),sg.T('',font=("DejaVu 10"),size=(15,1),key='-datetime-')],
             #[sg.T(" ")],
-            [sg.T('',font=("DejaVu 10"),size=(15,1),key='-datetime-')],
+            #[sg.T('',font=("DejaVu 10"),size=(15,1),key='-datetime-')],
             [sg.B('Start Calibration',size=(15,1),font=("Helvetica 13"),key='-CALIB-'),
                 sg.B('TELESCOPE STOP',size=(20,1),font=("Helvetica 20"),key='-ESTOP-'),
                 sg.B('Stow Telescope',size=(15,1),font=("Helvetica 13"),key='-STOW-')],
@@ -90,21 +101,26 @@ layout = [  [sg.Menu(menu_def, tearoff=True)],
                 sg.VSep(pad=((30,30),(0,0))),
                 sg.Col(Jogging, element_justification='c', vertical_alignment='top')],
             [sg.T(" ")],
-            [sg.Col(motor_status_az, element_justification = 'l'),
+            [sg.Col(motor_status_az, justification='l', element_justification='l'),
                 sg.VSep(),
                 sg.Col(motor_status_alt, element_justification='l')],
             #[sg.T(" ")],
             [sg.Frame(layout=data_recording, title='Data Output:',
                 font=("Helvetica 12"), title_color='white', relief=sg.RELIEF_RIDGE,
-                background_color='maroon', element_justification='c')],
+                background_color='maroon', element_justification='c'),
+                sg.Output(size=(50,10),key='-OUTPUT-')],
             [sg.Exit()]
             ]
+
 
 # create window
 window = sg.Window('Student Radio Telescope Control', layout, element_justification='c')
 
 WindSpeed = -99
 WindSpeedstr = str(WindSpeed) + ' m/s'
+
+JogStepAZ = 4683
+JogStepALT = 929
 
 # Serial connection to Analog Front-End Control
 #AnalogControl = AFE.Init(9600)
@@ -123,23 +139,24 @@ while True:  # Event Loop
     time = dt.now().strftime('%Y-%m-%d   %H:%M')
     window['-datetime-'].update(time)
 
-    #print(event, values)
 
     if event == sg.WIN_CLOSED or event == 'Exit':
         # GUI is closed either by using 'X', or the Exit button
         break
 
-    if event == 'Enter':
 
+    if event == 'Enter':
         #TODO
         window['-POS-TGT-'].update(9999)
+
 
     if event == '-ESTOP-':
         print("Software E-Stop is pressed")
 
-        mc.Stop(motor_AZ)
+        #mc.Stop(motor_AZ)
         #mc.Stop(motor_ALT)
-        AFE.ReleaseBrake(AnalogControl)
+        #AFE.ReleaseBrake(AnalogControl)
+
 
     if event == '-UPDATE-':
         # When Update is pressed, retreive ADC value from AFE
@@ -148,28 +165,74 @@ while True:  # Event Loop
         #WindSpeed = AFE.GetWindRaw(AnalogControl)
         window['-WIND-'].update(value=WindSpeed)
 
-        # TODO Update voltge
-        _VAZ_ = mc.GetVoltage(motor_AZ)
+        # Update voltge
+        #_VAZ_ = mc.GetVoltage(motor_AZ)
         #_VALT_ = mc.GetVoltage(motor_ALT)
 
         window['_voltAZ_'].update(value=_VAZ_)
         #window['_voltALT_'].update(value=_VALT_)
 
+
+    if event == '-STEP1-':
+
+        JogStepAZ = 4683
+        JogStepALT = 929
+
+        window['-STEP1-'].Update(button_color=('ghost white','midnight blue'))
+        window['-STEP2-'].Update(button_color=('black','gray'))
+        window['-STEP3-'].Update(button_color=('black','gray'))
+        window['-STEP4-'].Update(button_color=('black','gray'))
+
+    if event == '-STEP2-':
+
+        JogStepAZ = 9365
+        JogStepALT = 1857
+
+        window['-STEP1-'].Update(button_color=('black','gray'))
+        window['-STEP2-'].Update(button_color=('ghost white','midnight blue'))
+        window['-STEP3-'].Update(button_color=('black','gray'))
+        window['-STEP4-'].Update(button_color=('black','gray'))
+
+    if event == '-STEP3-':
+
+        JogStepAZ = 46825
+        JogStepALT = 9286
+
+        window['-STEP1-'].Update(button_color=('black','gray'))
+        window['-STEP2-'].Update(button_color=('black','gray'))
+        window['-STEP3-'].Update(button_color=('ghost white','midnight blue'))
+        window['-STEP4-'].Update(button_color=('black','gray'))
+
+    if event == '-STEP4-':
+
+        JogStepAZ = 93651
+        JogStepALT = 18571
+
+        window['-STEP1-'].Update(button_color=('black','gray'))
+        window['-STEP2-'].Update(button_color=('black','gray'))
+        window['-STEP3-'].Update(button_color=('black','gray'))
+        window['-STEP4-'].Update(button_color=('ghost white','midnight blue'))
+
+
     if event == '_AZ+_':
-        print('Jog AZ +')
-        mc.Jogging(motor_AZ, 0)
+
+        print('Jogging')
+        #mc.Jogging(motor_AZ, JogStepAZ)
 
     if event == '_AZ-_':
-        print('Jog AZ -')
-        mc.Jogging(motor_AZ, 1)
+
+        print('Jogging')
+        #mc.Jogging(motor_AZ, -JogStepAZ)
 
     if event == '_ALT+_':
-        print('Jog ALT +')
-        mc.Jogging(motor_AZ, 0)
+
+        print('Jogging')
+        #mc.Jogging(motor_ALT, JogStepALT)
 
     if event == '_ALT-_':
-        print('Jog ALT -')
-        mc.Jogging(motor_AZ, 1)
+
+        print('Jogging')
+        #mc.Jogging(motor_ALT, -JogStepALT)
 
 
 # Close the Serial connection
