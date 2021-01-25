@@ -27,27 +27,29 @@ menu_def = [    ['&File', ['&Open', '&Save', 'Prope&rties', 'E&xit',] ],
                 ['&Edit', ['Undo', 'Paste', ['Special', 'Normal']] ],
                 ['&Help', '&About...']  ]
 
-#   Making the background Gray for debugging
-CoordEntry = [  [sg.T('Coordinate Entry:',font=("Helvetica 14 underline bold"),background_color='gray')],
-                [sg.T('Altitudinal:',size=(15,1),font=("Helvetica 12"),background_color='gray')],
-                [sg.In(key='-IN-ALT-',size=(20,1),justification='left',background_color='gray')],
-                [sg.T('Azimuthal:',size=(15,1),font=("Helvetica 12"),background_color='gray')],
-                [sg.In(key='-IN-AZ-',size=(20,1),justification='left',background_color='gray')],
-                [sg.T('',background_color='gray')],
+CoordEntry = [  [sg.T('Coordinate Entry:',font=("Helvetica 14 underline bold"))],
+                [sg.T('Altitudinal:',size=(15,1),font=("Helvetica 12"))],
+                [sg.In(key='-IN-ALT-',size=(20,1),justification='left')],
+                [sg.T('Azimuthal:',size=(15,1),font=("Helvetica 12"))],
+                [sg.In(key='-IN-AZ-',size=(20,1),justification='left')],
+                [sg.T('')],
                 [sg.B('Enter')] ]
 
-#   Making the background Black for debugging
-Parameters = [  [sg.T('Parameters:',font=("Helvetica 14 underline bold"),background_color='black')],
-                [sg.T('Current Position:',font=("Helvetica 10"),background_color='black')],
-                [sg.T('32 degree N, 10 degree W',font=("Helvetica 10"),background_color='black')],
-                [sg.T('Target Position:',font=("Helvetica 10"),background_color='black')],
-                [sg.T('59 degree N, 64 degree W',key='-POS-TGT-',background_color='black')],
-                [sg.T('Wind Speed:',font=("Helvetica 10"),background_color='black',)],
-                [sg.T('2 m/s',size=(10,1),justification='l',background_color='black',key='-WIND-')],
+Parameters = [  [sg.T('System Status:',font=("Helvetica 14 underline bold"))],
+                [sg.T('Current Position:',font=("Helvetica 10"),size=(16,1),justification='l'),
+                    sg.T('32 N, 10 W',size=(12,1),justification='l',key='-POS-CURRENT-')],
+                [sg.T('Target Position:',font=("Helvetica 10"),size=(16,1),justification='l'),
+                    sg.T('59 N, 64 W',size=(12,1),justification='l',key='-POS-TGT-')],
+                [sg.T('Wind Speed:',font=("Helvetica 10"),size=(16,1),justification='l'), sg.T('30 m/s',size=(10,1),justification='l',key='-WIND-')],
+                [sg.T('AZ Servo Voltage:',font=("Helvetica 10"),size=(16,1),justification='l'),
+                    sg.T('47.23 V',size=(10,0),justification='l',key='_voltAZ_')],
+                [sg.T('ALT Servo Voltage:',font=("Helvetica 10"),size=(16,1),justification='l'),
+                    sg.T('47.88 V',size=(10,0),justification='l',key='_voltALT_')],
+                [sg.T('')],
                 [sg.B('Update',key='-UPDATE-')]
                 ]
 
-Jogging = [     [sg.T('Jogging',font=('Helvetica 14 underline bold'),background_color='blue')],
+Jogging = [     [sg.T('Jogging',font=('Helvetica 14 underline bold'))],
                 [sg.T('Steps in degrees',justification='l',size=(30,1))],
                 [sg.B('.5',size=(3,1),use_ttk_buttons=True,key='-STEP1-'),
                     sg.B('1',size=(3,1),use_ttk_buttons=True,button_color=('black','gray'),key='-STEP2-'),
@@ -56,20 +58,6 @@ Jogging = [     [sg.T('Jogging',font=('Helvetica 14 underline bold'),background_
                 [sg.T(''),sg.T('')],
                 [sg.B('Azimuth +',size=(10,1),key='_AZ+_'), sg.B('Azimuth -',size=(10,1),key='_AZ-_')],
                 [sg.B('Altitude +',size=(10,1),key='_ALT+_'), sg.B('Altitude -',size=(10,1),key='_ALT-_')]
-                ]
-
-motor_status_az = [
-                #[sg.T('Azimuthal Motor Status:',font=("Helvetica 11 underline bold")),sg.T('        ')],
-                [sg.T('Azimuthal Motor Status:',font=("Helvetica 11 underline bold"))],
-                [sg.T('Voltage:',font=("Helvetica 10")), sg.T(key='_voltAZ_',size=(10,1),justification='l')],
-                [sg.T('Temperature:',font=("Helvetica 10"))],
-                ]
-
-motor_status_alt = [
-                #[sg.T('Altitudinal Motor Status:',font=("Helvetica 11 underline bold")),sg.T('        ')],
-                [sg.T('Altitudinal Motor Status:',font=("Helvetica 11 underline bold"))],
-                [sg.T('Voltage:',font=("Helvetica 10")), sg.T(key='_voltALT_',size=(10,1),justification='l')],
-                [sg.T('Temperature:',font=("Helvetica 10"))],
                 ]
 
 data_recording = [
@@ -89,8 +77,7 @@ output =    [   [sg.T('Radio Telescope Control Output/Log')],
 layout = [  [sg.Menu(menu_def, tearoff=True)],
             [sg.T('Student Radio Telescope Control',size=(30,1),justification='c',font=("Helvetica 25"),
                 relief=sg.RELIEF_GROOVE),sg.T('',font=("DejaVu 10"),size=(15,1),key='-datetime-')],
-            #[sg.T(" ")],
-            #[sg.T('',font=("DejaVu 10"),size=(15,1),key='-datetime-')],
+            #[sg.T(" ",font=("Helvetica 3"))],
             [sg.B('Start Calibration',size=(15,1),font=("Helvetica 13"),key='-CALIB-'),
                 sg.B('TELESCOPE STOP',size=(20,1),font=("Helvetica 20"),key='-ESTOP-'),
                 sg.B('Stow Telescope',size=(15,1),font=("Helvetica 13"),key='-STOW-')],
@@ -101,14 +88,10 @@ layout = [  [sg.Menu(menu_def, tearoff=True)],
                 sg.VSep(pad=((30,30),(0,0))),
                 sg.Col(Jogging, element_justification='c', vertical_alignment='top')],
             [sg.T(" ")],
-            [sg.Col(motor_status_az, justification='l', element_justification='l'),
-                sg.VSep(),
-                sg.Col(motor_status_alt, element_justification='l')],
-            #[sg.T(" ")],
             [sg.Frame(layout=data_recording, title='Data Output:',
                 font=("Helvetica 12"), title_color='white', relief=sg.RELIEF_RIDGE,
                 background_color='maroon', element_justification='c'),
-                sg.Output(size=(50,10),key='-OUTPUT-')],
+                sg.Output(size=(50,10),key='-OUTPUT-',echo_stdout_stderr=True)],
             [sg.Exit()]
             ]
 
@@ -117,7 +100,9 @@ layout = [  [sg.Menu(menu_def, tearoff=True)],
 window = sg.Window('Student Radio Telescope Control', layout, element_justification='c')
 
 WindSpeed = -99
-WindSpeedstr = str(WindSpeed) + ' m/s'
+
+_VAZ_ = 120
+_VALT_ = 120
 
 JogStepAZ = 4683
 JogStepALT = 929
@@ -147,23 +132,26 @@ while True:  # Event Loop
 
     if event == 'Enter':
         #TODO
-        window['-POS-TGT-'].update(9999)
+        PosTarget = '32 N, 110 W'
+        window['-POS-TGT-'].update(PosTarget)
 
 
     if event == '-ESTOP-':
+
         print("Software E-Stop is pressed")
 
         #mc.Stop(motor_AZ)
         #mc.Stop(motor_ALT)
-        #AFE.ReleaseBrake(AnalogControl)
+        #AFE.EngageBrake(AnalogControl)
 
 
     if event == '-UPDATE-':
+
         # When Update is pressed, retreive ADC value from AFE
-        print('Manually update parameters')
+        print("Updating System Status")
 
         #WindSpeed = AFE.GetWindRaw(AnalogControl)
-        window['-WIND-'].update(value=WindSpeed)
+        window['-WIND-'].update(str(WindSpeed))
 
         # Update voltge
         #_VAZ_ = mc.GetVoltage(motor_AZ)
@@ -175,6 +163,8 @@ while True:  # Event Loop
 
     if event == '-STEP1-':
 
+        print("Set Jog Steps: 0.5 deg")
+
         JogStepAZ = 4683
         JogStepALT = 929
 
@@ -184,6 +174,8 @@ while True:  # Event Loop
         window['-STEP4-'].Update(button_color=('black','gray'))
 
     if event == '-STEP2-':
+
+        print("Set Jog Steps: 1 deg")
 
         JogStepAZ = 9365
         JogStepALT = 1857
@@ -195,6 +187,8 @@ while True:  # Event Loop
 
     if event == '-STEP3-':
 
+        print("Set Jog Steps: 5 deg")
+
         JogStepAZ = 46825
         JogStepALT = 9286
 
@@ -204,6 +198,8 @@ while True:  # Event Loop
         window['-STEP4-'].Update(button_color=('black','gray'))
 
     if event == '-STEP4-':
+
+        print("Set Jog Steps: 10 deg")
 
         JogStepAZ = 93651
         JogStepALT = 18571
@@ -216,22 +212,22 @@ while True:  # Event Loop
 
     if event == '_AZ+_':
 
-        print('Jogging')
+        print('Jogging Azimuth Clockwise')
         #mc.Jogging(motor_AZ, JogStepAZ)
 
     if event == '_AZ-_':
 
-        print('Jogging')
+        print('Jogging Azimuth Counter-Clockwise')
         #mc.Jogging(motor_AZ, -JogStepAZ)
 
     if event == '_ALT+_':
 
-        print('Jogging')
+        print('Jogging Altitude Clockwise')
         #mc.Jogging(motor_ALT, JogStepALT)
 
     if event == '_ALT-_':
 
-        print('Jogging')
+        print('Jogging Altitude Counter-Clockwise')
         #mc.Jogging(motor_ALT, -JogStepALT)
 
 

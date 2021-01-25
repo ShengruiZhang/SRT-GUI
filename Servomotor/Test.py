@@ -4,7 +4,7 @@ from datetime import datetime as dt
 
 #absPos = open('absPos.dat', 'a')
 
-mc.LoadAbsPosExt()
+#mc.LoadAbsPosExt()
 
 #a='F000'
 #b='9B40'

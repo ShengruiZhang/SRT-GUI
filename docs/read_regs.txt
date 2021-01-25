@@ -1,0 +1,7 @@
+Reading Register 214, response:
+# 10 000C 6FE3 3CC1
+
+Reading Register 215, response:
+# 10 000C 0265 0295
+
+To get controller/processor and driver temperature, reading 216 and 217 might be necessary

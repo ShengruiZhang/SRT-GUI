@@ -275,7 +275,7 @@ def ReadISW(_Serial_):
 #
 def Jogging(_Serial_, _dist_):
 
-    _command_ = "@16 135 " + str(_dist_) + ' ' + str(acc2nat(5)) + ' ' + str(rps2nat(5)) + " 0 0 \r"
+    _command_ = "@16 135 " + str(_dist_) + ' ' + str(acc2nat(5)) + ' ' + str(rps2nat(3)) + " 0 0 \r"
 
     _Serial_.write(_command_.encode())
 
@@ -353,7 +353,7 @@ def GetVoltage(_Serial_):
 #
 def GetPosAbs(_Serial_):
 
-    _abs_ = ReadRegister(_Serial_, 1).split()
+    _abs_ = ReadRegister(_Serial_, 1)
 
     # Debug
     print(_abs_)
@@ -379,7 +379,7 @@ def ReadRegister(_Serial_, _reg_):
 
     _Serial_.write(_command_.encode())
 
-    return __Serial_.readline().decode('ascii').split()
+    return _Serial_.readline().decode('ascii').split()
 
 
 # Store abs Position to SilverMax NVMEM
@@ -393,7 +393,7 @@ def ReadRegister(_Serial_, _reg_):
 def SaveAbsPos(_Serial_):
 
     # store to NVMEM address 1000
-    _command_ = "@16 198 1 1000 \r"
+    _command_ = "@16 198 1 1612 \r"
 
     _Serial_.write(_command_.encode())
 
@@ -427,13 +427,14 @@ def SaveAbsPosExt(_az_):
 # Input:    Serial object
 # Return:   void
 #
-# Refer to User Manual page 98 and Command Reference 157
+# Refer to User Manual page 98 and Command Reference 158
 #   RLN is used here
 #
+#   DO NOT use this, using this will cause Servomotor to spin the amount of counts stored in that register
 def LoadAbsPos(_Serial_):
 
     # Restore from NVMEM address 1000
-    _command_ = "@16 197 1 1000 \r"
+    #_command_ = "@16 199 1 1000 \r"
 
     _Serial_.write(_command_.encode())
 
