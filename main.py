@@ -36,15 +36,15 @@ CoordEntry = [  [sg.T('Coordinate Entry:',font=("Helvetica 14 underline bold"))]
                 [sg.B('Enter')] ]
 
 Parameters = [  [sg.T('System Status:',font=("Helvetica 14 underline bold"))],
-                [sg.T('Current Position:',font=("Helvetica 10"),size=(16,1),justification='l'),
-                    sg.T('32 N, 10 W',size=(12,1),justification='l',key='-POS-CURRENT-')],
-                [sg.T('Target Position:',font=("Helvetica 10"),size=(16,1),justification='l'),
-                    sg.T('59 N, 64 W',size=(12,1),justification='l',key='-POS-TGT-')],
+                [sg.T('Current Position:',font=("Helvetica 10"),size=(15,1),justification='l'),
+                    sg.T('32 N, 10 W',size=(11,1),justification='l',key='-POS-CURRENT-')],
+                [sg.T('Target Position:',font=("Helvetica 10"),size=(15,1),justification='l'),
+                    sg.T('59 N, 64 W',size=(11,1),justification='l',key='-POS-TGT-')],
                 [sg.T('Wind Speed:',font=("Helvetica 10"),size=(16,1),justification='l'), sg.T('30 m/s',size=(10,1),justification='l',key='-WIND-')],
                 [sg.T('AZ Servo Voltage:',font=("Helvetica 10"),size=(16,1),justification='l'),
-                    sg.T('47.23 V',size=(10,0),justification='l',key='_voltAZ_')],
+                    sg.T('48.00 V',size=(10,0),justification='l',key='_voltAZ_')],
                 [sg.T('ALT Servo Voltage:',font=("Helvetica 10"),size=(16,1),justification='l'),
-                    sg.T('47.88 V',size=(10,0),justification='l',key='_voltALT_')],
+                    sg.T('48.00 V',size=(10,0),justification='l',key='_voltALT_')],
                 [sg.T('')],
                 [sg.B('Update',key='-UPDATE-')]
                 ]
@@ -77,7 +77,6 @@ output =    [   [sg.T('Radio Telescope Control Output/Log')],
 layout = [  [sg.Menu(menu_def, tearoff=True)],
             [sg.T('Student Radio Telescope Control',size=(30,1),justification='c',font=("Helvetica 25"),
                 relief=sg.RELIEF_GROOVE),sg.T('',font=("DejaVu 10"),size=(15,1),key='-datetime-')],
-            #[sg.T(" ",font=("Helvetica 3"))],
             [sg.B('Start Calibration',size=(15,1),font=("Helvetica 13"),key='-CALIB-'),
                 sg.B('TELESCOPE STOP',size=(20,1),font=("Helvetica 20"),key='-ESTOP-'),
                 sg.B('Stow Telescope',size=(15,1),font=("Helvetica 13"),key='-STOW-')],
@@ -99,10 +98,10 @@ layout = [  [sg.Menu(menu_def, tearoff=True)],
 # create window
 window = sg.Window('Student Radio Telescope Control', layout, element_justification='c')
 
-WindSpeed = -99
+WindSpeed = 15
 
-_VAZ_ = 120
-_VALT_ = 120
+_VAZ_ = 47.89
+_VALT_ = 46.78
 
 JogStepAZ = 4683
 JogStepALT = 929
@@ -151,14 +150,14 @@ while True:  # Event Loop
         print("Updating System Status")
 
         #WindSpeed = AFE.GetWindRaw(AnalogControl)
-        window['-WIND-'].update(str(WindSpeed))
+        window['-WIND-'].update(str(WindSpeed)+" m/s")
 
         # Update voltge
         #_VAZ_ = mc.GetVoltage(motor_AZ)
         #_VALT_ = mc.GetVoltage(motor_ALT)
 
-        window['_voltAZ_'].update(value=_VAZ_)
-        #window['_voltALT_'].update(value=_VALT_)
+        window['_voltAZ_'].update(str(_VAZ_)+" V")
+        window['_voltALT_'].update(str(_VALT_)+" V")
 
 
     if event == '-STEP1-':
