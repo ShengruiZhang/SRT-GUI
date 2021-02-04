@@ -37,14 +37,15 @@ CoordEntry = [  [sg.T('Coordinate Entry:',font=("Helvetica 14 underline bold"))]
 
 Parameters = [  [sg.T('System Status:',font=("Helvetica 14 underline bold"))],
                 [sg.T('Current Position:',font=("Helvetica 10"),size=(15,1),justification='l'),
-                    sg.T('32 N, 10 W',size=(11,1),justification='l',key='-POS-CURRENT-')],
+                    sg.T('32 N, 10 W',size=(8,1),justification='l',key='-POS-CURRENT-')],
                 [sg.T('Target Position:',font=("Helvetica 10"),size=(15,1),justification='l'),
-                    sg.T('59 N, 64 W',size=(11,1),justification='l',key='-POS-TGT-')],
-                [sg.T('Wind Speed:',font=("Helvetica 10"),size=(16,1),justification='l'), sg.T('30 m/s',size=(10,1),justification='l',key='-WIND-')],
-                [sg.T('AZ Servo Voltage:',font=("Helvetica 10"),size=(16,1),justification='l'),
-                    sg.T('48.00 V',size=(10,0),justification='l',key='_voltAZ_')],
-                [sg.T('ALT Servo Voltage:',font=("Helvetica 10"),size=(16,1),justification='l'),
-                    sg.T('48.00 V',size=(10,0),justification='l',key='_voltALT_')],
+                    sg.T('59 N, 64 W',size=(8,1),justification='l',key='-POS-TGT-')],
+                [sg.T('Wind Speed:',font=("Helvetica 10"),size=(15,1),justification='l'),
+		    sg.T('30 m/s',size=(8,1),justification='l',key='-WIND-')],
+                [sg.T('AZ Servo Voltage:',font=("Helvetica 10"),size=(15,1),justification='l'),
+                    sg.T('48.00 V',size=(8,0),justification='l',key='_voltAZ_')],
+                [sg.T('ALT Servo Voltage:',font=("Helvetica 10"),size=(15,1),justification='l'),
+                    sg.T('48.00 V',size=(8,0),justification='l',key='_voltALT_')],
                 [sg.T('')],
                 [sg.B('Update',key='-UPDATE-')]
                 ]
@@ -73,20 +74,23 @@ output =    [   [sg.T('Radio Telescope Control Output/Log')],
                 [sg.B('Clear'), sg.B('Save Log'), sg.B('Quit')]
                 ]
 
-# layout
+#---------------------------------------------------------------------------------------------------
+#------------------------------------ Main Window Layout -------------------------------------------
+
 layout = [  [sg.Menu(menu_def, tearoff=True)],
             [sg.T('Student Radio Telescope Control',size=(30,1),justification='c',font=("Helvetica 25"),
-                relief=sg.RELIEF_GROOVE),sg.T('',font=("DejaVu 10"),size=(15,1),key='-datetime-')],
+                relief=sg.RELIEF_SOLID),sg.T('',font=("DejaVu 10"),size=(15,1),key='-datetime-')],
+	    [sg.T('')],
             [sg.B('Start Calibration',size=(15,1),font=("Helvetica 13"),key='-CALIB-'),
                 sg.B('TELESCOPE STOP',size=(20,1),font=("Helvetica 20"),key='-ESTOP-'),
                 sg.B('Stow Telescope',size=(15,1),font=("Helvetica 13"),key='-STOW-')],
-            [sg.T(" ")],
+            [sg.T('')],
             [sg.Col(CoordEntry, element_justification='c', vertical_alignment='top'),
                 sg.VSep(pad=((30,30),(0,0))),
                 sg.Col(Parameters, element_justification='c', vertical_alignment='top'),
                 sg.VSep(pad=((30,30),(0,0))),
                 sg.Col(Jogging, element_justification='c', vertical_alignment='top')],
-            [sg.T(" ")],
+            [sg.T('')],
             [sg.Frame(layout=data_recording, title='Data Output:',
                 font=("Helvetica 12"), title_color='white', relief=sg.RELIEF_RIDGE,
                 background_color='maroon', element_justification='c'),
