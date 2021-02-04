@@ -3,12 +3,14 @@
     
     Arduino for handling Brake Solenoid and analog signal from the Anemometer
     
-    Function: ADC analog IN -> Pin A0
-              Brake Control -> TBD (Digital Pin)
+    Function: ADC analog IN -> pin A0
+              Brake Control -> TBD (Digital pin)
 
 */
 
 char Command = 0;
+
+float wind = 0.0;
 
 /* Using last 4 bit for Status
 	bit 0: Brake Status
@@ -16,30 +18,30 @@ char Command = 0;
 	bit 2: AFE Status
 	bit 3: Indicator Switch
 */
-volatile unsigned int Status = 0;
+//volatile unsigned int Status = 0;
+volatile unsigned char Status = 0x0008;
 
 void setup() {
 
-	Status = 0x0000;
-
-	// Upon power up, turn on the LED as indicator
+	// Upon power up, turn on the LED as Indicator
 	pinMode(13, OUTPUT);
 	digitalWrite(13, HIGH);
 
 	// Use pin 12 for brake control
 	pinMode(12, OUTPUT);
-	// Engage brake when power up
-	digitalWrite(12, HIGH);
-// Set the analog reference voltage to default
+
+	digitalWrite(12, LOW);
+
+	// Set the analog reference voltage to default
+	pinMode(A0, INPUT);
 	analogReference(DEFAULT);
 
-	// Set Serial timeout = 5s
 	Serial.setTimeout(2000);
-	// RS-232 Baud rate = 9600
-	Serial.begin(9600);
+	Serial.begin(57600, SERIAL_8N2);
 
 	// Keep sending a byte to host computer and wait for responds
 	WaitingHost();
+
 	// Turn off indicator after a byte is received
 	digitalWrite(13, LOW);
 }
@@ -50,30 +52,40 @@ void loop() {
 
 	// 'A' received, return ADC value
 	if ( Command == 'A' ) {
-		Serial.print(String(analogRead(A0), HEX));
-		Serial.print('\n');
+		wind = map(analogRead(A0), 82, 410, 0, 32.4);
+		//Serial.print(String(analogRead(A0), HEX));
+		Serial.print(wind);
+		Serial.print('\r');
 		Status |= 0x0002;
 	}
 
 	// 'B' received, activate brakes
 	else if ( Command == 'B' ) {
 		digitalWrite(12, HIGH);
-		Serial.print("Brakes Engaged\n");
+		digitalWrite(13, HIGH);
+		Serial.print("Brakes Engaged\r");
 		Status |= 0x0001;
 	}
 
 	// 'C' received, deactivate brakes
 	else if ( Command == 'C' ) {
 		digitalWrite(12, LOW);
-		Serial.print("Brakes Released\n");
+		digitalWrite(13, LOW);
+		Serial.print("Brakes Released\r");
 		Status &= 0x000E;
+	}
+
+	//  'E', toggle LED Indicator
+	else if ( Command == 'E') {
+		Status ^= 0x08;
 	}
 
 	//  'S', return AFE status
 	else if ( Command == 'S') {
 		Serial.print(String(Status, HEX));
-		Serial.print('\n');
+		Serial.print('\r');
 	}
+
 	// Anything else
 	else {
 		Serial.println(Command);
@@ -90,13 +102,19 @@ void loop() {
 /* Sends a byte to the Serial line every 1s, until a byte is received */
 void WaitingHost() {
 	int _temp_ = 0;
+	unsigned int _counter_ = 1;
 	while ( (Serial.available() <= 0) ) {
 		// Sends 10 bytes in 1s interval
-		Serial.print("Waiting Host\n");
-		delay(1000);
+		Serial.print(_counter_);
+		Serial.print(": Waiting\n\r");
+
+		delay(1500);
+
+		if ( _counter_ == 0xFFFF ) _counter_ = 1;
+		else ++_counter_;
 	}
 	// Empty the data
 	_temp_ = Serial.read();
-	Serial.print("AFE Active\n");
+	Serial.print("AFE Active\r");
 	Status = 0x000C;
 }

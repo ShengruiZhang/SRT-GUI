@@ -22,7 +22,8 @@ sg.theme_text_color('ghost white')
 #sg.theme_button_color('midnight blue')
 
 
-# ------ Menu Definition ------ #
+#---------------------------------------------------------------------------------------------------
+#----------------------------- Window Elements Definition ------------------------------------------
 menu_def = [    ['&File', ['&Open', '&Save', 'Prope&rties', 'E&xit',] ],
                 ['&Edit', ['Undo', 'Paste', ['Special', 'Normal']] ],
                 ['&Help', '&About...']  ]
@@ -41,7 +42,7 @@ Parameters = [  [sg.T('System Status:',font=("Helvetica 14 underline bold"))],
                 [sg.T('Target Position:',font=("Helvetica 10"),size=(15,1),justification='l'),
                     sg.T('59 N, 64 W',size=(8,1),justification='l',key='-POS-TGT-')],
                 [sg.T('Wind Speed:',font=("Helvetica 10"),size=(15,1),justification='l'),
-		    sg.T('30 m/s',size=(8,1),justification='l',key='-WIND-')],
+                    sg.T('30 m/s',size=(8,1),justification='l',key='-WIND-')],
                 [sg.T('AZ Servo Voltage:',font=("Helvetica 10"),size=(15,1),justification='l'),
                     sg.T('48.00 V',size=(8,0),justification='l',key='_voltAZ_')],
                 [sg.T('ALT Servo Voltage:',font=("Helvetica 10"),size=(15,1),justification='l'),
@@ -80,7 +81,7 @@ output =    [   [sg.T('Radio Telescope Control Output/Log')],
 layout = [  [sg.Menu(menu_def, tearoff=True)],
             [sg.T('Student Radio Telescope Control',size=(30,1),justification='c',font=("Helvetica 25"),
                 relief=sg.RELIEF_SOLID),sg.T('',font=("DejaVu 10"),size=(15,1),key='-datetime-')],
-	    [sg.T('')],
+            [sg.T('')],
             [sg.B('Start Calibration',size=(15,1),font=("Helvetica 13"),key='-CALIB-'),
                 sg.B('TELESCOPE STOP',size=(20,1),font=("Helvetica 20"),key='-ESTOP-'),
                 sg.B('Stow Telescope',size=(15,1),font=("Helvetica 13"),key='-STOW-')],
@@ -104,8 +105,8 @@ window = sg.Window('Student Radio Telescope Control', layout, element_justificat
 
 WindSpeed = 15
 
-_VAZ_ = 47.89
-_VALT_ = 46.78
+VAZ = 47.89
+VALT = 46.78
 
 JogStepAZ = 4683
 JogStepALT = 929
@@ -157,11 +158,11 @@ while True:  # Event Loop
         window['-WIND-'].update(str(WindSpeed)+" m/s")
 
         # Update voltge
-        #_VAZ_ = mc.GetVoltage(motor_AZ)
-        #_VALT_ = mc.GetVoltage(motor_ALT)
+        #VAZ = mc.GetVoltage(motor_AZ)
+        #VALT = mc.GetVoltage(motor_ALT)
 
-        window['_voltAZ_'].update(str(_VAZ_)+" V")
-        window['_voltALT_'].update(str(_VALT_)+" V")
+        window['_voltAZ_'].update(str(VAZ)+" V")
+        window['_voltALT_'].update(str(VALT)+" V")
 
 
     if event == '-STEP1-':

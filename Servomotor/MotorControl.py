@@ -284,6 +284,15 @@ def Jogging(_Serial_, _dist_):
     #print(_Serial_.readline().decode('ascii'))
 
 
+# Stowing the telescope, move it back to the stow Position (aka. home Position)
+#
+# Input:    Serial object
+# Return:   void
+#
+def Stow(_Serial_):
+    return
+
+
 # Stop the SilverMax
 #
 # Input:    Serial object
@@ -519,3 +528,13 @@ def acc2nat(_acc_):
     return round(_acc_ * 3865)
 
 
+# Convert Hex two's complement to signed decimal
+#
+# Input:    32-bit Hex
+# Return:   Signed decimal number
+#
+def twos_comp(_hex_, bits):
+    val = int(_hex_, 16)
+    if( val & (1 << (bits-1)) ) != 0:
+        val -= 1 << bits
+    return val
