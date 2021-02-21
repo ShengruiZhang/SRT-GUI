@@ -1,0 +1,71 @@
+Altitude Gear Ration:
+	
+	Alt Turns : Servo Turns = 1:167.1
+	or
+	Alt Turns : Servo Turns = 0.00598:1
+
+
+	Alt Turns : Servo counts = 1:668,571
+	or
+	Alt Turns : Servo counts = 0.000001496:1
+
+
+	Alt Degree : Servo Turns = 1:1857
+	or
+	Alt Degree : Servo Turns = 2.15:1
+
+
+	Alt Degree : Servo counts = 1:1857
+	or
+	Alt Degree : Servo counts = 0.000538:1
+	or
+	Alt Degree (arcsecond): Servo counts = 1.94:1
+
+
+	Quick Reference Chart
+	Alt Degree		Servo counts
+	0.5				928
+	1.0				1,857
+	5.0				9,286
+	10.0			18,571
+	20.0			37,143
+	30.0			55,714
+	45.0			93,571
+	90.0			167,143
+
+
+
+Azimuth Gear Ration:
+	
+	Az Turns : Servo Turns = 1:842.857
+	or
+	Az Turns : Servo Turns = 0.00119:1
+
+
+	Az Turns : Servo counts = 1:3,371,429
+	or
+	Az Turns : Servo counts = 0.000000297:1
+
+
+	Az Degree : Servo Turns = 1:2.34
+	or
+	Az Degree : Servo Turns = 0.427:1
+
+
+	Az Degree : Servo counts = 1:9,365
+	or
+	Az Degree : Servo counts = 0.000107:1
+	or
+	Az Degree (arcsecond): Servo counts = 0.384:1
+
+
+	Quick Reference Chart
+	Az Degree		Servo counts
+	0.5				4,683
+	1.0				9,365
+	5.0				46,825
+	10.0			93,651
+	20.0			187,302
+	30.0			280,952
+	45.0			421,429
+	90.0			842,857
