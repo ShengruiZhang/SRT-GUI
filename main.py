@@ -29,24 +29,24 @@ menu_def = [    ['&File', ['&Open', '&Save', 'Prope&rties', 'E&xit',] ],
                 ['&Help', '&About...']  ]
 
 CoordEntry = [  [sg.T('Coordinate Entry:',font=("Helvetica 14 underline bold"))],
-                [sg.T('Altitudinal:',size=(15,1),font=("Helvetica 12"))],
-                [sg.In(key='-IN-ALT-',size=(20,1),justification='left')],
                 [sg.T('Azimuthal:',size=(15,1),font=("Helvetica 12"))],
                 [sg.In(key='-IN-AZ-',size=(20,1),justification='left')],
+                [sg.T('Altitudinal:',size=(15,1),font=("Helvetica 12"))],
+                [sg.In(key='-IN-ALT-',size=(20,1),justification='left')],
                 [sg.T('')],
                 [sg.B('Enter')] ]
 
 Parameters = [  [sg.T('System Status:',font=("Helvetica 14 underline bold"))],
                 [sg.T('Current Position:',font=("Helvetica 10"),size=(15,1),justification='l'),
-                    sg.T('32 N, 10 W',size=(8,1),justification='l',key='-POS-CURRENT-')],
+                    sg.T('32 N, 10 W',size=(11,1),justification='l',key='-POS-CURRENT-')],
                 [sg.T('Target Position:',font=("Helvetica 10"),size=(15,1),justification='l'),
-                    sg.T('59 N, 64 W',size=(8,1),justification='l',key='-POS-TGT-')],
+                    sg.T('59 N, 64 W',size=(11,1),justification='l',key='-POS-TGT-')],
                 [sg.T('Wind Speed:',font=("Helvetica 10"),size=(15,1),justification='l'),
-                    sg.T('30 m/s',size=(8,1),justification='l',key='-WIND-')],
+                    sg.T('30 m/s',size=(11,1),justification='l',key='-WIND-')],
                 [sg.T('AZ Servo Voltage:',font=("Helvetica 10"),size=(15,1),justification='l'),
-                    sg.T('48.00 V',size=(8,0),justification='l',key='_voltAZ_')],
+                    sg.T('48.00 V',size=(11,0),justification='l',key='_voltAZ_')],
                 [sg.T('ALT Servo Voltage:',font=("Helvetica 10"),size=(15,1),justification='l'),
-                    sg.T('48.00 V',size=(8,0),justification='l',key='_voltALT_')],
+                    sg.T('48.00 V',size=(11,0),justification='l',key='_voltALT_')],
                 [sg.T('')],
                 [sg.B('Update',key='-UPDATE-')]
                 ]
@@ -60,6 +60,13 @@ Jogging = [     [sg.T('Jogging',font=('Helvetica 14 underline bold'))],
                 [sg.T(''),sg.T('')],
                 [sg.B('Azimuth +',size=(10,1),key='_AZ+_'), sg.B('Azimuth -',size=(10,1),key='_AZ-_')],
                 [sg.B('Altitude +',size=(10,1),key='_ALT+_'), sg.B('Altitude -',size=(10,1),key='_ALT-_')]
+                ]
+
+System = [      [sg.T('System Settings',font=('Helvetica 14 underline bold'))],
+                [sg.Check('Enable Telescope',size=(20,1),default=False,enable_events=True,key='-EN-SRT-')],
+                [sg.Check('Enable Servomotors',size=(20,1),default=False,enable_events=True,key='-EN-SERVO-')],
+                [sg.Check('Enable AnalogFrontEnd',size=(20,1),default=False,enable_events=True,key='-EN-AFE-')],
+                [sg.Check('Enable Jogging',size=(20,1),default=False,enable_events=True,key='-EN-JOG-')]
                 ]
 
 data_recording = [
@@ -90,7 +97,9 @@ layout = [  [sg.Menu(menu_def, tearoff=True)],
                 sg.VSep(pad=((30,30),(0,0))),
                 sg.Col(Parameters, element_justification='c', vertical_alignment='top'),
                 sg.VSep(pad=((30,30),(0,0))),
-                sg.Col(Jogging, element_justification='c', vertical_alignment='top')],
+                sg.Col(Jogging, element_justification='c', vertical_alignment='top'),
+                sg.VSep(pad=((30,30),(0,0))),
+                sg.Col(System, element_justification='c', vertical_alignment='top')],
             [sg.T('')],
             [sg.Frame(layout=data_recording, title='Data Output:',
                 font=("Helvetica 12"), title_color='white', relief=sg.RELIEF_RIDGE,
@@ -122,7 +131,9 @@ JogStepALT = 929
 while True:  # Event Loop
 
     # check every 100 ms
+    #   The first values in event is the menu bar event
     event, values = window.read(timeout=100)
+    print(values)
 
     # update time
     time = dt.now().strftime('%Y-%m-%d   %H:%M')
@@ -132,6 +143,18 @@ while True:  # Event Loop
     if event == sg.WIN_CLOSED or event == 'Exit':
         # GUI is closed either by using 'X', or the Exit button
         break
+
+    if event == '-EN-SRT-':
+        print('Enabling Telescope Control')
+
+    if event == '-EN-SERVO-':
+        print('Enabling Servomotor Drive')
+
+    if event == '-EN-AFE-':
+        print('Enabling AnalogFrontEnd')
+
+    if event == '-EN-JOG-':
+        print('Enabling Jogging')
 
 
     if event == 'Enter':
@@ -151,7 +174,7 @@ while True:  # Event Loop
 
     if event == '-UPDATE-':
 
-        # When Update is pressed, retreive ADC value from AFE
+        # When Update button is pressed, retreive ADC value from AFE
         print("Updating System Status")
 
         #WindSpeed = AFE.GetWindRaw(AnalogControl)
