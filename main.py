@@ -47,10 +47,10 @@ Parameters = [  [sg.T('System Status:',font=("Helvetica 14 underline bold"))],
                     sg.T('30 m/s',size=(11,1),justification='l',key='-WIND-')],
 
                 [sg.T('AZ Servo Voltage:',font=("Helvetica 10"),size=(15,1),justification='l'),
-                    sg.T('48.00 V',size=(11,0),justification='l',key='_voltAZ_')],
+                    sg.T('48.00 V',size=(11,0),justification='l',key='-voltAZ-')],
 
                 [sg.T('ALT Servo Voltage:',font=("Helvetica 10"),size=(15,1),justification='l'),
-                    sg.T('48.00 V',size=(11,0),justification='l',key='_voltALT_')],
+                    sg.T('48.00 V',size=(11,0),justification='l',key='-voltALT-')],
 
                 [sg.T('')],
                 [sg.B('Update',key='-UPDATE-')]
@@ -223,13 +223,25 @@ while True:
         print('Enabling Servomotor Drive')
 
         GUIstatus |= 0b0010
-        #TODO
+
+        try:
+            Servo_AZ = mc.Init('/dev/ttyUSB0')
+            Servo_ALT = mc.Init('/dev/ttyUSB1')
+
+        except Exception as e:
+            print('Error: Cannot open serial ports.')
+            print('Error message: ', str(e))
+            print('Error: Cannot enable servomotors.')
+            window['-EN-SERVO-'].update(value=False)
 
     if event == '-EN-SERVO-' and values['-EN-SERVO-'] == False:
 
         print('Disabling Servomotor Drive')
 
         GUIstatus &= 0b1101
+
+        mc.CloseSerial(Servo_AZ)
+        mc.CloseSerial(Servo_ALT)
         #TODO
 
     if event == '-EN-AFE-':
@@ -266,6 +278,8 @@ while True:
 
         #mc.Stop(motor_AZ)
         #mc.Stop(motor_ALT)
+
+        #TODO, need to check how brake engages
         #AFE.EngageBrake(AnalogControl)
 
 
@@ -281,8 +295,8 @@ while True:
         #VAZ = mc.GetVoltage(motor_AZ)
         #VALT = mc.GetVoltage(motor_ALT)
 
-        window['_voltAZ_'].update(str(VAZ)+" V")
-        window['_voltALT_'].update(str(VALT)+" V")
+        window['-voltAZ-'].update(str(VAZ)+" V")
+        window['-voltALT-'].update(str(VALT)+" V")
 
 
     if event == '-STEP1-':
@@ -358,5 +372,16 @@ while True:
 # Close the Serial connection
 #AFE.CloseSerial(AnalogControl)
 #mc.CloseSerial(motor_AZ)
+
+# Dump some log
+with open('gui.log', 'a') as log:
+
+    log.writelines( dt.now().strftime('%Y-%m-%d %H:%M:%S\n') )
+    log.writelines( str(event) + '\n' )
+
+    for key in values:
+        log.writelines( str(key) + ' : ' + str(values[key]) + '\n')
+
+    log.writelines('GUI log ends here\n\n')
 
 window.close()
