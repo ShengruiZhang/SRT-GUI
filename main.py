@@ -7,9 +7,9 @@
 
 
 import PySimpleGUI as sg
-import sys
 from datetime import datetime as dt
 
+import sys
 sys.path.append("~/SRT-GUI/")
 import AnalogFrontEnd.AFE
 import Servomotor.MotorControl as mc
@@ -53,20 +53,32 @@ Parameters = [  [sg.T('System Status:',font=("Helvetica 14 underline bold"))],
 
 Jogging = [     [sg.T('Jogging',font=('Helvetica 14 underline bold'))],
                 [sg.T('Steps in degrees',justification='l',size=(30,1))],
-                [sg.B('.5',size=(3,1),use_ttk_buttons=True,key='-STEP1-'),
-                    sg.B('1',size=(3,1),use_ttk_buttons=True,button_color=('black','gray'),key='-STEP2-'),
-                    sg.B('5',size=(3,1),use_ttk_buttons=True,button_color=('black','gray'),key='-STEP3-'),
-                    sg.B('10',size=(3,1),use_ttk_buttons=True,button_color=('black','gray'),key='-STEP4-')],
+
+                [sg.B('.5',size=(3,1),use_ttk_buttons=True,disabled=True,key='-STEP1-'),
+                    sg.B('1',size=(3,1),use_ttk_buttons=True,disabled=True,button_color=('black','gray'),key='-STEP2-'),
+                    sg.B('5',size=(3,1),use_ttk_buttons=True,disabled=True,button_color=('black','gray'),key='-STEP3-'),
+                    sg.B('10',size=(3,1),use_ttk_buttons=True,disabled=True,button_color=('black','gray'),key='-STEP4-')],
+
                 [sg.T(''),sg.T('')],
-                [sg.B('Azimuth +',size=(10,1),key='_AZ+_'), sg.B('Azimuth -',size=(10,1),key='_AZ-_')],
-                [sg.B('Altitude +',size=(10,1),key='_ALT+_'), sg.B('Altitude -',size=(10,1),key='_ALT-_')]
+                [sg.B('Azimuth +',size=(10,1),disabled=True,key='_AZ+_'),
+                    sg.B('Azimuth -',size=(10,1),disabled=True,key='_AZ-_')],
+                [sg.B('Altitude +',size=(10,1),disabled=True,key='_ALT+_'),
+                    sg.B('Altitude -',size=(10,1),disabled=True,key='_ALT-_')]
                 ]
 
 System = [      [sg.T('System Settings',font=('Helvetica 14 underline bold'))],
-                [sg.Check('Enable Telescope',size=(20,1),default=False,enable_events=True,key='-EN-SRT-')],
-                [sg.Check('Enable Servomotors',size=(20,1),default=False,enable_events=True,key='-EN-SERVO-')],
-                [sg.Check('Enable AnalogFrontEnd',size=(20,1),default=False,enable_events=True,key='-EN-AFE-')],
-                [sg.Check('Enable Jogging',size=(20,1),default=False,enable_events=True,key='-EN-JOG-')]
+
+                [sg.Check('Enable Telescope',size=(20,1),default=False,
+                    enable_events=True,key='-EN-SRT-')],
+
+                [sg.Check('Enable Servomotors',size=(20,1),default=False,
+                    enable_events=True,key='-EN-SERVO-')],
+
+                [sg.Check('Enable AnalogFrontEnd',size=(20,1),default=False,
+                    enable_events=True,key='-EN-AFE-')],
+
+                [sg.Check('Enable Jogging',size=(20,1),default=False,
+                    enable_events=True,key='-EN-JOG-')]
                 ]
 
 data_recording = [
@@ -88,23 +100,33 @@ output =    [   [sg.T('Radio Telescope Control Output/Log')],
 layout = [  [sg.Menu(menu_def, tearoff=True)],
             [sg.T('Student Radio Telescope Control',size=(30,1),justification='c',font=("Helvetica 25"),
                 relief=sg.RELIEF_SOLID),sg.T('',font=("DejaVu 10"),size=(15,1),key='-datetime-')],
+
             [sg.T('')],
             [sg.B('Start Calibration',size=(15,1),font=("Helvetica 13"),key='-CALIB-'),
                 sg.B('TELESCOPE STOP',size=(20,1),font=("Helvetica 20"),key='-ESTOP-'),
                 sg.B('Stow Telescope',size=(15,1),font=("Helvetica 13"),key='-STOW-')],
+
             [sg.T('')],
             [sg.Col(CoordEntry, element_justification='c', vertical_alignment='top'),
+
                 sg.VSep(pad=((30,30),(0,0))),
+
                 sg.Col(Parameters, element_justification='c', vertical_alignment='top'),
+
                 sg.VSep(pad=((30,30),(0,0))),
+
                 sg.Col(Jogging, element_justification='c', vertical_alignment='top'),
+
                 sg.VSep(pad=((30,30),(0,0))),
+
                 sg.Col(System, element_justification='c', vertical_alignment='top')],
+
             [sg.T('')],
             [sg.Frame(layout=data_recording, title='Data Output:',
                 font=("Helvetica 12"), title_color='white', relief=sg.RELIEF_RIDGE,
                 background_color='maroon', element_justification='c'),
                 sg.Output(size=(50,10),key='-OUTPUT-',echo_stdout_stderr=True)],
+
             [sg.Exit()]
             ]
 
@@ -133,7 +155,6 @@ while True:  # Event Loop
     # check every 100 ms
     #   The first values in event is the menu bar event
     event, values = window.read(timeout=100)
-    print(values)
 
     # update time
     time = dt.now().strftime('%Y-%m-%d   %H:%M')
@@ -153,8 +174,30 @@ while True:  # Event Loop
     if event == '-EN-AFE-':
         print('Enabling AnalogFrontEnd')
 
-    if event == '-EN-JOG-':
+    # Is there a better way to do this?
+    if event == '-EN-JOG-' and values['-EN-JOG-'] == True:
+        print(event)
         print('Enabling Jogging')
+        window['_AZ+_'].update(disabled=False)
+        window['_AZ-_'].update(disabled=False)
+        window['_ALT+_'].update(disabled=False)
+        window['_ALT-_'].update(disabled=False)
+        window['-STEP1-'].update(disabled=False)
+        window['-STEP2-'].update(disabled=False)
+        window['-STEP3-'].update(disabled=False)
+        window['-STEP4-'].update(disabled=False)
+
+    if event == '-EN-JOG-' and values['-EN-JOG-'] == False:
+        print(event)
+        print('Disabling Jogging')
+        window['_AZ+_'].update(disabled=True)
+        window['_AZ-_'].update(disabled=True)
+        window['_ALT+_'].update(disabled=True)
+        window['_ALT-_'].update(disabled=True)
+        window['-STEP1-'].update(disabled=True)
+        window['-STEP2-'].update(disabled=True)
+        window['-STEP3-'].update(disabled=True)
+        window['-STEP4-'].update(disabled=True)
 
 
     if event == 'Enter':
