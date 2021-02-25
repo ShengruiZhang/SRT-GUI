@@ -39,14 +39,19 @@ CoordEntry = [  [sg.T('Coordinate Entry:',font=("Helvetica 14 underline bold"))]
 Parameters = [  [sg.T('System Status:',font=("Helvetica 14 underline bold"))],
                 [sg.T('Current Position:',font=("Helvetica 10"),size=(15,1),justification='l'),
                     sg.T('32 N, 10 W',size=(11,1),justification='l',key='-POS-CURRENT-')],
+
                 [sg.T('Target Position:',font=("Helvetica 10"),size=(15,1),justification='l'),
                     sg.T('59 N, 64 W',size=(11,1),justification='l',key='-POS-TGT-')],
+
                 [sg.T('Wind Speed:',font=("Helvetica 10"),size=(15,1),justification='l'),
                     sg.T('30 m/s',size=(11,1),justification='l',key='-WIND-')],
+
                 [sg.T('AZ Servo Voltage:',font=("Helvetica 10"),size=(15,1),justification='l'),
                     sg.T('48.00 V',size=(11,0),justification='l',key='_voltAZ_')],
+
                 [sg.T('ALT Servo Voltage:',font=("Helvetica 10"),size=(15,1),justification='l'),
                     sg.T('48.00 V',size=(11,0),justification='l',key='_voltALT_')],
+
                 [sg.T('')],
                 [sg.B('Update',key='-UPDATE-')]
                 ]
@@ -131,16 +136,19 @@ layout = [  [sg.Menu(menu_def, tearoff=True)],
             ]
 
 
-# create window
+#---------------------------------------------------------------------------------------------------
+#------------------------------------ Creating Window ----------------------------------------------
 window = sg.Window('Student Radio Telescope Control', layout, element_justification='c')
 
-WindSpeed = 15
 
-VAZ = 47.89
-VALT = 46.78
+#---------------------------------------------------------------------------------------------------
+#------------------------------------ System Init --------------------------------------------------
 
-JogStepAZ = 4683
-JogStepALT = 929
+# FOR TESTING, making up numbers here
+WindSpeed = 55
+
+VAZ = 12.34
+VALT = 56.78
 
 # Serial connection to Analog Front-End Control
 #AnalogControl = AFE.Init(9600)
@@ -150,7 +158,48 @@ JogStepALT = 929
 #motor_AZ = mc.Init('/dev/ttyUSB0')
 #motor_ALT = mc.Init('/dev/ttyUSB0')
 
-while True:  # Event Loop
+
+# GUI Status bits
+#   bit3 - Jogging
+#   bit2 - unused
+#   bit1 - Servomotor
+#   bit0 - unused
+GUIstatus = 0b0000
+
+# Is there a better way doing this?
+# Using class here so that modules can be re-used
+class GUI():
+
+    def JogDisable():
+
+        window['_AZ+_'].update(disabled=True)
+        window['_AZ-_'].update(disabled=True)
+        window['_ALT+_'].update(disabled=True)
+        window['_ALT-_'].update(disabled=True)
+        window['-STEP1-'].update(disabled=True)
+        window['-STEP2-'].update(disabled=True)
+        window['-STEP3-'].update(disabled=True)
+        window['-STEP4-'].update(disabled=True)
+
+
+    def JogEnable(GUIstatus):
+
+        if (GUIstatus & 0b0010) == 0:
+            print('Warning: Servomotors are not enabled.')
+
+        window['_AZ+_'].update(disabled=False)
+        window['_AZ-_'].update(disabled=False)
+        window['_ALT+_'].update(disabled=False)
+        window['_ALT-_'].update(disabled=False)
+        window['-STEP1-'].update(disabled=False)
+        window['-STEP2-'].update(disabled=False)
+        window['-STEP3-'].update(disabled=False)
+        window['-STEP4-'].update(disabled=False)
+
+
+#---------------------------------------------------------------------------------------------------
+#------------------------------------ GUI Event Loop -----------------------------------------------
+while True:
 
     # check every 100 ms
     #   The first values in event is the menu bar event
@@ -167,37 +216,42 @@ while True:  # Event Loop
 
     if event == '-EN-SRT-':
         print('Enabling Telescope Control')
+        #TODO
 
-    if event == '-EN-SERVO-':
+    if event == '-EN-SERVO-' and values['-EN-SERVO-'] == True:
+
         print('Enabling Servomotor Drive')
+
+        GUIstatus |= 0b0010
+        #TODO
+
+    if event == '-EN-SERVO-' and values['-EN-SERVO-'] == False:
+
+        print('Disabling Servomotor Drive')
+
+        GUIstatus &= 0b1101
+        #TODO
 
     if event == '-EN-AFE-':
         print('Enabling AnalogFrontEnd')
+        #TODO
 
     # Is there a better way to do this?
     if event == '-EN-JOG-' and values['-EN-JOG-'] == True:
-        print(event)
+
         print('Enabling Jogging')
-        window['_AZ+_'].update(disabled=False)
-        window['_AZ-_'].update(disabled=False)
-        window['_ALT+_'].update(disabled=False)
-        window['_ALT-_'].update(disabled=False)
-        window['-STEP1-'].update(disabled=False)
-        window['-STEP2-'].update(disabled=False)
-        window['-STEP3-'].update(disabled=False)
-        window['-STEP4-'].update(disabled=False)
+
+        GUIstatus |= 0b1000
+
+        GUI.JogEnable(GUIstatus)
 
     if event == '-EN-JOG-' and values['-EN-JOG-'] == False:
-        print(event)
+
         print('Disabling Jogging')
-        window['_AZ+_'].update(disabled=True)
-        window['_AZ-_'].update(disabled=True)
-        window['_ALT+_'].update(disabled=True)
-        window['_ALT-_'].update(disabled=True)
-        window['-STEP1-'].update(disabled=True)
-        window['-STEP2-'].update(disabled=True)
-        window['-STEP3-'].update(disabled=True)
-        window['-STEP4-'].update(disabled=True)
+
+        GUIstatus &= 0b0111
+
+        GUI.JogDisable()
 
 
     if event == 'Enter':
