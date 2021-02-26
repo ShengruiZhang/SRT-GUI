@@ -161,8 +161,8 @@ VALT = 56.78
 
 # GUI Status bits
 #   bit3 - Jogging
-#   bit2 - unused
-#   bit1 - Servomotor
+#   bit2 - Servomotor ALT
+#   bit1 - Servomotor AZ
 #   bit0 - unused
 GUIstatus = 0b0000
 
@@ -184,8 +184,8 @@ class GUI():
 
     def JogEnable(GUIstatus):
 
-        if (GUIstatus & 0b0010) == 0:
-            print('Warning: Servomotors are not enabled.')
+        if (GUIstatus & 0b0110) != 6:
+            print('Warning: Not all servomotors are not enabled.')
 
         window['_AZ+_'].update(disabled=False)
         window['_AZ-_'].update(disabled=False)
@@ -222,11 +222,10 @@ while True:
 
         print('Enabling Servomotor Drive')
 
-        GUIstatus |= 0b0010
-
         try:
             Servo_AZ = mc.Init('/dev/ttyUSB0')
-            Servo_ALT = mc.Init('/dev/ttyUSB1')
+            GUIstatus |= 0b0010
+            print('Servomotor AZ enabled')
 
         except Exception as e:
             print('Error: Cannot open serial ports.')
@@ -234,15 +233,33 @@ while True:
             print('Error: Cannot enable servomotors.')
             window['-EN-SERVO-'].update(value=False)
 
+        try:
+            Servo_ALT = mc.Init('/dev/ttyUSB1')
+            GUIstatus |= 0b0100
+            print('Servomotor ALT enabled')
+
+        except Exception as e:
+            print('Error: Cannot open serial ports.')
+            print('Error message: ', str(e))
+            print('Error: Cannot enable servomotors.')
+            #window['-EN-SERVO-'].update(value=False)
+
     if event == '-EN-SERVO-' and values['-EN-SERVO-'] == False:
 
         print('Disabling Servomotor Drive')
 
-        GUIstatus &= 0b1101
+        GUI.JogDisable()
 
-        mc.CloseSerial(Servo_AZ)
-        mc.CloseSerial(Servo_ALT)
+        window['-EN-JOG-'].update(value=False)
+
+        if (GUIstatus & 0b0010) == 2:
+            mc.CloseSerial(Servo_AZ)
+
+        if (GUIstatus & 0b0100) == 4:
+            mc.CloseSerial(Servo_ALT)
         #TODO
+
+        GUIstatus &= 0b1001
 
     if event == '-EN-AFE-':
         print('Enabling AnalogFrontEnd')
@@ -253,17 +270,17 @@ while True:
 
         print('Enabling Jogging')
 
-        GUIstatus |= 0b1000
-
         GUI.JogEnable(GUIstatus)
+
+        GUIstatus |= 0b1000
 
     if event == '-EN-JOG-' and values['-EN-JOG-'] == False:
 
         print('Disabling Jogging')
 
-        GUIstatus &= 0b0111
-
         GUI.JogDisable()
+
+        GUIstatus &= 0b0111
 
 
     if event == 'Enter':
@@ -379,8 +396,14 @@ with open('gui.log', 'a') as log:
     log.writelines( dt.now().strftime('%Y-%m-%d %H:%M:%S\n') )
     log.writelines( str(event) + '\n' )
 
-    for key in values:
-        log.writelines( str(key) + ' : ' + str(values[key]) + '\n')
+    try:
+        for key in values:
+            log.writelines( str(key) + ' : ' + str(values[key]) + '\n')
+
+    except TypeError as te:
+        log.writelines('Window closed by X \n')
+        print('Error message: ', te)
+        print('Please use Exit button to close GUI.')
 
     log.writelines('GUI log ends here\n\n')
 
