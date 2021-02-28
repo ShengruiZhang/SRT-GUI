@@ -21,7 +21,6 @@ sg.theme_text_element_background_color('maroon')
 sg.theme_text_color('ghost white')
 #sg.theme_button_color('midnight blue')
 
-
 #---------------------------------------------------------------------------------------------------
 #----------------------------- Window Elements Definition ------------------------------------------
 menu_def = [    ['&File', ['&Open', '&Save', 'Prope&rties', 'E&xit',] ],
@@ -29,12 +28,12 @@ menu_def = [    ['&File', ['&Open', '&Save', 'Prope&rties', 'E&xit',] ],
                 ['&Help', '&About...']  ]
 
 CoordEntry = [  [sg.T('Coordinate Entry:',font=("Helvetica 14 underline bold"))],
-                [sg.T('Azimuthal:',size=(15,1),font=("Helvetica 12"))],
-                [sg.In(key='-IN-AZ-',size=(20,1),justification='left')],
-                [sg.T('Altitudinal:',size=(15,1),font=("Helvetica 12"))],
-                [sg.In(key='-IN-ALT-',size=(20,1),justification='left')],
-                [sg.T('')],
-                [sg.B('Enter')] ]
+                [sg.T('Azimuthal:',size=(15,1),font=("Helvetica 12")), sg.T(size=(12,1),key='-OUT-AZ-')],
+                [sg.Input(key='-IN-AZ-',size=(20,1),justification='left')],
+                [sg.T('Altitudinal:',size=(15,1),font=("Helvetica 12")), sg.T(size=(12,1),key='-OUT-ALT-')],
+                [sg.Input(key='-IN-ALT-',size=(20,1),justification='left')],
+               # [sg.T('')],
+                [sg.B('Read')] ]
 
 Parameters = [  [sg.T('System Status:',font=("Helvetica 14 underline bold"))],
                 [sg.T('Current Position:',font=("Helvetica 10"),size=(15,1),justification='l'),
@@ -155,7 +154,7 @@ VALT = 56.78
 #AFE.Activate(AnalogControl)
 
 # Serial Connection to Servomotor
-#motor_AZ = mc.Init('/dev/ttyUSB0')
+#motor_AZ = mc.Init('COM4')
 #motor_ALT = mc.Init('/dev/ttyUSB0')
 
 
@@ -210,9 +209,30 @@ while True:
     window['-datetime-'].update(time)
 
 
+    if event == '-CALIB-':
+
+        print("Starting Calibration")
+        #30 degrees past zenith/0.09 motor counts = 333 counts
+
+        JogStepALT = 333
+        mc.Jogging(motor_ALT, -JogStepALT)
+        window['-CALIB-'].Update(button_color=('black', 'gray'))
+
+
     if event == sg.WIN_CLOSED or event == 'Exit':
         # GUI is closed either by using 'X', or the Exit button
         break
+
+    # Still need to do more here - good start
+    if event == ('Read'):
+        print('Received coordinates')
+        window['-OUT-AZ-'].update(values['-IN-AZ-'])
+        window['-OUT-ALT-'].update(values['-IN-ALT-'])
+        in_alt = '-IN-ALT-'
+        in_az = 'IN-AZ'
+        mc.Entry(in_alt, in_az)
+
+
 
     if event == '-EN-SRT-':
         print('Enabling Telescope Control')
@@ -293,7 +313,7 @@ while True:
 
         print("Software E-Stop is pressed")
 
-        #mc.Stop(motor_AZ)
+        mc.Stop(motor_AZ)
         #mc.Stop(motor_ALT)
 
         #TODO, need to check how brake engages
@@ -309,7 +329,7 @@ while True:
         window['-WIND-'].update(str(WindSpeed)+" m/s")
 
         # Update voltge
-        #VAZ = mc.GetVoltage(motor_AZ)
+        VAZ = mc.GetVoltage(motor_AZ)
         #VALT = mc.GetVoltage(motor_ALT)
 
         window['-voltAZ-'].update(str(VAZ)+" V")
@@ -368,12 +388,12 @@ while True:
     if event == '_AZ+_':
 
         print('Jogging Azimuth Clockwise')
-        #mc.Jogging(motor_AZ, JogStepAZ)
+        mc.Jogging(motor_AZ, JogStepAZ)
 
     if event == '_AZ-_':
 
         print('Jogging Azimuth Counter-Clockwise')
-        #mc.Jogging(motor_AZ, -JogStepAZ)
+        mc.Jogging(motor_AZ, -JogStepAZ)
 
     if event == '_ALT+_':
 
@@ -388,7 +408,7 @@ while True:
 
 # Close the Serial connection
 #AFE.CloseSerial(AnalogControl)
-#mc.CloseSerial(motor_AZ)
+mc.CloseSerial(motor_AZ)
 
 # Dump some log
 with open('gui.log', 'a') as log:
