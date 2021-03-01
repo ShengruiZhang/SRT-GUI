@@ -1,3 +1,4 @@
+Positive motor count turns dish toward horizon
 Altitude Gear Ration:
 	
 	Alt Turns : Servo Turns = 1:167.1
@@ -5,12 +6,13 @@ Altitude Gear Ration:
 	Alt Turns : Servo Turns = 0.00598:1
 
 
-	Alt Turns : Servo counts = 1:668,571
+	Alt Turns : Servo counts = 1:668,400
 	or
 	Alt Turns : Servo counts = 0.000001496:1
 
 
-	Alt Degree : Servo Turns = 1:1857
+	TODO
+	Alt Degree : Servo Turns = 1:0.464
 	or
 	Alt Degree : Servo Turns = 2.15:1
 
@@ -35,6 +37,7 @@ Altitude Gear Ration:
 
 
 
+Positive motor count turns AZ clockwise
 Azimuth Gear Ration:
 	
 	Az Turns : Servo Turns = 1:842.857
@@ -56,7 +59,7 @@ Azimuth Gear Ration:
 	or
 	Az Degree : Servo counts = 0.000107:1
 	or
-	Az Degree (arcsecond): Servo counts = 0.384:1
+	Az Degree (arcsecond) : Servo counts = 0.384:1
 
 
 	Quick Reference Chart
