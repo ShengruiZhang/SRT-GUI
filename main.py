@@ -3,7 +3,7 @@
 #   Graphical User Interface
 #   TODO
 #   1. Input protection for coord. input
-#   2. Update the Target position after an coord. is entered
+#   2. Update the Target Position after an coord. is entered
 
 
 import PySimpleGUI as sg
@@ -37,19 +37,19 @@ CoordEntry = [  [sg.T('Coordinate Entry:',font=("Helvetica 14 underline bold"))]
                 [sg.B('Enter')] ]
 
 Parameters = [  [sg.T('System Status:',font=("Helvetica 14 underline bold"))],
-                [sg.T('Current Position:',font=("Helvetica 10"),size=(15,1),justification='l'),
+                [sg.T('Current Position:',font=("Helvetica 10"),size=(16,1),justification='l'),
                     sg.T('32 N, 10 W',size=(11,1),justification='l',key='-POS-CURRENT-')],
 
-                [sg.T('Target Position:',font=("Helvetica 10"),size=(15,1),justification='l'),
+                [sg.T('Target Position:',font=("Helvetica 10"),size=(16,1),justification='l'),
                     sg.T('59 N, 64 W',size=(11,1),justification='l',key='-POS-TGT-')],
 
-                [sg.T('Wind Speed:',font=("Helvetica 10"),size=(15,1),justification='l'),
+                [sg.T('Wind Speed:',font=("Helvetica 10"),size=(16,1),justification='l'),
                     sg.T('30 m/s',size=(11,1),justification='l',key='-WIND-')],
 
-                [sg.T('AZ Servo Voltage:',font=("Helvetica 10"),size=(15,1),justification='l'),
+                [sg.T('AZ Servo Voltage:',font=("Helvetica 10"),size=(16,1),justification='l'),
                     sg.T('48.00 V',size=(11,0),justification='l',key='-voltAZ-')],
 
-                [sg.T('ALT Servo Voltage:',font=("Helvetica 10"),size=(15,1),justification='l'),
+                [sg.T('ALT Servo Voltage:',font=("Helvetica 10"),size=(16,1),justification='l'),
                     sg.T('48.00 V',size=(11,0),justification='l',key='-voltALT-')],
 
                 [sg.T('')],
@@ -154,17 +154,21 @@ VALT = 56.78
 #AnalogControl = AFE.Init(9600)
 #AFE.Activate(AnalogControl)
 
-# Serial Connection to Servomotor
-#motor_AZ = mc.Init('/dev/ttyUSB0')
-#motor_ALT = mc.Init('/dev/ttyUSB0')
 
+# Abs Position of servomotors
+AbsAZ = 0
+AbsALT = 0
 
 # GUI Status bits
-#   bit3 - Jogging
-#   bit2 - Servomotor ALT
-#   bit1 - Servomotor AZ
+#   bit7 - Stowed
+#   bit6 - unused
+#   bit5 - unused
+#   bit4 - unused
+#   bit3 - Jogging Enabled
+#   bit2 - Servomotor ALT Enabled
+#   bit1 - Servomotor AZ Enabled
 #   bit0 - unused
-GUIstatus = 0b0000
+GUIstatus = 0b00000000
 
 # Is there a better way doing this?
 # Using class here so that modules can be re-used
@@ -183,9 +187,6 @@ class GUI():
 
 
     def JogEnable(GUIstatus):
-
-        if (GUIstatus & 0b0110) != 6:
-            print('Warning: Not all servomotors are not enabled.')
 
         window['_AZ+_'].update(disabled=False)
         window['_AZ-_'].update(disabled=False)
@@ -228,10 +229,9 @@ while True:
             print('Servomotor AZ enabled')
 
         except Exception as e:
-            print('Error: Cannot open serial ports.')
+            print('Error: Cannot open serial port for AZ servo.')
             print('Error message: ', str(e))
-            print('Error: Cannot enable servomotors.')
-            window['-EN-SERVO-'].update(value=False)
+            print('Error: Cannot enable AZ servo.')
 
         try:
             Servo_ALT = mc.Init('/dev/ttyUSB1')
@@ -239,10 +239,12 @@ while True:
             print('Servomotor ALT enabled')
 
         except Exception as e:
-            print('Error: Cannot open serial ports.')
+            print('Error: Cannot open serial port for ALT servo.')
             print('Error message: ', str(e))
-            print('Error: Cannot enable servomotors.')
-            #window['-EN-SERVO-'].update(value=False)
+            print('Error: Cannot enable ALT servomotor.')
+
+        if (GUIstatus & 0b0110) == 0:
+            window['-EN-SERVO-'].update(value=False)
 
     if event == '-EN-SERVO-' and values['-EN-SERVO-'] == False:
 
@@ -252,25 +254,34 @@ while True:
 
         window['-EN-JOG-'].update(value=False)
 
-        if (GUIstatus & 0b0010) == 2:
+        if (GUIstatus & 0b0010) == 0b0010:
             mc.CloseSerial(Servo_AZ)
 
-        if (GUIstatus & 0b0100) == 4:
+        if (GUIstatus & 0b0100) == 0b0100:
             mc.CloseSerial(Servo_ALT)
-        #TODO
 
         GUIstatus &= 0b1001
+
 
     if event == '-EN-AFE-':
         print('Enabling AnalogFrontEnd')
         #TODO
+
 
     # Is there a better way to do this?
     if event == '-EN-JOG-' and values['-EN-JOG-'] == True:
 
         print('Enabling Jogging')
 
-        GUI.JogEnable(GUIstatus)
+        JogStepAZ = 4683
+        JogStepALT = 929
+
+        if (GUIstatus & 0b0110) != 0b0110:
+            print('Jogging Disabled: Servo motors are not enabled.')
+            window['-EN-JOG-'].update(value=False)
+
+        else:
+            GUI.JogEnable(GUIstatus)
 
         GUIstatus |= 0b1000
 
@@ -293,8 +304,8 @@ while True:
 
         print("Software E-Stop is pressed")
 
-        #mc.Stop(motor_AZ)
-        #mc.Stop(motor_ALT)
+        mc.Stop(Servo_AZ)
+        mc.Stop(Servo_ALT)
 
         #TODO, need to check how brake engages
         #AFE.EngageBrake(AnalogControl)
@@ -308,9 +319,8 @@ while True:
         #WindSpeed = AFE.GetWindRaw(AnalogControl)
         window['-WIND-'].update(str(WindSpeed)+" m/s")
 
-        # Update voltge
-        #VAZ = mc.GetVoltage(motor_AZ)
-        #VALT = mc.GetVoltage(motor_ALT)
+        VAZ = mc.GetVoltage(Servo_AZ)
+        VALT = mc.GetVoltage(Servo_ALT)
 
         window['-voltAZ-'].update(str(VAZ)+" V")
         window['-voltALT-'].update(str(VALT)+" V")
@@ -368,30 +378,43 @@ while True:
     if event == '_AZ+_':
 
         print('Jogging Azimuth Clockwise')
-        #mc.Jogging(motor_AZ, JogStepAZ)
+        mc.Jogging(Servo_AZ, JogStepAZ)
 
     if event == '_AZ-_':
 
         print('Jogging Azimuth Counter-Clockwise')
-        #mc.Jogging(motor_AZ, -JogStepAZ)
+        mc.Jogging(Servo_AZ, -JogStepAZ)
 
     if event == '_ALT+_':
 
         print('Jogging Altitude Clockwise')
-        #mc.Jogging(motor_ALT, JogStepALT)
+        mc.Jogging(Servo_ALT, JogStepALT)
 
     if event == '_ALT-_':
 
         print('Jogging Altitude Counter-Clockwise')
-        #mc.Jogging(motor_ALT, -JogStepALT)
+        mc.Jogging(Servo_ALT, -JogStepALT)
+
+
+    if (GUIstatus & 0b0010) == 0b0010:
+        AbsAZ = GetPosAbs(Servo_AZ)
+
+    if (GUIstatus & 0b0100) == 0b0100:
+        AbsALT = GetPosAbs(Servo_ALT)
+
+    with open('absPos.dat', 'a') as absPos:
+        absPos.writelines( dt.now().strftime('%Y-%m-%d %H:%M:%S\n') )
+        absPos.writelines( str(AbsAZ) + '\n' )
+        absPos.writelines( str(AbsALT) + '\n' + '\n' )
 
 
 # Close the Serial connection
 #AFE.CloseSerial(AnalogControl)
-#mc.CloseSerial(motor_AZ)
 
 # Dump some log
 with open('gui.log', 'a') as log:
+
+    print('Saving logs before exiting')
 
     log.writelines( dt.now().strftime('%Y-%m-%d %H:%M:%S\n') )
     log.writelines( str(event) + '\n' )
@@ -405,6 +428,10 @@ with open('gui.log', 'a') as log:
         print('Error message: ', te)
         print('Please use Exit button to close GUI.')
 
-    log.writelines('GUI log ends here\n\n')
+    log.writelines( 'Last GUIstatus: ' + str(bin(GUIstatus)) + '\n' )
+    log.writelines( 'Last AZ Position: ' + str(AbsAZ) + '\n' )
+    log.writelines( 'Last ALT Position: ' + str(AbsALT) + '\n' )
+
+    log.writelines(';GUI log ends here\n\n')
 
 window.close()

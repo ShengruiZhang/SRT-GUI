@@ -1,4 +1,11 @@
 Positive motor count turns dish toward horizon
+
+Motor count, from Abs Zenith to Horizon limit switch
+148,572
+
+Motor count, from Abs Zenith to Past-Zenith limit switch
+-23,217
+
 Altitude Gear Ration:
 	
 	Alt Turns : Servo Turns = 1:167.1
