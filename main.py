@@ -304,8 +304,14 @@ while True:
 
         print("Software E-Stop is pressed")
 
-        mc.Stop(Servo_AZ)
-        mc.Stop(Servo_ALT)
+        if (GUIstatus & 0b0010) == 0b0010:
+            mc.Stop(Servo_AZ)
+
+        if (GUIstatus & 0b0100) == 0b0100:
+            mc.Stop(Servo_ALT)
+
+        if (GUIstatus & 0b0110) == 0b0000:
+            print('No servo motors are enabled.')
 
         #TODO, need to check how brake engages
         #AFE.EngageBrake(AnalogControl)
@@ -319,8 +325,14 @@ while True:
         #WindSpeed = AFE.GetWindRaw(AnalogControl)
         window['-WIND-'].update(str(WindSpeed)+" m/s")
 
-        VAZ = mc.GetVoltage(Servo_AZ)
-        VALT = mc.GetVoltage(Servo_ALT)
+        if (GUIstatus & 0b0010) == 0b0010:
+            VAZ = mc.GetVoltage(Servo_AZ)
+
+        if (GUIstatus & 0b0100) == 0b0100:
+            VALT = mc.GetVoltage(Servo_ALT)
+
+        if (GUIstatus & 0b0110) == 0b0000:
+            print('No servo motors are enabled.')
 
         window['-voltAZ-'].update(str(VAZ)+" V")
         window['-voltALT-'].update(str(VALT)+" V")
