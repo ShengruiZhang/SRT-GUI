@@ -376,3 +376,19 @@ Last AZ Position: 0
 Last ALT Position: 0
 ;GUI log ends here
 
+2021-03-06 15:45:12
+Exit
+0 : None
+-IN-AZ- : 
+-IN-ALT- : 
+-EN-SRT- : False
+-EN-SERVO- : False
+-EN-AFE- : False
+-EN-JOG- : False
+4 : Default Folder
+Browse : 
+Last GUIstatus: 0b0
+Last AZ Position: 0
+Last ALT Position: 0
+;GUI log ends here
+
