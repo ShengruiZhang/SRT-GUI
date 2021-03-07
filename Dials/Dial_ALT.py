@@ -70,11 +70,20 @@ class ALT:
                 size=25,
                 color='lime green')
 
+        self.txt = self.Dial['DIAL-ALT'].DrawText(
+                "ALT Position = ???\N{DEGREE SIGN}",
+                (0,-600),
+                color='gold',
+                font=("OpenSans 36"),
+                angle=0,
+                text_location="center")
+
 
     def DelHand(self):
 
         self.Dial['DIAL-ALT'].delete_figure(self.line)
         self.Dial['DIAL-ALT'].delete_figure(self.point)
+        self.Dial['DIAL-ALT'].delete_figure(self.txt)
 
 
     def Update(self, degree):
@@ -92,3 +101,14 @@ class ALT:
         self.point = self.Dial['DIAL-ALT'].DrawPoint(
                 (xpt, ypt+100), size=25, color='lime green')
 
+        self.DrawTx(degree)
+
+    def DrawTx(self, degree):
+
+        self.txt = self.Dial['DIAL-ALT'].DrawText(
+                f'ALT Position = {abs(degree)}\N{DEGREE SIGN}',
+                (0,-600),
+                color='gold',
+                font=("OpenSans 36"),
+                angle=0,
+                text_location="center")

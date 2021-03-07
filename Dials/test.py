@@ -9,9 +9,12 @@ layout = [  [sg.B('Open Dials',key='POP')],
 
 window_main = sg.Window('Wrapper', layout, finalize=True)
 
+input = 0
+
+a = d.ALT()
 while True:
 
-    window, event, values = sg.read_all_windows(timeout=1000)
+    window, event, values = sg.read_all_windows(timeout=100)
 
     if event == sg.WIN_CLOSED:
         break
@@ -24,7 +27,14 @@ while True:
     if event == 'TRK':
 
         print('Start Tracking')
-        a.Update(120)
+        a.Update(input)
+
+    a.Update(input)
+
+    if input <= 130:
+        input += 1
+    else:
+        input = -130
 
     #print(window, event, values)
 
