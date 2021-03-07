@@ -1,20 +1,31 @@
 import PySimpleGUI as sg
+import Dial_ALT as d
 
 import sys
-import Dial_Az
-import Dial_Alt
 
-layout = [  [sg.B('Open Dials',key='POP')]    ]
+layout = [  [sg.B('Open Dials',key='POP')],
+            [sg.B('Track',key='TRK')]
+        ]
 
 window_main = sg.Window('Wrapper', layout, finalize=True)
 
 while True:
-    window, event, values = sg.read_all_windows()
 
-    if window == sg.WIN_CLOSED:
+    window, event, values = sg.read_all_windows(timeout=1000)
+
+    if event == sg.WIN_CLOSED:
         break
 
     if event == 'POP':
+
         print('Opening dials')
+        a = d.ALT()
+
+    if event == 'TRK':
+
+        print('Start Tracking')
+        a.Update(120)
+
+    #print(window, event, values)
 
 window_main.close()
