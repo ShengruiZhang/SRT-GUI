@@ -7,6 +7,7 @@
 
 
 import PySimpleGUI as sg
+import Dials.Dial_ALT as d
 from datetime import datetime as dt
 
 import sys
@@ -83,7 +84,9 @@ System = [      [sg.T('System Settings',font=('Helvetica 14 underline bold'))],
                     enable_events=True,key='-EN-AFE-')],
 
                 [sg.Check('Enable Jogging',size=(20,1),default=False,
-                    enable_events=True,key='-EN-JOG-')]
+                    enable_events=True,key='-EN-JOG-')],
+
+                [sg.B('Test Dial',key='-TEST-')]
                 ]
 
 data_recording = [
@@ -149,6 +152,8 @@ WindSpeed = 55
 
 VAZ = 12.34
 VALT = 56.78
+
+altdial = d.ALT()
 
 # Serial connection to Analog Front-End Control
 #AnalogControl = AFE.Init(9600)
@@ -413,6 +418,7 @@ while True:
 
     if (GUIstatus & 0b0100) == 0b0100:
         AbsALT = GetPosAbs(Servo_ALT)
+        altdial.Update(AbsALT)
 
     with open('absPos.dat', 'a') as absPos:
         absPos.writelines( dt.now().strftime('%Y-%m-%d %H:%M:%S\n') )
