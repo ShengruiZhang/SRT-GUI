@@ -275,7 +275,7 @@ def ReadISW(_Serial_):
 #
 def Jogging(_Serial_, _dist_):
 
-    _command_ = "@16 135 " + str(_dist_) + ' ' + str(acc2nat(1)) + ' ' + str(rps2nat(1)) + " 0 0 \r"
+    _command_ = "@16 135 " + str(_dist_) + ' ' + str(acc2nat(1)) + ' ' + str(rps2nat(5)) + " 0 0 \r"
 
     _Serial_.write(_command_.encode())
 

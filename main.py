@@ -4,6 +4,18 @@
 #   TODO
 #   1. Input protection for coord. input
 #   2. Update the Target Position after an coord. is entered
+#   3. Add Restart button 
+#   4. Attach zeroing to calibration
+#   5. Swap alt jogging direction
+#   6. Set SW limit switch
+#   7. figure out how to update dial
+#   8. integrate az dial
+#   9. Implement Stow button
+#   10. Check main additions
+#   11. Change coord entry to Celestial
+#   12. attach anemometer
+#   13. attach brake to jogging
+#   14. fix stop indexError
 
 
 import PySimpleGUI as sg
@@ -342,6 +354,15 @@ while True:
         window['-voltAZ-'].update(str(VAZ)+" V")
         window['-voltALT-'].update(str(VALT)+" V")
 
+    # Need to set a bigger interval, now is too laggy
+        if (GUIstatus & 0b0010) == 0b0010:
+            AbsAZ = mc.GetPosAbs(Servo_AZ)
+
+        if (GUIstatus & 0b0100) == 0b0100:
+            AbsALT = mc.GetPosAbs(Servo_ALT)
+            altdial.Update(round(AbsALT*0.000538, 1))
+
+
 
     if event == '-STEP1-':
 
@@ -412,13 +433,6 @@ while True:
         print('Jogging Altitude Counter-Clockwise')
         mc.Jogging(Servo_ALT, -JogStepALT)
 
-
-    if (GUIstatus & 0b0010) == 0b0010:
-        AbsAZ = GetPosAbs(Servo_AZ)
-
-    if (GUIstatus & 0b0100) == 0b0100:
-        AbsALT = GetPosAbs(Servo_ALT)
-        altdial.Update(AbsALT)
 
     with open('absPos.dat', 'a') as absPos:
         absPos.writelines( dt.now().strftime('%Y-%m-%d %H:%M:%S\n') )

@@ -392,3 +392,171 @@ Last AZ Position: 0
 Last ALT Position: 0
 ;GUI log ends here
 
+2021-03-07 12:34:14
+Exit
+0 : None
+-IN-AZ- : 
+-IN-ALT- : 
+-EN-SRT- : False
+-EN-SERVO- : False
+-EN-AFE- : False
+-EN-JOG- : False
+4 : Default Folder
+Browse : 
+Last GUIstatus: 0b0
+Last AZ Position: 0
+Last ALT Position: 0
+;GUI log ends here
+
+2021-03-07 14:19:01
+Exit
+0 : None
+-IN-AZ- : 
+-IN-ALT- : 
+-EN-SRT- : False
+-EN-SERVO- : True
+-EN-AFE- : False
+-EN-JOG- : True
+4 : Default Folder
+Browse : 
+Last GUIstatus: 0b1110
+Last AZ Position: 0
+Last ALT Position: -1
+;GUI log ends here
+
+2021-03-07 14:25:09
+Exit
+0 : None
+-IN-AZ- : 
+-IN-ALT- : 
+-EN-SRT- : False
+-EN-SERVO- : True
+-EN-AFE- : False
+-EN-JOG- : False
+4 : Default Folder
+Browse : 
+Last GUIstatus: 0b110
+Last AZ Position: -93649
+Last ALT Position: -141141
+;GUI log ends here
+
+2021-03-07 14:26:33
+Exit
+0 : None
+-IN-AZ- : 
+-IN-ALT- : 
+-EN-SRT- : False
+-EN-SERVO- : True
+-EN-AFE- : False
+-EN-JOG- : False
+4 : Default Folder
+Browse : 
+Last GUIstatus: 0b110
+Last AZ Position: -93649
+Last ALT Position: -141141
+;GUI log ends here
+
+2021-03-07 14:30:00
+Exit
+0 : None
+-IN-AZ- : 
+-IN-ALT- : 
+-EN-SRT- : False
+-EN-SERVO- : False
+-EN-AFE- : False
+-EN-JOG- : False
+4 : Default Folder
+Browse : 
+Last GUIstatus: 0b1000
+Last AZ Position: -93649
+Last ALT Position: -141141
+;GUI log ends here
+
+2021-03-07 15:13:22
+Exit
+0 : None
+-IN-AZ- : 
+-IN-ALT- : 
+-EN-SRT- : False
+-EN-SERVO- : True
+-EN-AFE- : False
+-EN-JOG- : False
+4 : Default Folder
+Browse : 
+Last GUIstatus: 0b110
+Last AZ Position: 0
+Last ALT Position: 2
+;GUI log ends here
+
+2021-03-07 17:25:24
+Exit
+0 : None
+-IN-AZ- : 
+-IN-ALT- : 
+-EN-SRT- : False
+-EN-SERVO- : False
+-EN-AFE- : False
+-EN-JOG- : False
+4 : Default Folder
+Browse : 
+Last GUIstatus: 0b0
+Last AZ Position: 0
+Last ALT Position: 0
+;GUI log ends here
+
+2021-03-07 17:33:00
+Exit
+0 : None
+-IN-AZ- : 
+-IN-ALT- : 
+-EN-SRT- : True
+-EN-SERVO- : True
+-EN-AFE- : False
+-EN-JOG- : True
+4 : Default Folder
+Browse : 
+Last GUIstatus: 0b1110
+Last AZ Position: 0
+Last ALT Position: 0
+;GUI log ends here
+
+2021-03-07 17:40:11
+Exit
+0 : None
+-IN-AZ- : 
+-IN-ALT- : 
+-EN-SRT- : True
+-EN-SERVO- : True
+-EN-AFE- : False
+-EN-JOG- : True
+4 : Default Folder
+Browse : 
+Last GUIstatus: 0b1110
+Last AZ Position: 0
+Last ALT Position: 0
+;GUI log ends here
+
+2021-03-07 17:45:24
+Exit
+0 : None
+-IN-AZ- : 
+-IN-ALT- : 
+-EN-SRT- : False
+-EN-SERVO- : True
+-EN-AFE- : False
+-EN-JOG- : True
+4 : Default Folder
+Browse : 
+Last GUIstatus: 0b1110
+Last AZ Position: 0
+Last ALT Position: 0
+;GUI log ends here
+
+2021-03-07 17:47:42
+None
+Window closed by X 
+Last GUIstatus: 0b1110
+Last AZ Position: 0
+Last ALT Position: 0
+;GUI log ends here
+
