@@ -325,10 +325,14 @@ def Stop(_Serial_):
 
     lines = _Serial_.readline().decode('ascii')
 
-    if lines[0] == '*' and lines[1] == "10":
-        return 0
-    else:
-        return 1
+    try:
+        if lines[0] == '*' and lines[1] == "10":
+            return 0
+        else:
+            return 1
+
+    except IndexError as ie:
+        print('Servo did not respond within the given time.')
 
 
 # Get SilverMax temperature
@@ -451,6 +455,28 @@ def rps2nat(_rps_):
 #
 def acc2nat(_acc_):
     return round(_acc_ * 3865)
+
+
+# Convert native SilverMax counts to numerical degrees
+#
+# Input:    alt SilverMax counts
+# Return:   numerical degrees
+#
+# Refer to /docs/gear_ratio
+#
+def nat2alt(_counts_):
+    return  round(_counts_ * 0.000538)
+
+
+# Convert native SilverMax counts to numerical degrees
+#
+# Input:    az SilverMax counts
+# Return:   numerical degrees
+#
+# Refer to /docs/gear_ratio
+#
+def nat2az(_counts_):
+    return  round(_counts_ * 0.000107)
 
 
 # Convert Hex two's complement to signed decimal

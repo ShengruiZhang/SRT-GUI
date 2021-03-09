@@ -9,13 +9,14 @@
 #   5. Swap alt jogging direction
 #   6. Set SW limit switch
 #   7. figure out how to update dial
-#   8. integrate az dial
+#   8. integrate alt/az dial
 #   9. Implement Stow button
 #   10. Check main additions
 #   11. Change coord entry to Celestial
 #   12. attach anemometer
 #   13. attach brake to jogging
-#   14. fix stop indexError
+#   14. [FIXED, Not tested]fix stop indexError
+#   15. disabled absPos logging, need to reduce file size
 
 
 import PySimpleGUI as sg
@@ -354,13 +355,13 @@ while True:
         window['-voltAZ-'].update(str(VAZ)+" V")
         window['-voltALT-'].update(str(VALT)+" V")
 
-    # Need to set a bigger interval, now is too laggy
-        if (GUIstatus & 0b0010) == 0b0010:
-            AbsAZ = mc.GetPosAbs(Servo_AZ)
-
-        if (GUIstatus & 0b0100) == 0b0100:
-            AbsALT = mc.GetPosAbs(Servo_ALT)
-            altdial.Update(round(AbsALT*0.000538, 1))
+#        # Need to set a bigger interval, now is too laggy
+#        if (GUIstatus & 0b0010) == 0b0010:
+#            AbsAZ = mc.GetPosAbs(Servo_AZ)
+#
+#        if (GUIstatus & 0b0100) == 0b0100:
+#            AbsALT = mc.GetPosAbs(Servo_ALT)
+#            altdial.Update(round(AbsALT*0.000538, 1))
 
 
 
