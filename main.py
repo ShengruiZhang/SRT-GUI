@@ -4,19 +4,19 @@
 #   TODO
 #   1. Input protection for coord. input
 #   2. Update the Target Position after an coord. is entered
-#   3. Add Restart button 
-#   4. Attach zeroing to calibration
-#   5. Swap alt jogging direction
-#   6. Set SW limit switch
+#   3. [fixed, not tested]Add Restart button 
+#   4. [fixed, not tested]Attach zeroing to calibration
+#   5. [fixed, not tested]Swap alt jogging direction
+#   6. [fixed, not tested]Set SW limit switch
 #   7. figure out how to update dial
 #   8. integrate alt/az dial
-#   9. Implement Stow button
+#   9. [fixed, not tested]Implement Stow button
 #   10. Check main additions
 #   11. Change coord entry to Celestial
 #   12. attach anemometer
 #   13. attach brake to jogging
-#   14. [FIXED, Not tested]fix stop indexError
-#   15. disabled absPos logging, need to reduce file size
+#   14. [fixed, not tested]fix stop indexerror
+#   15. [fixed, not tested]disabled absPos logging, need to reduce file size
 
 
 import PySimpleGUI as sg
@@ -99,7 +99,11 @@ System = [      [sg.T('System Settings',font=('Helvetica 14 underline bold'))],
                 [sg.Check('Enable Jogging',size=(20,1),default=False,
                     enable_events=True,key='-EN-JOG-')],
 
-                [sg.B('Test Dial',key='-TEST-')]
+                [sg.B('Home AZ',key='-HOME-AZ-')],
+
+                [sg.B('Home ALT',key='-HOME-ALT-')],
+
+                [sg.B('Restart',key='-RESTART-')]
                 ]
 
 data_recording = [
@@ -163,8 +167,8 @@ window = sg.Window('Student Radio Telescope Control', layout, element_justificat
 # FOR TESTING, making up numbers here
 WindSpeed = 55
 
-VAZ = 12.34
-VALT = 56.78
+VAZ = 00.00
+VALT = 00.00
 
 altdial = d.ALT()
 
@@ -173,15 +177,16 @@ altdial = d.ALT()
 #AFE.Activate(AnalogControl)
 
 
-# Abs Position of servomotors
+# Abs Position of Servomotors
 AbsAZ = 0
 AbsALT = 0
+absPosTimer = 0
 
 # GUI Status bits
 #   bit7 - Stowed
-#   bit6 - unused
-#   bit5 - unused
-#   bit4 - unused
+#   bit6 - Calibrated
+#   bit5 - ALT homed
+#   bit4 - AZ homed
 #   bit3 - Jogging Enabled
 #   bit2 - Servomotor ALT Enabled
 #   bit1 - Servomotor AZ Enabled
@@ -204,7 +209,7 @@ class GUI():
         window['-STEP4-'].update(disabled=True)
 
 
-    def JogEnable(GUIstatus):
+    def JogEnable():
 
         window['_AZ+_'].update(disabled=False)
         window['_AZ-_'].update(disabled=False)
@@ -233,8 +238,12 @@ while True:
         # GUI is closed either by using 'X', or the Exit button
         break
 
-    if event == '-EN-SRT-':
+    if event == '-EN-SRT-' and values['-EN-SRT-'] == True:
         print('Enabling Telescope Control')
+        #TODO
+
+    if event == '-EN-SRT-' and values['-EN-SRT-'] == False:
+        print('Disabling Telescope Control')
         #TODO
 
     if event == '-EN-SERVO-' and values['-EN-SERVO-'] == True:
@@ -248,7 +257,7 @@ while True:
 
         except Exception as e:
             print('Error: Cannot open serial port for AZ servo.')
-            print('Error message: ', str(e))
+            print(str(e))
             print('Error: Cannot enable AZ servo.')
 
         try:
@@ -258,7 +267,7 @@ while True:
 
         except Exception as e:
             print('Error: Cannot open serial port for ALT servo.')
-            print('Error message: ', str(e))
+            print(str(e))
             print('Error: Cannot enable ALT servomotor.')
 
         if (GUIstatus & 0b0110) == 0:
@@ -299,7 +308,7 @@ while True:
             window['-EN-JOG-'].update(value=False)
 
         else:
-            GUI.JogEnable(GUIstatus)
+            GUI.JogEnable()
 
         GUIstatus |= 0b1000
 
@@ -350,19 +359,10 @@ while True:
             VALT = mc.GetVoltage(Servo_ALT)
 
         if (GUIstatus & 0b0110) == 0b0000:
-            print('No servo motors are enabled.')
+            print('No servomotors are enabled.')
 
         window['-voltAZ-'].update(str(VAZ)+" V")
         window['-voltALT-'].update(str(VALT)+" V")
-
-#        # Need to set a bigger interval, now is too laggy
-#        if (GUIstatus & 0b0010) == 0b0010:
-#            AbsAZ = mc.GetPosAbs(Servo_AZ)
-#
-#        if (GUIstatus & 0b0100) == 0b0100:
-#            AbsALT = mc.GetPosAbs(Servo_ALT)
-#            altdial.Update(round(AbsALT*0.000538, 1))
-
 
 
     if event == '-STEP1-':
@@ -416,29 +416,90 @@ while True:
 
     if event == '_AZ+_':
 
-        print('Jogging Azimuth Clockwise')
-        mc.Jogging(Servo_AZ, JogStepAZ)
+        if mc.LimitAZ(AbsAZ, JogStepAZ) == 0:
+            print('Jogging Azimuth Clockwise')
+            mc.Jogging(Servo_AZ, JogStepAZ, 2, 5)
+            AbsAZ += JogStepAZ
 
     if event == '_AZ-_':
 
-        print('Jogging Azimuth Counter-Clockwise')
-        mc.Jogging(Servo_AZ, -JogStepAZ)
+        if mc.LimitAZ(AbsAZ, -JogStepAZ) == 0:
+            print('Jogging Azimuth Counter-Clockwise')
+            mc.Jogging(Servo_AZ, -JogStepAZ, 2, 5)
+            AbsAZ -= JogStepAZ
 
     if event == '_ALT+_':
 
-        print('Jogging Altitude Clockwise')
-        mc.Jogging(Servo_ALT, JogStepALT)
+        if mc.LimitALT_zenith(AbsALT, -JogStepALT) == 0:
+            print('Jogging Altitude Positive')
+            mc.Jogging(Servo_ALT, -JogStepAZ, 2, 5)
+            AbsALT -= JogStepALT
 
     if event == '_ALT-_':
 
-        print('Jogging Altitude Counter-Clockwise')
-        mc.Jogging(Servo_ALT, -JogStepALT)
+        if mc.LimitALT_zenith(AbsALT, JogStepALT) == 0:
+            print('Jogging Altitude Negative')
+            mc.Jogging(Servo_ALT, JogStepAZ, 2, 5)
+            AbsALT += JogStepALT
 
 
-    with open('absPos.dat', 'a') as absPos:
-        absPos.writelines( dt.now().strftime('%Y-%m-%d %H:%M:%S\n') )
-        absPos.writelines( str(AbsAZ) + '\n' )
-        absPos.writelines( str(AbsALT) + '\n' + '\n' )
+    # ------------------!!! Place Holder as written, need future work !!!----------------
+    if event == '-CALIB-'and (GUIstatus & 0b0110) == 0b0110:
+        print('Homing AZ and ALT')
+        print(mc.Zero(Servo_AZ))
+        print(mc.Zero(Servo_ALT))
+        AbsAZ = 0
+        AbsALT = 0
+        GUIstatus |= 0b01000000
+
+    if event == '-HOME-AZ-' and (GUIstatus & 0b0010) == 0b0010:
+        print('Setting current position as AZ home')
+        print(mc.Zero(Servo_AZ))
+        AbsAZ = 0
+        GUIstatus |= 0b00010000
+
+    if event == '-HOME-ALT-' and (GUIstatus & 0b0100) == 0b0100:
+        print('Setting current position as ALT home')
+        print(mc.Zero(Servo_ALT))
+        AbsALT = 0
+        GUIstatus |= 0b00100000
+
+
+    if event == '-STOW-' and (GUIstatus & 0b10000110) == 0b00000110:
+
+        mc.Stow(Servo_AZ, 0, 2, 3)
+        mc.Stow(Servo_ALT, 0, 1, 2)
+        GUIstatus |= 0b10000000
+
+
+    if event == '-RESTART-' and (GUIstatus & 0b0110) == 0b0110:
+        mc.Restart(Servo_AZ)
+        mc.Restart(Servo_ALT)
+
+
+    if AbsAZ == 0:
+        GUIstatus |= 0b00010000
+    else:
+        GUIstatus &= 0b01101111
+
+    if AbsALT == 0:
+        GUIstatus |= 0b00100000
+    else:
+        GUIstatus &= 0b01011111
+
+
+    # Software limit switch
+    absPosTimer += 1
+
+    # Save absolute Position externally every 2s
+    if absPosTimer == 20:
+
+        with open('absPos.dat', 'a') as absPos:
+            absPos.writelines( dt.now().strftime('%Y-%m-%d %H:%M:%S\n') )
+            absPos.writelines( str(AbsAZ) + '\n' )
+            absPos.writelines( str(AbsALT) + '\n' + '\n' )
+
+        absPosTimer = 0
 
 
 # Close the Serial connection
@@ -465,6 +526,6 @@ with open('gui.log', 'a') as log:
     log.writelines( 'Last AZ Position: ' + str(AbsAZ) + '\n' )
     log.writelines( 'Last ALT Position: ' + str(AbsALT) + '\n' )
 
-    log.writelines(';GUI log ends here\n\n')
+    log.writelines(';GUI log ends here\n\n\n')
 
 window.close()

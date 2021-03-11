@@ -12,12 +12,14 @@ _Baud_SilverMax_ = 57600
 # Input: Name of the serial port, Baud rate
 # Return: The serial object
 #
-# This sets serial 8N2, 1s timeout
+# This sets serial 8N2, no timeout
 #
 def Init(_port_):
 
-    _Servo_ = serial.Serial(_port_, _Baud_SilverMax_,
-                            bytesize=8, parity='N', stopbits=2, timeout=1)
+    _Servo_ = serial.Serial(_port_,
+                            _Baud_SilverMax_,
+                            bytesize=8, parity='N', stopbits=2,
+                            timeout=None)
 
     return _Servo_
 
@@ -46,8 +48,6 @@ def ReadPSW(_Serial_):
     # Poll without cmd number
     _Serial_.write(b'@16 \r')
 
-    # TESTING: making up PSW
-    #_response_ = '# 10 0000 0300 \r'
     _response_ = _Serial_.readline().decode('ascii')
 
     lines = _response_.split()
@@ -167,8 +167,6 @@ def ReadISW(_Serial_):
 
     _Serial_.write(b'@16 20 \r')
 
-    # For testing, making up ISW
-    #_response_ = '# 10 0014 00F3'
     _response_ = _Serial_.readline().decode('ascii')
 
     print(f'SilverMax Responsed: {_response_}')
@@ -273,40 +271,44 @@ def ReadISW(_Serial_):
 #   MRV is used here
 #   TODO: take telescope movement as input?
 #
-def Jogging(_Serial_, _dist_):
+def Jogging(_Serial_, _dist_, _acc_, _vel_):
 
-    _command_ = "@16 135 " + str(_dist_) + ' ' + str(acc2nat(1)) + ' ' + str(rps2nat(5)) + " 0 0 \r"
+    _command_ = "@16 135 " + str(_dist_) + ' ' + str(acc2nat(_acc_)) + ' ' + str(rps2nat(_vel_)) + " 0 0 \r"
 
     _Serial_.write(_command_.encode())
 
-    # Try to speed this up
     print(_Serial_.readline())
-    #print(_Serial_.readline().decode('ascii'))
 
 
 # Stowing the telescope, move it back to the stow Position (aka. home Position)
 #
+# Input:    Serial object, Jogging distance
+# Return:   void
+#
+# Refer to Command Reference page 96
+#   MAV is used
+#
+def Stow(_Serial_, _dist_, _acc_, _vel_):
+
+    _command_ = "@16 134 " + str(_dist_) + ' ' + str(acc2nat(_acc_)) + ' ' + str(rps2nat(_vel_)) + " 0 0 \r"
+
+    _Serial_.write(_command_.encode())
+
+    print(_Serial_.readline())
+
+
+# Software restart the Servomotor
+#
 # Input:    Serial object
 # Return:   void
 #
-def Stow(_Serial_):
-    return
-
-
-# Stowing the telescope, move it back to the stow Position (aka. home Position)
+# Refer to Command Reference page 19
 #
-# Input:    Serial object
-# Return:   void
-# TODO
 def Restart(_Serial_):
 
     _command_ = "@16 4 \r"
 
     _Serial_.write(_command_.encode())
-
-    lines = _Serial_.readline().decode('ascii')
-
-    print(lines)
 
 
 # Stop the SilverMax
@@ -422,6 +424,82 @@ def SaveAbsPos(_Serial_):
     _Serial_.write(_command_.encode())
 
     print(_Serial_.readline().decode('ascii'))
+
+
+# Zero Target and Position
+#
+# Input:    Serial object
+# Return:   SilverMax response
+#
+# Refer to Command Reference page 174
+#   ZTP is used here
+#
+def Zero(_Serial_):
+
+    _command_ = "@16 145 " + " \r"
+
+    _Serial_.write(_command_.encode())
+
+    return _Serial_.readline().decode('ascii')
+
+
+# Check if the motion exceeds the mechanical travel of Azimuth
+#
+# Input:    Azimuth abs Position, planned motion
+# Return:   0 if within range, otherwise 1
+#
+def LimitAZ(_absAZ_, _inc_):
+
+    if (_absAZ_ + _inc_) > 3371400:
+        print('Positive Wrap exceeds 1 rev')
+
+    elif (_absAZ_ + _inc_) < -3371400:
+        print('Negative Wrap exceeds 1 rev')
+
+    else:
+        return 0
+
+
+# Check if the motion exceeds the mechanical travel of Altitude
+#
+# Input:    Altitude abs Position, planned motion
+# Return:   0 if within range, otherwise 1
+#
+# Assume ALT Servo is zeroed at 12.5 passes zenith (original limit switch)
+#
+def LimitALT(_absALT_, _inc_):
+
+    if (_absALT_ + _inc_) > 171789:
+        print('The motion exceeds the ALT travel limit: LOW')
+        return 1
+
+    elif (_absAZ_ + _inc_) < 0:
+        print('The motion exceeds the ALT travel limit: HIGH')
+        return 1
+
+    else:
+        return 0
+
+
+# [DEBUG] Check if the motion exceeds the mechanical travel of Altitude
+#
+# Input:    Altitude abs Position, planned motion
+# Return:   0 if within range, otherwise 1
+#
+# Assume ALT Servo is zeroed at zenith
+#
+def LimitALT_zenith(_absALT_, _inc_):
+
+    if (_absALT_ + _inc_) > 148572:
+        print('The motion exceeds the ALT travel limit: LOW')
+        return 1
+
+    elif (_absAZ_ + _inc_) < -23217:
+        print('The motion exceeds the ALT travel limit: HIGH')
+        return 1
+
+    else:
+        return 0
 
 
 # Convert human-readable velocity(rpm) into native units of SilverMax
