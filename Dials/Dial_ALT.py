@@ -5,7 +5,7 @@ class ALT:
 
     def __init__(self):
 
-        self.layout = [  [sg.Graph(canvas_size=(700,700),
+        self.layout = [  [sg.Graph(canvas_size=(500,500),
             graph_bottom_left=(-700,-700),
             graph_top_right=(700,700),
             background_color='black',
@@ -30,28 +30,28 @@ class ALT:
         self.Dial['DIAL-ALT'].DrawText(  "0",
                 (550,100),
                 color='gold',
-                font=("OpenSans 20"),
+                font=("OpenSans 18"),
                 angle=0,
                 text_location='center')
 
         self.Dial['DIAL-ALT'].DrawText(  "45",
                 (394,494),
                 color='gold',
-                font=("OpenSans 20"),
+                font=("OpenSans 18"),
                 angle=0,
                 text_location='center')
 
         self.Dial['DIAL-ALT'].DrawText(  "90",
                 (0,650),
                 color='gold',
-                font=("OpenSans 20"),
+                font=("OpenSans 18"),
                 angle=0,
                 text_location='center')
 
         self.Dial['DIAL-ALT'].DrawText(  "135",
                 (-394,494),
                 color='gold',
-                font=("OpenSans 20"),
+                font=("OpenSans 18"),
                 angle=0,
                 text_location='center')
 
@@ -74,7 +74,7 @@ class ALT:
                 "ALT Position = ???\N{DEGREE SIGN}",
                 (0,-600),
                 color='gold',
-                font=("OpenSans 36"),
+                font=("OpenSans 30"),
                 angle=0,
                 text_location="center")
 
@@ -109,6 +109,6 @@ class ALT:
                 f'ALT Position = {abs(degree)}\N{DEGREE SIGN}',
                 (0,-600),
                 color='gold',
-                font=("OpenSans 36"),
+                font=("OpenSans 30"),
                 angle=0,
                 text_location="center")

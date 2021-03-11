@@ -20,7 +20,8 @@
 
 
 import PySimpleGUI as sg
-import Dials.Dial_ALT as d
+import Dials.Dial_AZ as daz
+import Dials.Dial_ALT as dalt
 from datetime import datetime as dt
 
 import sys
@@ -99,9 +100,7 @@ System = [      [sg.T('System Settings',font=('Helvetica 14 underline bold'))],
                 [sg.Check('Enable Jogging',size=(20,1),default=False,
                     enable_events=True,key='-EN-JOG-')],
 
-                [sg.B('Home AZ',key='-HOME-AZ-')],
-
-                [sg.B('Home ALT',key='-HOME-ALT-')],
+                [sg.B('Home AZ',size=(9,1),key='-HOME-AZ-'),sg.B('Home ALT',size=(9,1),key='-HOME-ALT-')],
 
                 [sg.B('Restart',key='-RESTART-')]
                 ]
@@ -170,7 +169,8 @@ WindSpeed = 55
 VAZ = 00.00
 VALT = 00.00
 
-altdial = d.ALT()
+azDial = daz.AZ()
+altDial = dalt.ALT()
 
 # Serial connection to Analog Front-End Control
 #AnalogControl = AFE.Init(9600)
