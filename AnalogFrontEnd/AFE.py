@@ -12,7 +12,7 @@ import time
 # This also set the timeout for readline to 2s
 #
 def Init(_port_, _Baud_):
-    _AFE_ = serial.Serial(_port_, _Baud_, timeout=2)
+    _AFE_ = serial.Serial(_port_, _Baud_, timeout=None)
     return _AFE_
 
 
