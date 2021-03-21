@@ -1,0 +1,113 @@
+syntax on
+syntax enable
+
+"--------------------------------------
+if $COLORTERM  == 'gnome-terminal'
+	set t_Co=256
+endif
+
+try
+	colorscheme elflord
+catch
+endtry
+
+set background=dark
+"--------------------------------------
+
+set number
+set showmode
+set so=999
+set history=500
+
+filetype plugin on
+filetype indent on
+
+set autoread
+au FocusGained,BufEnter * checktime
+
+set ruler
+set cmdheight=1
+
+set hid
+
+set backspace=eol,start,indent
+set whichwrap+=<,>,h,l
+
+set ignorecase
+set smartcase
+
+set hlsearch
+set incsearch
+
+set lazyredraw
+
+set magic
+
+set nobackup
+set nowb
+set noswapfile
+
+" Use spaces instead of tabs
+"set expandtab
+
+set smarttab
+
+set shiftwidth=4
+set tabstop=4
+
+" Show indent line for tabs
+set list lcs=tab:\|\ 
+
+set lbr
+set tw=500
+
+set ai "Auto indent
+set si "Smart indent
+set wrap "Wrap lines
+
+" Always show the status line
+set laststatus=2
+
+" Status line shows prediction and autocompletion
+set wildmenu
+
+" Show current pressed keys
+set showcmd
+
+" Format the status line
+set statusline=\ %{HasPaste()}%F%m%r%h\ %w\ \ CWD:\ %r%{getcwd()}%h\ \ \ Line:\ %l\ \ Column:\ %c
+
+" Returns true if paste mode if enabled
+function! HasPaste()
+	if &paste
+		return 'PASTE MDOE '
+	endif
+	return ''
+endfunction
+
+"---Vim-plug Starts here---------------
+call plug#begin('~/.vim/vimplugins')
+
+Plug 'preservim/nerdtree'
+Plug 'preservim/tagbar'
+Plug 'vim-python/python-syntax'
+
+call plug#end()
+"---Vim-plug Ends here-----------------
+
+"---Customization for NERDTree---------
+nmap <F2> :NERDTreeToggle <CR>
+
+" Remap keys to switch between windows splits
+nmap `j <C-w>j
+nmap `k <C-w>k
+nmap `l <C-w>l
+nmap `h <C-w>h
+"--------------------------------------
+
+"---Customization for NERDTree---------
+nmap <F3> :TagbarToggle <CR>
+"--------------------------------------
+
+" Enable Syntax Highlight for Python
+let g:python_highlight_all = 1
