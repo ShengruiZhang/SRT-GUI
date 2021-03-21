@@ -4,7 +4,7 @@
 #   TODO
 #   1. Input protection for coord. input
 #   2. Update the Target Position after an coord. is entered
-#   3. [fixed, not tested]Add Restart button 
+#   3. [fixed, tested]Add Restart button 
 #   4. [fixed, not tested]Attach zeroing to calibration
 #   5. [fixed, not tested]Swap alt jogging direction
 #   6. [fixed, not tested]Set SW limit switch
@@ -432,14 +432,14 @@ while True:
 
         if mc.LimitALT_zenith(AbsALT, -JogStepALT) == 0:
             print('Jogging Altitude Positive')
-            mc.Jogging(Servo_ALT, -JogStepAZ, 2, 5)
+            mc.Jogging(Servo_ALT, -JogStepAZ, 2, 2)
             AbsALT -= JogStepALT
 
     if event == '_ALT-_':
 
         if mc.LimitALT_zenith(AbsALT, JogStepALT) == 0:
             print('Jogging Altitude Negative')
-            mc.Jogging(Servo_ALT, JogStepAZ, 2, 5)
+            mc.Jogging(Servo_ALT, JogStepAZ, 2, 2)
             AbsALT += JogStepALT
 
 

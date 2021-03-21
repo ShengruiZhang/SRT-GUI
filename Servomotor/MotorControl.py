@@ -19,7 +19,7 @@ def Init(_port_):
     _Servo_ = serial.Serial(_port_,
                             _Baud_SilverMax_,
                             bytesize=8, parity='N', stopbits=2,
-                            timeout=None)
+                            timeout=0.025)
 
     return _Servo_
 
@@ -494,7 +494,7 @@ def LimitALT_zenith(_absALT_, _inc_):
         print('The motion exceeds the ALT travel limit: LOW')
         return 1
 
-    elif (_absAZ_ + _inc_) < -23217:
+    elif (_absALT_ + _inc_) < -23217:
         print('The motion exceeds the ALT travel limit: HIGH')
         return 1
 
