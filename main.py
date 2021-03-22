@@ -485,21 +485,39 @@ while True:
         GUIstatus &= 0b01011111
 
 
+    if (GUIstatus & 0b00010) == 0b00010:
+
+        AbsAZ = mc.GetPosAbs(Servo_AZ)
+        azDial.Update(round((AbsAZ/(-9365)), 1))
+
+        if AbsAZ < -842857:
+            mc.Stop(Servo_AZ)
+            print('AZ Servo exceeds mechanical travel')
+            mc.Jogging(Servo_AZ, 4000, 2, 2)
+            sleep(1.5)
+
+        elif AbsAZ > 4214285:
+            mc.Stop(Servo_AZ)
+            print('AZ Servo exceeds mechanical travel')
+            mc.Jogging(Servo_AZ, -4000, 2, 2)
+            sleep(1.5)
+
     if (GUIstatus & 0b00100) == 0b00100:
 
         AbsALT = mc.GetPosAbs(Servo_ALT)
-        altDial.Update(round( (AbsALT/(-1857)) + 90, 1))
+        altDial.Update(round((AbsALT/(-1857)) + 90, 1))
 
         if AbsALT < -55710:
             mc.Stop(Servo_ALT)
             print('ALT Servo exceeds mechanical travel')
-            mc.Jogging(Servo_ALT, 100, 2, 2)
+            mc.Jogging(Servo_ALT, 4000, 2, 2)
+            sleep(1.5)
 
         elif AbsALT > 144846:
             mc.Stop(Servo_ALT)
             print('ALT Servo exceeds mechanical travel')
             mc.Jogging(Servo_ALT, -4000, 2, 2)
-            sleep(1)
+            sleep(1.5)
 
 
     # Software limit switch
