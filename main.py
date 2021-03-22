@@ -103,7 +103,7 @@ System = [      [sg.T('System Settings',font=('Helvetica 14 underline bold'))],
 
                 [sg.B('Home AZ',size=(9,1),key='-HOME-AZ-'),sg.B('Home ALT',size=(9,1),key='-HOME-ALT-')],
 
-                [sg.B('Restart',key='-RESTART-')]
+                [sg.B('[DEBUG]Restart',key='-RESTART-')]
                 ]
 
 data_recording = [
@@ -120,7 +120,7 @@ output =    [   [sg.T('Radio Telescope Control Output/Log')],
                 ]
 
 #---------------------------------------------------------------------------------------------------
-#------------------------------------ Main Window Layout -------------------------------------------
+#------------------------------------ Main Window layout -------------------------------------------
 
 layout = [  [sg.Menu(menu_def, tearoff=True)],
             [sg.T('Student Radio Telescope Control',size=(30,1),justification='c',font=("Helvetica 25"),
@@ -150,15 +150,19 @@ layout = [  [sg.Menu(menu_def, tearoff=True)],
             [sg.Frame(layout=data_recording, title='Data Output:',
                 font=("Helvetica 12"), title_color='white', relief=sg.RELIEF_RIDGE,
                 background_color='maroon', element_justification='c'),
-                sg.Output(size=(50,10),key='-OUTPUT-',echo_stdout_stderr=True)],
+                #sg.Output(size=(50,10),key='-OUTPUT-',echo_stdout_stderr=True)],
+                ],
 
             [sg.Exit()]
             ]
+
+layout_output = [ [sg.Output(size=(90,50),key='-OUT2-',echo_stdout_stderr=True)]  ]
 
 
 #---------------------------------------------------------------------------------------------------
 #------------------------------------ Creating Window ----------------------------------------------
 window = sg.Window('Student Radio Telescope Control', layout, element_justification='c')
+Output2 = sg.Window('Student Radio Telescope Control Output', layout_output, finalize=True)
 
 
 #---------------------------------------------------------------------------------------------------
@@ -172,6 +176,11 @@ VALT = 00.00
 
 azDial = daz.AZ()
 altDial = dalt.ALT()
+
+window.move(200,250)
+azDial.Dial.move(1300,50)
+altDial.Dial.move(1300,700)
+Output2.move(2000,50)
 
 # Serial connection to Analog Front-End Control
 #AnalogControl = AFE.Init(9600)
@@ -191,7 +200,7 @@ absPosTimer = 0
 #   bit3 - Jogging Enabled
 #   bit2 - Servomotor ALT Enabled
 #   bit1 - Servomotor AZ Enabled
-#   bit0 - unused
+#   bit0 - GUI opened
 GUIstatus = 0b00000000
 
 # Is there a better way doing this?
@@ -417,17 +426,13 @@ while True:
 
     if event == '_AZ+_':
 
-        if mc.LimitAZ(AbsAZ, JogStepAZ) == 0:
-            print('Jogging Azimuth Clockwise')
-            mc.Jogging(Servo_AZ, JogStepAZ, 2, 5)
-            AbsAZ += JogStepAZ
+        print('Jogging Azimuth Clockwise')
+        mc.Jogging(Servo_AZ, JogStepAZ, 2, 5)
 
     if event == '_AZ-_':
 
-        if mc.LimitAZ(AbsAZ, -JogStepAZ) == 0:
-            print('Jogging Azimuth Counter-Clockwise')
-            mc.Jogging(Servo_AZ, -JogStepAZ, 2, 5)
-            AbsAZ -= JogStepAZ
+        print('Jogging Azimuth Counter-Clockwise')
+        mc.Jogging(Servo_AZ, -JogStepAZ, 2, 5)
 
     if event == '_ALT+_':
 
@@ -442,20 +447,22 @@ while True:
 
     # ------------------!!! Place Holder as written, need future work !!!----------------
     if event == '-CALIB-'and (GUIstatus & 0b0110) == 0b0110:
+
         print('Homing AZ and ALT')
         print(mc.Zero(Servo_AZ))
         print(mc.Zero(Servo_ALT))
-        AbsAZ = 0
-        AbsALT = 0
-        GUIstatus |= 0b01000000
+        GUIstatus |= 0b00110000
+
 
     if event == '-HOME-AZ-' and (GUIstatus & 0b0010) == 0b0010:
+
         print('Setting current position as AZ home')
         print(mc.Zero(Servo_AZ))
         AbsAZ = 0
         GUIstatus |= 0b00010000
 
     if event == '-HOME-ALT-' and (GUIstatus & 0b0100) == 0b0100:
+
         print('Setting current position as ALT home')
         print(mc.Zero(Servo_ALT))
         AbsALT = 0
@@ -470,10 +477,24 @@ while True:
 
 
     if event == '-RESTART-' and (GUIstatus & 0b0110) == 0b0110:
+
         mc.Restart(Servo_AZ)
         mc.Restart(Servo_ALT)
 
 
+    # Poll Abs Position, and update dials
+    if (GUIstatus & 0b0010) == 0b0010:
+
+        AbsAZ = mc.LimitAZ(Servo_AZ)
+        azDial.Update(round((AbsAZ/(-9365)), 1))
+
+    if (GUIstatus & 0b0100) == 0b0100:
+
+        AbsALT = mc.LimitALT_zenith(Servo_ALT)
+        altDial.Update(round((AbsALT/(-1857)) + 90, 1))
+
+
+    # if pos is zero, set the HOMED bit
     if AbsAZ == 0:
         GUIstatus |= 0b00010000
     else:
@@ -483,41 +504,6 @@ while True:
         GUIstatus |= 0b00100000
     else:
         GUIstatus &= 0b01011111
-
-
-    if (GUIstatus & 0b00010) == 0b00010:
-
-        AbsAZ = mc.GetPosAbs(Servo_AZ)
-        azDial.Update(round((AbsAZ/(-9365)), 1))
-
-        if AbsAZ < -842857:
-            mc.Stop(Servo_AZ)
-            print('AZ Servo exceeds mechanical travel')
-            mc.Jogging(Servo_AZ, 4000, 2, 2)
-            sleep(1.5)
-
-        elif AbsAZ > 4214285:
-            mc.Stop(Servo_AZ)
-            print('AZ Servo exceeds mechanical travel')
-            mc.Jogging(Servo_AZ, -4000, 2, 2)
-            sleep(1.5)
-
-    if (GUIstatus & 0b00100) == 0b00100:
-
-        AbsALT = mc.GetPosAbs(Servo_ALT)
-        altDial.Update(round((AbsALT/(-1857)) + 90, 1))
-
-        if AbsALT < -55710:
-            mc.Stop(Servo_ALT)
-            print('ALT Servo exceeds mechanical travel')
-            mc.Jogging(Servo_ALT, 4000, 2, 2)
-            sleep(1.5)
-
-        elif AbsALT > 144846:
-            mc.Stop(Servo_ALT)
-            print('ALT Servo exceeds mechanical travel')
-            mc.Jogging(Servo_ALT, -4000, 2, 2)
-            sleep(1.5)
 
 
     # Software limit switch

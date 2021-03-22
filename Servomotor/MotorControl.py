@@ -1,7 +1,7 @@
 # Modules for Servomotor Controls
 
 import serial
-import time
+from time import sleep
 import binascii
 from datetime import datetime as dt
 
@@ -12,7 +12,7 @@ _Baud_SilverMax_ = 57600
 # Input: Name of the serial port, Baud rate
 # Return: The serial object
 #
-# This sets serial 8N2, no timeout
+# This sets serial 8N2, 25ms timeout
 #
 def Init(_port_):
 
@@ -269,13 +269,15 @@ def ReadISW(_Serial_):
 #
 # Refer to Command Reference page 99, user manual 43 (acceleration)
 #   MRV is used here
-#   TODO: take telescope movement as input?
 #
 def Jogging(_Serial_, _dist_, _acc_, _vel_):
 
     _command_ = "@16 135 " + str(_dist_) + ' ' + str(acc2nat(_acc_)) + ' ' + str(rps2nat(_vel_)) + " 0 0 \r"
 
-    _Serial_.write(_command_.encode())
+    if (ReadPSW(_Serial_) & 0x2000) == 0x2000:
+        print('There is an on-going motion.')
+    else:
+        _Serial_.write(_command_.encode())
 
     print(_Serial_.readline())
 
@@ -364,11 +366,11 @@ def GetTemp(_Serial_):
 #
 def GetVoltage(_Serial_):
 
-    lines1 = ReadRegister(_Serial_, 216)
+    line1 = ReadRegister(_Serial_, 216)
 
-    lines2 = ReadRegister(_Serial_, 214)
+    line2 = ReadRegister(_Serial_, 214)
 
-    voltage = round( int(lines2[3], 16) / int(lines1[4], 16), 2 )
+    voltage = round( int(line2[3], 16) / int(line1[4], 16), 2 )
 
     print(f'V+ Voltage: {voltage}')
 
@@ -386,9 +388,13 @@ def GetPosAbs(_Serial_):
 
     _abs_ = ReadRegister(_Serial_, 1)
 
-    if _abs_[0] == '#' and _abs_[1] == "10":
+    try:
+        if _abs_[0] == '#' and _abs_[1] == "10":
+            return twos_comp((_abs_[3] + _abs_[4]), 32)
 
-        return twos_comp((_abs_[3] + _abs_[4]), 32)
+    except IndexError as ie:
+        print('Error: SilverMax didn\'t respond, check Servomotor connection')
+        print(str(ie))
 
 
 # Read SilverMax register
@@ -445,63 +451,76 @@ def Zero(_Serial_):
 
 # Check if the motion exceeds the mechanical travel of Azimuth
 #
-# Input:    Azimuth abs Position, planned motion
-# Return:   0 if within range, otherwise 1
+# Input:    Azimuth abs Position
+# Return:   Abs Position of the AZ Servo
 #
-def LimitAZ(_absAZ_, _inc_):
+def LimitAZ(_Serial_):
 
-    if (_absAZ_ + _inc_) > 3371400:
-        print('Positive Wrap exceeds 1 rev')
+    _absAZ_ = GetPosAbs(_Serial_)
 
-    elif (_absAZ_ + _inc_) < -3371400:
-        print('Negative Wrap exceeds 1 rev')
+    if _absAZ_ < -842857:
 
-    else:
-        return 0
+        Stop(_Serial_)
+
+        print('The motion exceeds the AZ travel limit: NEGATIVE TURN')
+
+        # Move it away
+        Jogging(_Servo_, 4000, 2, 2)
+
+        # Allow it to move
+        sleep(1.5)
+
+    elif _absAZ_ > 4214285:
+
+        Stop(_Serial_)
+
+        print('The motion exceeds the AZ travel limit: POSITIVE TURN')
+
+        # Move it away
+        Jogging(_Servo_, -4000, 2, 2)
+
+        # Allow it to move
+        sleep(1.5)
+
+    return GetPosAbs(_Serial_)
 
 
 # Check if the motion exceeds the mechanical travel of Altitude
 #
-# Input:    Altitude abs Position, planned motion
-# Return:   0 if within range, otherwise 1
-#
-# Assume ALT Servo is zeroed at 12.5 passes zenith (original limit switch)
-#
-def LimitALT(_absALT_, _inc_):
-
-    if (_absALT_ + _inc_) > 171789:
-        print(f'DEBUG: inc: { _inc_}')
-        print('The motion exceeds the ALT travel limit: LOW')
-        return 1
-
-    elif (_absAZ_ + _inc_) < 0:
-        print(f'DEBUG: inc: { _inc_}')
-        print('The motion exceeds the ALT travel limit: HIGH')
-        return 1
-
-    else:
-        return 0
-
-
-# [DEBUG] Check if the motion exceeds the mechanical travel of Altitude
-#
-# Input:    Altitude abs Position, planned motion
-# Return:   0 if within range, otherwise 1
+# Input:    Altitude Serial object
+# Return:   Abs Position of the ALT Servo
 #
 # Assume ALT Servo is zeroed at zenith
 #
-def LimitALT_zenith(_absALT_, _inc_):
+def LimitALT_zenith(_Serial_):
 
-    if (_absALT_ + _inc_) > 148572:
-        print('The motion exceeds the ALT travel limit: LOW')
-        return 1
+    _absALT_ = GetPosAbs(_Serial_)
 
-    elif (_absALT_ + _inc_) < -55710:
+    if _absALT_ < -55710:
+
+        Stop(_Serial_)
+
         print('The motion exceeds the ALT travel limit: HIGH')
-        return 1
 
-    else:
-        return 0
+        # Move it away
+        Jogging(_Servo_, 4000, 2, 2)
+
+        # Allow it to move
+        sleep(1.5)
+
+    elif _absALT_ > 144846:
+
+        Stop(_Serial_)
+
+        print('The motion exceeds the ALT travel limit: LOW')
+
+        # Move it away
+        Jogging(_Servo_, -4000, 2, 2)
+
+        # Allow it to move
+        sleep(1.5)
+
+    return GetPosAbs(_Serial_)
 
 
 # Convert human-readable velocity(rpm) into native units of SilverMax
