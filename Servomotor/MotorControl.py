@@ -470,10 +470,12 @@ def LimitAZ(_absAZ_, _inc_):
 def LimitALT(_absALT_, _inc_):
 
     if (_absALT_ + _inc_) > 171789:
+        print(f'DEBUG: inc: { _inc_}')
         print('The motion exceeds the ALT travel limit: LOW')
         return 1
 
     elif (_absAZ_ + _inc_) < 0:
+        print(f'DEBUG: inc: { _inc_}')
         print('The motion exceeds the ALT travel limit: HIGH')
         return 1
 
@@ -494,7 +496,7 @@ def LimitALT_zenith(_absALT_, _inc_):
         print('The motion exceeds the ALT travel limit: LOW')
         return 1
 
-    elif (_absALT_ + _inc_) < -23217:
+    elif (_absALT_ + _inc_) < -55710:
         print('The motion exceeds the ALT travel limit: HIGH')
         return 1
 

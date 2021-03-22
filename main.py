@@ -4,21 +4,22 @@
 #   TODO
 #   1. Input protection for coord. input
 #   2. Update the Target Position after an coord. is entered
-#   3. [fixed, tested]Add Restart button 
+#   3. [Verified]Add Restart button 
 #   4. [fixed, not tested]Attach zeroing to calibration
-#   5. [fixed, not tested]Swap alt jogging direction
-#   6. [fixed, not tested]Set SW limit switch
+#   5. [Verified]Swap alt jogging direction
+#   6. [Need work]Set SW limit switch
 #   7. figure out how to update dial
 #   8. integrate alt/az dial
-#   9. [fixed, not tested]Implement Stow button
+#   9. [Verified]Implement Stow button
 #   10. Check main additions
 #   11. Change coord entry to Celestial
 #   12. attach anemometer
 #   13. attach brake to jogging
-#   14. [fixed, not tested]fix stop indexerror
-#   15. [fixed, not tested]disabled absPos logging, need to reduce file size
+#   14. [Verified]fix stop indexerror
+#   15. [Verified]disabled absPos logging, need to reduce file size
 
 
+from time import sleep
 import PySimpleGUI as sg
 import Dials.Dial_AZ as daz
 import Dials.Dial_ALT as dalt
@@ -430,17 +431,13 @@ while True:
 
     if event == '_ALT+_':
 
-        if mc.LimitALT_zenith(AbsALT, -JogStepALT) == 0:
-            print('Jogging Altitude Positive')
-            mc.Jogging(Servo_ALT, -JogStepAZ, 2, 2)
-            AbsALT -= JogStepALT
+        print('Jogging Altitude Positive')
+        mc.Jogging(Servo_ALT, -JogStepALT, 2, 2)
 
     if event == '_ALT-_':
 
-        if mc.LimitALT_zenith(AbsALT, JogStepALT) == 0:
-            print('Jogging Altitude Negative')
-            mc.Jogging(Servo_ALT, JogStepAZ, 2, 2)
-            AbsALT += JogStepALT
+        print('Jogging Altitude Negative')
+        mc.Jogging(Servo_ALT, JogStepALT, 2, 2)
 
 
     # ------------------!!! Place Holder as written, need future work !!!----------------
@@ -486,6 +483,23 @@ while True:
         GUIstatus |= 0b00100000
     else:
         GUIstatus &= 0b01011111
+
+
+    if (GUIstatus & 0b00100) == 0b00100:
+
+        AbsALT = mc.GetPosAbs(Servo_ALT)
+        altDial.Update(round( (AbsALT/(-1857)) + 90, 1))
+
+        if AbsALT < -55710:
+            mc.Stop(Servo_ALT)
+            print('ALT Servo exceeds mechanical travel')
+            mc.Jogging(Servo_ALT, 100, 2, 2)
+
+        elif AbsALT > 144846:
+            mc.Stop(Servo_ALT)
+            print('ALT Servo exceeds mechanical travel')
+            mc.Jogging(Servo_ALT, -4000, 2, 2)
+            sleep(1)
 
 
     # Software limit switch
