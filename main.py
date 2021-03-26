@@ -37,7 +37,6 @@ sg.theme_text_element_background_color('maroon')
 sg.theme_text_color('ghost white')
 #sg.theme_button_color('midnight blue')
 
-
 #---------------------------------------------------------------------------------------------------
 #----------------------------- Window Elements Definition ------------------------------------------
 menu_def = [    ['&File', ['&Open', '&Save', 'Prope&rties', 'E&xit',] ],
@@ -45,12 +44,12 @@ menu_def = [    ['&File', ['&Open', '&Save', 'Prope&rties', 'E&xit',] ],
                 ['&Help', '&About...']  ]
 
 CoordEntry = [  [sg.T('Coordinate Entry:',font=("Helvetica 14 underline bold"))],
-                [sg.T('Azimuthal:',size=(15,1),font=("Helvetica 12"))],
-                [sg.In(key='-IN-AZ-',size=(20,1),justification='left')],
-                [sg.T('Altitudinal:',size=(15,1),font=("Helvetica 12"))],
-                [sg.In(key='-IN-ALT-',size=(20,1),justification='left')],
-                [sg.T('')],
-                [sg.B('Enter')] ]
+                [sg.T('Azimuthal:',size=(15,1),font=("Helvetica 12")), sg.T(size=(12,1),key='-OUT-AZ-')],
+                [sg.Input(key='-IN-AZ-',size=(20,1),justification='left')],
+                [sg.T('Altitudinal:',size=(15,1),font=("Helvetica 12")), sg.T(size=(12,1),key='-OUT-ALT-')],
+                [sg.Input(key='-IN-ALT-',size=(20,1),justification='left')],
+               # [sg.T('')],
+                [sg.B('Read')] ]
 
 Parameters = [  [sg.T('System Status:',font=("Helvetica 14 underline bold"))],
                 [sg.T('Current Position:',font=("Helvetica 10"),size=(16,1),justification='l'),
@@ -244,6 +243,16 @@ while True:
     window['-datetime-'].update(time)
 
 
+    if event == '-CALIB-':
+
+        print("Starting Calibration")
+        #30 degrees past zenith/0.09 motor counts = 333 counts
+
+        JogStepALT = 333
+        mc.Jogging(motor_ALT, -JogStepALT)
+        window['-CALIB-'].Update(button_color=('black', 'gray'))
+
+
     if event == sg.WIN_CLOSED or event == 'Exit':
         # GUI is closed either by using 'X', or the Exit button
         break
@@ -251,6 +260,7 @@ while True:
     if event == '-EN-SRT-' and values['-EN-SRT-'] == True:
         print('Enabling Telescope Control')
         #TODO
+
 
     if event == '-EN-SRT-' and values['-EN-SRT-'] == False:
         print('Disabling Telescope Control')
@@ -335,6 +345,15 @@ while True:
         #TODO
         PosTarget = '32 N, 110 W'
         window['-POS-TGT-'].update(PosTarget)
+
+
+    # Still need to do more here - good start
+    if event == 'Read':
+
+        print('Received coordinates')
+        window['-OUT-AZ-'].update(values['-IN-AZ-'])
+        window['-OUT-ALT-'].update(values['-IN-ALT-'])
+        mc.Entry(values['-IN-ALT-'], values['-IN-AZ-'])
 
 
     if event == '-ESTOP-':
