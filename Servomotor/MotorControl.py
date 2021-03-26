@@ -282,6 +282,15 @@ def Jogging(_Serial_, _dist_, _acc_, _vel_):
     print(_Serial_.readline())
 
 
+def Entry(in_az, in_alt):
+
+    jog_az = in_az / 0.09
+    jog_alt = in_alt / 0.09
+
+    Jogging(motor_AZ, jog_az)
+    Jogging(motor_ALT, jog_alt)
+
+
 # Stowing the telescope, move it back to the stow Position (aka. home Position)
 #
 # Input:    Serial object, Jogging distance
