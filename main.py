@@ -2,16 +2,16 @@
 #
 #   Graphical User Interface
 #   TODO
-#   1. Input protection for coord. input
+#   1. [Verified]Input protection for coord. input
 #   2. Update the Target Position after an coord. is entered
 #   3. [Verified]Add Restart button 
-#   4. [fixed, not tested]Attach zeroing to calibration
+#   4. [Verified]Attach zeroing to calibration
 #   5. [Verified]Swap alt jogging direction
-#   6. [Need work]Set SW limit switch
-#   7. figure out how to update dial
-#   8. integrate alt/az dial
+#   6. [Verified]Set SW limit switch
+#   7. [Verified]figure out how to update dial
+#   8. [Verified]integrate alt/az dial
 #   9. [Verified]Implement Stow button
-#   10. Check main additions
+#   10. [Verified]Check main additions
 #   11. Change coord entry to Celestial
 #   12. attach anemometer
 #   13. attach brake to jogging
@@ -48,15 +48,20 @@ CoordEntry = [  [sg.T('Coordinate Entry:',font=("Helvetica 14 underline bold"))]
                 [sg.Input(key='-IN-AZ-',size=(20,1),justification='left')],
                 [sg.T('Altitudinal:',size=(15,1),font=("Helvetica 12")), sg.T(size=(12,1),key='-OUT-ALT-')],
                 [sg.Input(key='-IN-ALT-',size=(20,1),justification='left')],
-               # [sg.T('')],
+                [sg.T('')],
                 [sg.B('Read')] ]
 
 Parameters = [  [sg.T('System Status:',font=("Helvetica 14 underline bold"))],
-                [sg.T('Current Position:',font=("Helvetica 10"),size=(16,1),justification='l'),
-                    sg.T('32 N, 10 W',size=(11,1),justification='l',key='-POS-CURRENT-')],
 
-                [sg.T('Target Position:',font=("Helvetica 10"),size=(16,1),justification='l'),
-                    sg.T('59 N, 64 W',size=(11,1),justification='l',key='-POS-TGT-')],
+                [sg.T('Current AZ:',font=("Helvetica 10"),size=(16,1),justification='l'),
+                    sg.T('000\N{DEGREE SIGN}',size=(11,1),justification='l',key='-POS-CURR-AZ-')],
+                [sg.T('Current ALT:',font=("Helvetica 10"),size=(16,1),justification='l'),
+                    sg.T('000\N{DEGREE SIGN}',size=(11,1),justification='l',key='-POS-CURR-ALT-')],
+
+                [sg.T('Target AZ:',font=("Helvetica 10"),size=(16,1),justification='l'),
+                    sg.T('000\N{DEGREE SIGN}',size=(11,1),justification='l',key='-POS-TGT-AZ-')],
+                [sg.T('Target ALT:',font=("Helvetica 10"),size=(16,1),justification='l'),
+                    sg.T('000\N{DEGREE SIGN}',size=(11,1),justification='l',key='-POS-TGT-ALT-')],
 
                 [sg.T('Wind Speed:',font=("Helvetica 10"),size=(16,1),justification='l'),
                     sg.T('30 m/s',size=(11,1),justification='l',key='-WIND-')],
@@ -100,6 +105,7 @@ System = [      [sg.T('System Settings',font=('Helvetica 14 underline bold'))],
                 [sg.Check('Enable Jogging',size=(20,1),default=False,
                     enable_events=True,key='-EN-JOG-')],
 
+                [sg.T('')],
                 [sg.B('Home AZ',size=(9,1),key='-HOME-AZ-'),sg.B('Home ALT',size=(9,1),key='-HOME-ALT-')],
 
                 [sg.B('[DEBUG]Restart',key='-RESTART-')]
@@ -341,19 +347,19 @@ while True:
         GUIstatus &= 0b0111
 
 
-    if event == 'Enter':
-        #TODO
-        PosTarget = '32 N, 110 W'
-        window['-POS-TGT-'].update(PosTarget)
-
-
     # Still need to do more here - good start
     if event == 'Read':
 
         print('Received coordinates')
         window['-OUT-AZ-'].update(values['-IN-AZ-'])
         window['-OUT-ALT-'].update(values['-IN-ALT-'])
-        mc.Entry(values['-IN-ALT-'], values['-IN-AZ-'])
+        window['-POS-TGT-AZ-'].update(str(values['-IN-AZ-']) + '\N{DEGREE SIGN}')
+        window['-POS-TGT-ALT-'].update(values['-IN-ALT-'] + '\N{DEGREE SIGN}')
+
+        if (GUIstatus & 0b0110) == 0b0110:
+            mc.Entry(Servo_AZ, Servo_ALT, values['-IN-ALT-'], values['-IN-AZ-'])
+        else:
+            print('No servo motors are enabled.')
 
 
     if event == '-ESTOP-':
@@ -506,11 +512,13 @@ while True:
 
         AbsAZ = mc.LimitAZ(Servo_AZ)
         azDial.Update(round((AbsAZ/(-9365)), 1))
+        window['-POS-CURR-AZ-'].update()
 
     if (GUIstatus & 0b0100) == 0b0100:
 
         AbsALT = mc.LimitALT_zenith(Servo_ALT)
         altDial.Update(round((AbsALT/(-1857)) + 90, 1))
+        window['-POS-CURR-ALT-'].update()
 
 
     # if pos is zero, set the HOMED bit

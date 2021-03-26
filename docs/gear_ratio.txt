@@ -18,7 +18,6 @@ Altitude Gear Ration:
 	Alt Turns : Servo counts = 0.000001496:1
 
 
-	TODO
 	Alt Degree : Servo Turns = 1:0.464
 	or
 	Alt Degree : Servo Turns = 2.15:1

@@ -282,13 +282,28 @@ def Jogging(_Serial_, _dist_, _acc_, _vel_):
     print(_Serial_.readline())
 
 
-def Entry(in_az, in_alt):
+# Move the telescope, given input coord
+#   This assumes the stow position is 30 deg pass zenith
+#
+# Input:    Serial object of both SilverMax, AZ coord, ALT coord
+# Return:   void
+#
+# Refer to Command Reference page 96
+#   MAV is used
+#
+def Entry(_Serial_AZ_, _Serial_ALT_, _AZ_, _ALT_):
 
-    jog_az = in_az / 0.09
-    jog_alt = in_alt / 0.09
+    _command_ = "@16 134 " + str(round(_AZ_ * 9365, 0)) + ' ' + str(acc2nat(2)) + ' ' + str(rps2nat(5)) + " 0 0 \r"
 
-    Jogging(motor_AZ, jog_az)
-    Jogging(motor_ALT, jog_alt)
+    _Serial_AZ_.write(_command_.encode())
+
+    print(_Serial_AZ_.readline())
+
+    _command_ = "@16 134 " + str(round(_ALT_ * 1857, 0)) + ' ' + str(acc2nat(1)) + ' ' + str(rps2nat(1)) + " 0 0 \r"
+
+    _Serial_ALT_.write(_command_.encode())
+
+    print(_Serial_ALT_.readline())
 
 
 # Stowing the telescope, move it back to the stow Position (aka. home Position)
@@ -518,6 +533,44 @@ def LimitALT_zenith(_Serial_):
         sleep(1.5)
 
     elif _absALT_ > 144846:
+
+        Stop(_Serial_)
+
+        print('The motion exceeds the ALT travel limit: LOW')
+
+        # Move it away
+        Jogging(_Servo_, -4000, 2, 2)
+
+        # Allow it to move
+        sleep(1.5)
+
+    return GetPosAbs(_Serial_)
+
+
+# Check if the motion exceeds the mechanical travel of Altitude
+#
+# Input:    Altitude Serial object
+# Return:   Abs Position of the ALT Servo
+#
+# Assume ALT Servo is zeroed at 30 deg pass zenith
+#
+def LimitALT(_Serial_):
+
+    _absALT_ = GetPosAbs(_Serial_)
+
+    if _absALT_ < -928:
+
+        Stop(_Serial_)
+
+        print('The motion exceeds the ALT travel limit: HIGH')
+
+        # Move it away
+        Jogging(_Servo_, 4000, 2, 2)
+
+        # Allow it to move
+        sleep(1.5)
+
+    elif _absALT_ > 200556:
 
         Stop(_Serial_)
 

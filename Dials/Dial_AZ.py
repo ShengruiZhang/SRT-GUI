@@ -97,7 +97,7 @@ class AZ:
                 color='lime green')
 
         self.txt = self.Dial['DIAL-AZ'].DrawText(
-                "AZ Position = 0\N{DEGREE SIGN}",
+                "AZ Position = ???\N{DEGREE SIGN}",
                 (0,-600),
                 color='gold',
                 font=("OpenSans 30"),
