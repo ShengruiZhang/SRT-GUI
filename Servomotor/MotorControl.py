@@ -275,11 +275,12 @@ def Jogging(_Serial_, _dist_, _acc_, _vel_):
     _command_ = "@16 135 " + str(_dist_) + ' ' + str(acc2nat(_acc_)) + ' ' + str(rps2nat(_vel_)) + " 0 0 \r"
 
     if (ReadPSW(_Serial_) & 0x2000) == 0x2000:
-        print('There is an on-going motion.')
-    else:
         _Serial_.write(_command_.encode())
+    else:
+        print('There is an on-going motion.')
 
     print(_Serial_.readline())
+    print()
 
 
 # Move the telescope, given input coord
@@ -299,11 +300,11 @@ def Entry(_Serial_AZ_, _Serial_ALT_, _AZ_, _ALT_):
 
     print(_Serial_AZ_.readline())
 
-    _command_ = "@16 134 " + str(round(_ALT_ * 1857, 0)) + ' ' + str(acc2nat(1)) + ' ' + str(rps2nat(1)) + " 0 0 \r"
+    #_command_ = "@16 134 " + str(round(_ALT_ * 1857, 0)) + ' ' + str(acc2nat(1)) + ' ' + str(rps2nat(1)) + " 0 0 \r"
 
-    _Serial_ALT_.write(_command_.encode())
+    #_Serial_ALT_.write(_command_.encode())
 
-    print(_Serial_ALT_.readline())
+    #print(_Serial_ALT_.readline())
 
 
 # Stowing the telescope, move it back to the stow Position (aka. home Position)
@@ -520,14 +521,14 @@ def LimitALT_zenith(_Serial_):
 
     _absALT_ = GetPosAbs(_Serial_)
 
-    if _absALT_ < -55710:
+    if _absALT_ < -74200:
 
         Stop(_Serial_)
 
         print('The motion exceeds the ALT travel limit: HIGH')
 
         # Move it away
-        Jogging(_Servo_, 4000, 2, 2)
+        Jogging(_Serial_, 4000, 2, 2)
 
         # Allow it to move
         sleep(1.5)
@@ -539,7 +540,7 @@ def LimitALT_zenith(_Serial_):
         print('The motion exceeds the ALT travel limit: LOW')
 
         # Move it away
-        Jogging(_Servo_, -4000, 2, 2)
+        Jogging(_Serial_, -4000, 2, 2)
 
         # Allow it to move
         sleep(1.5)
@@ -565,7 +566,7 @@ def LimitALT(_Serial_):
         print('The motion exceeds the ALT travel limit: HIGH')
 
         # Move it away
-        Jogging(_Servo_, 4000, 2, 2)
+        Jogging(_Serial_, 4000, 2, 2)
 
         # Allow it to move
         sleep(1.5)
@@ -577,7 +578,7 @@ def LimitALT(_Serial_):
         print('The motion exceeds the ALT travel limit: LOW')
 
         # Move it away
-        Jogging(_Servo_, -4000, 2, 2)
+        Jogging(_Serial_, -4000, 2, 2)
 
         # Allow it to move
         sleep(1.5)

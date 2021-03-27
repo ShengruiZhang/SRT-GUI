@@ -242,20 +242,21 @@ while True:
 
     # check every 100 ms
     #   The first values in event is the menu bar event
-    event, values = window.read(timeout=100)
+    event, values = window.read(timeout=35)
 
     # update time
     time = dt.now().strftime('%Y-%m-%d   %H:%M')
     window['-datetime-'].update(time)
 
 
+    #TODO, be careful to use
     if event == '-CALIB-':
 
         print("Starting Calibration")
         #30 degrees past zenith/0.09 motor counts = 333 counts
 
         JogStepALT = 333
-        mc.Jogging(motor_ALT, -JogStepALT)
+        mc.Jogging(Servo_ALT, -JogStepALT)
         window['-CALIB-'].Update(button_color=('black', 'gray'))
 
 
@@ -354,10 +355,27 @@ while True:
         window['-OUT-AZ-'].update(values['-IN-AZ-'])
         window['-OUT-ALT-'].update(values['-IN-ALT-'])
         window['-POS-TGT-AZ-'].update(str(values['-IN-AZ-']) + '\N{DEGREE SIGN}')
-        window['-POS-TGT-ALT-'].update(values['-IN-ALT-'] + '\N{DEGREE SIGN}')
+        window['-POS-TGT-ALT-'].update(str(values['-IN-ALT-']) + '\N{DEGREE SIGN}')
+
+        # DEBUG
+        print(str(values['-IN-AZ-']))
+        print(str(values['-IN-ALT-']))
 
         if (GUIstatus & 0b0110) == 0b0110:
-            mc.Entry(Servo_AZ, Servo_ALT, values['-IN-ALT-'], values['-IN-AZ-'])
+
+            if not values['-IN-ALT-'] and not values['-IN-AZ-']:
+                mc.Entry(Servo_AZ, Servo_ALT, AbsALT, AbsAZ)
+                print(AbsAZ)
+                print(AbsALT)
+
+            elif not values['-IN-AZ-']:
+                mc.Entry(Servo_AZ, Servo_ALT, int(values['-IN-ALT-']), AbsAZ)
+
+            elif not values['-IN-ALT-']:
+                mc.Entry(Servo_AZ, Servo_ALT, AbsALT, int(values['-IN-AZ-']))
+
+            else:
+                mc.Entry(Servo_AZ, Servo_ALT, AbsALT, AbsAZ)
         else:
             print('No servo motors are enabled.')
 
@@ -505,6 +523,16 @@ while True:
 
         mc.Restart(Servo_AZ)
         mc.Restart(Servo_ALT)
+
+        GUI.JogDisable()
+
+        window['-EN-JOG-'].update(value=False)
+        window['-EN-SERVO-'].update(value=False)
+
+        mc.CloseSerial(Servo_AZ)
+        mc.CloseSerial(Servo_ALT)
+
+        GUIstatus &= 0b11111001
 
 
     # Poll Abs Position, and update dials
