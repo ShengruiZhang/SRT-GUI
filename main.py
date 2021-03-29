@@ -363,19 +363,23 @@ while True:
 
         if (GUIstatus & 0b0110) == 0b0110:
 
-            if not values['-IN-ALT-'] and not values['-IN-AZ-']:
-                mc.Entry(Servo_AZ, Servo_ALT, AbsALT, AbsAZ)
-                print(AbsAZ)
-                print(AbsALT)
+            if values['-IN-ALT-'] and values['-IN-AZ-']:
+                mc.Entry(Servo_AZ, Servo_ALT, int(values['-IN-AZ-']), int(values['-IN-ALT-']))
+                print('A')
 
-            elif not values['-IN-AZ-']:
-                mc.Entry(Servo_AZ, Servo_ALT, int(values['-IN-ALT-']), AbsAZ)
+            elif values['-IN-ALT-'] and not values['-IN-AZ-']:
+                print('B')
+                mc.Entry_ALT(Servo_ALT, int(values['-IN-ALT-']))
 
-            elif not values['-IN-ALT-']:
-                mc.Entry(Servo_AZ, Servo_ALT, AbsALT, int(values['-IN-AZ-']))
+            elif values['-IN-AZ-'] and not values['-IN-ALT-']:
+                print('C')
+                mc.Entry_AZ(Servo_AZ, int(values['-IN-AZ-']))
 
             else:
-                mc.Entry(Servo_AZ, Servo_ALT, AbsALT, AbsAZ)
+                print('D')
+                #mc.Entry(Servo_AZ, Servo_ALT, AbsALT, AbsAZ)
+                print(AbsAZ)
+                print(AbsALT)
         else:
             print('No servo motors are enabled.')
 
@@ -514,7 +518,7 @@ while True:
 
     if event == '-STOW-' and (GUIstatus & 0b10000110) == 0b00000110:
 
-        mc.Stow(Servo_AZ, 0, 2, 3)
+        mc.Stow(Servo_AZ, 0, 2, 5)
         mc.Stow(Servo_ALT, 0, 1, 2)
         GUIstatus |= 0b10000000
 
