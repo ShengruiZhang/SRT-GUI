@@ -490,7 +490,7 @@ def LimitAZ(_Serial_):
         print('The motion exceeds the AZ travel limit: NEGATIVE TURN')
 
         # Move it away
-        Jogging(_Servo_, 4000, 2, 2)
+        Jogging(_Serial_, 4000, 2, 2)
 
         # Allow it to move
         sleep(1.5)
@@ -502,7 +502,7 @@ def LimitAZ(_Serial_):
         print('The motion exceeds the AZ travel limit: POSITIVE TURN')
 
         # Move it away
-        Jogging(_Servo_, -4000, 2, 2)
+        Jogging(_Serial_, -4000, 2, 2)
 
         # Allow it to move
         sleep(1.5)
