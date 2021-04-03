@@ -3,7 +3,7 @@
 #   Graphical User Interface
 #   TODO
 #   1. [Verified]Input protection for coord. input
-#   2. Update the Target Position after an coord. is entered
+#   2. [Verified]Update the Target Position after an coord. is entered
 #   3. [Verified]Add Restart button 
 #   4. [Verified]Attach zeroing to calibration
 #   5. [Verified]Swap alt jogging direction
@@ -348,7 +348,6 @@ while True:
         GUIstatus &= 0b0111
 
 
-    # Still need to do more here - good start
     if event == 'Read':
 
         print('Received coordinates')
@@ -365,21 +364,16 @@ while True:
 
             if values['-IN-ALT-'] and values['-IN-AZ-']:
                 mc.Entry(Servo_AZ, Servo_ALT, int(values['-IN-AZ-']), int(values['-IN-ALT-']))
-                print('A')
 
             elif values['-IN-ALT-'] and not values['-IN-AZ-']:
-                print('B')
                 mc.Entry_ALT(Servo_ALT, int(values['-IN-ALT-']))
 
             elif values['-IN-AZ-'] and not values['-IN-ALT-']:
-                print('C')
                 mc.Entry_AZ(Servo_AZ, int(values['-IN-AZ-']))
 
             else:
-                print('D')
-                #mc.Entry(Servo_AZ, Servo_ALT, AbsALT, AbsAZ)
-                print(AbsAZ)
-                print(AbsALT)
+                window['-POS-TGT-AZ-'].update('N/A')
+                window['-POS-TGT-ALT-'].update('N/A')
         else:
             print('No servo motors are enabled.')
 
@@ -544,13 +538,13 @@ while True:
 
         AbsAZ = mc.LimitAZ(Servo_AZ)
         azDial.Update(round((AbsAZ/(-9365)), 1))
-        window['-POS-CURR-AZ-'].update()
+        window['-POS-CURR-AZ-'].update(round((AbsAZ/9365), 1))
 
     if (GUIstatus & 0b0100) == 0b0100:
 
         AbsALT = mc.LimitALT_zenith(Servo_ALT)
         altDial.Update(round((AbsALT/(-1857)) + 90, 1))
-        window['-POS-CURR-ALT-'].update()
+        window['-POS-CURR-ALT-'].update(round((AbsALT/(-1857)) + 90, 1))
 
 
     # if pos is zero, set the HOMED bit
