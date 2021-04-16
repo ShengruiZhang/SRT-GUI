@@ -3,7 +3,7 @@
 #   Graphical User Interface
 #   TODO
 #   1. [Verified]Input protection for coord. input
-#   2. Update the Target Position after an coord. is entered
+#   2. [Verified]Update the Target Position after an coord. is entered
 #   3. [Verified]Add Restart button 
 #   4. [Verified]Attach zeroing to calibration
 #   5. [Verified]Swap alt jogging direction
@@ -242,20 +242,21 @@ while True:
 
     # check every 100 ms
     #   The first values in event is the menu bar event
-    event, values = window.read(timeout=100)
+    event, values = window.read(timeout=35)
 
     # update time
     time = dt.now().strftime('%Y-%m-%d   %H:%M')
     window['-datetime-'].update(time)
 
 
+    #TODO, be careful to use
     if event == '-CALIB-':
 
         print("Starting Calibration")
         #30 degrees past zenith/0.09 motor counts = 333 counts
 
         JogStepALT = 333
-        mc.Jogging(motor_ALT, -JogStepALT)
+        mc.Jogging(Servo_ALT, -JogStepALT)
         window['-CALIB-'].Update(button_color=('black', 'gray'))
 
 
@@ -347,17 +348,32 @@ while True:
         GUIstatus &= 0b0111
 
 
-    # Still need to do more here - good start
     if event == 'Read':
 
         print('Received coordinates')
         window['-OUT-AZ-'].update(values['-IN-AZ-'])
         window['-OUT-ALT-'].update(values['-IN-ALT-'])
         window['-POS-TGT-AZ-'].update(str(values['-IN-AZ-']) + '\N{DEGREE SIGN}')
-        window['-POS-TGT-ALT-'].update(values['-IN-ALT-'] + '\N{DEGREE SIGN}')
+        window['-POS-TGT-ALT-'].update(str(values['-IN-ALT-']) + '\N{DEGREE SIGN}')
+
+        # DEBUG
+        print(str(values['-IN-AZ-']))
+        print(str(values['-IN-ALT-']))
 
         if (GUIstatus & 0b0110) == 0b0110:
-            mc.Entry(Servo_AZ, Servo_ALT, values['-IN-ALT-'], values['-IN-AZ-'])
+
+            if values['-IN-ALT-'] and values['-IN-AZ-']:
+                mc.Entry(Servo_AZ, Servo_ALT, int(values['-IN-AZ-']), int(values['-IN-ALT-']))
+
+            elif values['-IN-ALT-'] and not values['-IN-AZ-']:
+                mc.Entry_ALT(Servo_ALT, int(values['-IN-ALT-']))
+
+            elif values['-IN-AZ-'] and not values['-IN-ALT-']:
+                mc.Entry_AZ(Servo_AZ, int(values['-IN-AZ-']))
+
+            else:
+                window['-POS-TGT-AZ-'].update('N/A')
+                window['-POS-TGT-ALT-'].update('N/A')
         else:
             print('No servo motors are enabled.')
 
@@ -496,7 +512,7 @@ while True:
 
     if event == '-STOW-' and (GUIstatus & 0b10000110) == 0b00000110:
 
-        mc.Stow(Servo_AZ, 0, 2, 3)
+        mc.Stow(Servo_AZ, 0, 2, 5)
         mc.Stow(Servo_ALT, 0, 1, 2)
         GUIstatus |= 0b10000000
 
@@ -506,19 +522,29 @@ while True:
         mc.Restart(Servo_AZ)
         mc.Restart(Servo_ALT)
 
+        GUI.JogDisable()
+
+        window['-EN-JOG-'].update(value=False)
+        window['-EN-SERVO-'].update(value=False)
+
+        mc.CloseSerial(Servo_AZ)
+        mc.CloseSerial(Servo_ALT)
+
+        GUIstatus &= 0b11111001
+
 
     # Poll Abs Position, and update dials
     if (GUIstatus & 0b0010) == 0b0010:
 
         AbsAZ = mc.LimitAZ(Servo_AZ)
         azDial.Update(round((AbsAZ/(-9365)), 1))
-        window['-POS-CURR-AZ-'].update()
+        window['-POS-CURR-AZ-'].update(round((AbsAZ/9365), 1))
 
     if (GUIstatus & 0b0100) == 0b0100:
 
         AbsALT = mc.LimitALT_zenith(Servo_ALT)
         altDial.Update(round((AbsALT/(-1857)) + 90, 1))
-        window['-POS-CURR-ALT-'].update()
+        window['-POS-CURR-ALT-'].update(round((AbsALT/(-1857)) + 90, 1))
 
 
     # if pos is zero, set the HOMED bit

@@ -275,11 +275,12 @@ def Jogging(_Serial_, _dist_, _acc_, _vel_):
     _command_ = "@16 135 " + str(_dist_) + ' ' + str(acc2nat(_acc_)) + ' ' + str(rps2nat(_vel_)) + " 0 0 \r"
 
     if (ReadPSW(_Serial_) & 0x2000) == 0x2000:
-        print('There is an on-going motion.')
-    else:
         _Serial_.write(_command_.encode())
+    else:
+        print('There is an on-going motion.')
 
     print(_Serial_.readline())
+    print()
 
 
 # Move the telescope, given input coord
@@ -293,13 +294,49 @@ def Jogging(_Serial_, _dist_, _acc_, _vel_):
 #
 def Entry(_Serial_AZ_, _Serial_ALT_, _AZ_, _ALT_):
 
-    _command_ = "@16 134 " + str(round(_AZ_ * 9365, 0)) + ' ' + str(acc2nat(2)) + ' ' + str(rps2nat(5)) + " 0 0 \r"
+    _command_ = "@16 134 " + str(round(_AZ_ * 9365)) + ' ' + str(acc2nat(2)) + ' ' + str(rps2nat(5)) + " 0 0 \r"
 
     _Serial_AZ_.write(_command_.encode())
 
     print(_Serial_AZ_.readline())
 
-    _command_ = "@16 134 " + str(round(_ALT_ * 1857, 0)) + ' ' + str(acc2nat(1)) + ' ' + str(rps2nat(1)) + " 0 0 \r"
+    _command_ = "@16 134 " + str( round((90 - _ALT_) * 1857) ) + ' ' + str(acc2nat(1)) + ' ' + str(rps2nat(1)) + " 0 0 \r"
+
+    _Serial_ALT_.write(_command_.encode())
+
+    print(_Serial_ALT_.readline())
+
+
+# Move the telescope, given input coord
+#   This assumes the stow position is 30 deg pass zenith
+#
+# Input:    Serial object AZ, AZ coord in degrees
+# Return:   void
+#
+# Refer to Command Reference page 96
+#   MAV is used
+#
+def Entry_AZ(_Serial_AZ_, _AZ_):
+
+    _command_ = "@16 134 " + str(round(_AZ_ * 9365)) + ' ' + str(acc2nat(2)) + ' ' + str(rps2nat(5)) + " 0 0 \r"
+
+    _Serial_AZ_.write(_command_.encode())
+
+    print(_Serial_AZ_.readline())
+
+
+# Move the telescope, given input coord
+#   This assumes the stow position is 30 deg pass zenith
+#
+# Input:    Serial object of ALT, ALT coord in degrees
+# Return:   void
+#
+# Refer to Command Reference page 96
+#   MAV is used
+#
+def Entry_ALT(_Serial_ALT_, _ALT_):
+
+    _command_ = "@16 134 " + str( round((90 - _ALT_) * 1857) ) + ' ' + str(acc2nat(1)) + ' ' + str(rps2nat(1)) + " 0 0 \r"
 
     _Serial_ALT_.write(_command_.encode())
 
@@ -348,6 +385,33 @@ def Restart(_Serial_):
 def Stop(_Serial_):
 
     _command_ = "@16 3 0 \r"
+
+    _Serial_.write(_command_.encode())
+
+    lines = _Serial_.readline().decode('ascii')
+
+    try:
+        if lines[0] == '*' and lines[1] == "10":
+            return 0
+        else:
+            return 1
+
+    except IndexError as ie:
+        print('Servo did not respond within the given time.')
+
+
+# Stop the SilverMax with Deceleration argument
+#
+# Input:    Serial object, Deceleration
+# Return:   0 if ACK received, otherwise 1
+#
+# Refer to Command Reference page 20, User Manual page 156
+#   STP is used here
+#
+def Stop2(_Serial_, _acc_):
+
+    # DEBUG FOR ALT LIMIT
+    _command_ = "@16 3 " + str( acc2nat(_acc_) ) + "  \r"
 
     _Serial_.write(_command_.encode())
 
@@ -486,10 +550,13 @@ def LimitAZ(_Serial_):
 
         Stop(_Serial_)
 
+        # Allow it to move
+        sleep(1.5)
+
         print('The motion exceeds the AZ travel limit: NEGATIVE TURN')
 
         # Move it away
-        Jogging(_Servo_, 4000, 2, 2)
+        Jogging(_Serial_, 4000, 2, 2)
 
         # Allow it to move
         sleep(1.5)
@@ -498,10 +565,13 @@ def LimitAZ(_Serial_):
 
         Stop(_Serial_)
 
+        # Allow it to move
+        sleep(1.5)
+
         print('The motion exceeds the AZ travel limit: POSITIVE TURN')
 
         # Move it away
-        Jogging(_Servo_, -4000, 2, 2)
+        Jogging(_Serial_, -4000, 2, 2)
 
         # Allow it to move
         sleep(1.5)
@@ -520,26 +590,32 @@ def LimitALT_zenith(_Serial_):
 
     _absALT_ = GetPosAbs(_Serial_)
 
-    if _absALT_ < -55710:
+    if _absALT_ < -74280:
 
-        Stop(_Serial_)
+        Stop2(_Serial_, 10)
+
+        # Allow it to move
+        sleep(1.5)
 
         print('The motion exceeds the ALT travel limit: HIGH')
 
         # Move it away
-        Jogging(_Servo_, 4000, 2, 2)
+        Stow(_Serial_, -74200, 2, 5)
 
         # Allow it to move
         sleep(1.5)
 
     elif _absALT_ > 144846:
 
-        Stop(_Serial_)
+        Stop2(_Serial_, 10)
+
+        # Allow it to move
+        sleep(1.5)
 
         print('The motion exceeds the ALT travel limit: LOW')
 
         # Move it away
-        Jogging(_Servo_, -4000, 2, 2)
+        Stow(_Serial_, 142989, 2, 5)
 
         # Allow it to move
         sleep(1.5)
@@ -565,7 +641,7 @@ def LimitALT(_Serial_):
         print('The motion exceeds the ALT travel limit: HIGH')
 
         # Move it away
-        Jogging(_Servo_, 4000, 2, 2)
+        Jogging(_Serial_, 4000, 2, 2)
 
         # Allow it to move
         sleep(1.5)
@@ -577,7 +653,7 @@ def LimitALT(_Serial_):
         print('The motion exceeds the ALT travel limit: LOW')
 
         # Move it away
-        Jogging(_Servo_, -4000, 2, 2)
+        Jogging(_Serial_, -4000, 2, 2)
 
         # Allow it to move
         sleep(1.5)
