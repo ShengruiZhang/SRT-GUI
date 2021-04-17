@@ -12,7 +12,7 @@
 #   8. [Verified]integrate alt/az dial
 #   9. [Verified]Implement Stow button
 #   10. [Verified]Check main additions
-#   11. Change coord entry to Celestial
+#   11. [Obsoleted]Change coord entry to Celestial
 #   12. attach anemometer
 #   13. attach brake to jogging
 #   14. [Verified]fix stop indexerror
@@ -49,31 +49,35 @@ CoordEntry = [  [sg.T('Coordinate Entry:',font=("Helvetica 14 underline bold"))]
                 [sg.T('Altitudinal:',size=(15,1),font=("Helvetica 12")), sg.T(size=(12,1),key='-OUT-ALT-')],
                 [sg.Input(key='-IN-ALT-',size=(20,1),justification='left')],
                 [sg.T('')],
-                [sg.B('Read')] ]
+                [sg.B('Read')],
+                [sg.T('')],
+                [sg.T('AZ range: 0\N{DEGREE SIGN} ~ +360\N{DEGREE SIGN}',font=("OpenSans 15"),justification='l')],
+                [sg.T('ALT range: +13\N{DEGREE SIGN} ~ +130\N{DEGREE SIGN}',font=("OpenSans 15"),justification='l')]
+                ]
 
 Parameters = [  [sg.T('System Status:',font=("Helvetica 14 underline bold"))],
 
                 [sg.T('Current AZ:',font=("Helvetica 10"),size=(16,1),justification='l'),
-                    sg.T('000\N{DEGREE SIGN}',size=(11,1),justification='l',key='-POS-CURR-AZ-')],
+                    sg.T('N/A\N{DEGREE SIGN}',size=(7,1),justification='l',key='-POS-CURR-AZ-')],
                 [sg.T('Current ALT:',font=("Helvetica 10"),size=(16,1),justification='l'),
-                    sg.T('000\N{DEGREE SIGN}',size=(11,1),justification='l',key='-POS-CURR-ALT-')],
+                    sg.T('N/A\N{DEGREE SIGN}',size=(7,1),justification='l',key='-POS-CURR-ALT-')],
 
                 [sg.T('Target AZ:',font=("Helvetica 10"),size=(16,1),justification='l'),
-                    sg.T('000\N{DEGREE SIGN}',size=(11,1),justification='l',key='-POS-TGT-AZ-')],
+                    sg.T('N/A\N{DEGREE SIGN}',size=(7,1),justification='l',key='-POS-TGT-AZ-')],
                 [sg.T('Target ALT:',font=("Helvetica 10"),size=(16,1),justification='l'),
-                    sg.T('000\N{DEGREE SIGN}',size=(11,1),justification='l',key='-POS-TGT-ALT-')],
+                    sg.T('N/A\N{DEGREE SIGN}',size=(7,1),justification='l',key='-POS-TGT-ALT-')],
 
                 [sg.T('Wind Speed:',font=("Helvetica 10"),size=(16,1),justification='l'),
-                    sg.T('30 m/s',size=(11,1),justification='l',key='-WIND-')],
+                    sg.T('N/A',size=(7,1),justification='l',key='-WIND-')],
 
                 [sg.T('AZ Servo Voltage:',font=("Helvetica 10"),size=(16,1),justification='l'),
-                    sg.T('48.00 V',size=(11,0),justification='l',key='-voltAZ-')],
+                    sg.T('N/A',size=(7,1),justification='l',key='-voltAZ-')],
 
                 [sg.T('ALT Servo Voltage:',font=("Helvetica 10"),size=(16,1),justification='l'),
-                    sg.T('48.00 V',size=(11,0),justification='l',key='-voltALT-')],
+                    sg.T('N/A',size=(7,1),justification='l',key='-voltALT-')],
 
                 [sg.T('')],
-                [sg.B('Update',key='-UPDATE-')]
+                [sg.T('',font=("OpenSans 12 italic"),size=(30,1),justification='c',key='-SYS-')]
                 ]
 
 Jogging = [     [sg.T('Jogging',font=('Helvetica 14 underline bold'))],
@@ -105,10 +109,14 @@ System = [      [sg.T('System Settings',font=('Helvetica 14 underline bold'))],
                 [sg.Check('Enable Jogging',size=(20,1),default=False,
                     enable_events=True,key='-EN-JOG-')],
 
-                [sg.T('')],
-                [sg.B('Home AZ',size=(9,1),key='-HOME-AZ-'),sg.B('Home ALT',size=(9,1),key='-HOME-ALT-')],
+                [sg.Check('Advance Features',size=(20,1),default=False,
+                    enable_events=True,key='-EN-ADV-')],
 
-                [sg.B('[DEBUG]Restart',key='-RESTART-')]
+                [sg.T('')],
+                [sg.B('Home AZ',size=(9,1),key='-HOME-AZ-',disabled=True)],
+                [sg.B('Home ALT',size=(9,1),key='-HOME-ALT-',disabled=True)],
+
+                [sg.B('Restart',key='-RESTART-',disabled=True)]
                 ]
 
 data_recording = [
@@ -139,15 +147,18 @@ layout = [  [sg.Menu(menu_def, tearoff=True)],
             [sg.T('')],
             [sg.Col(CoordEntry, element_justification='c', vertical_alignment='top'),
 
-                sg.VSep(pad=((30,30),(0,0))),
+                #sg.VSep(pad=((30,30),(0,0))),
+                sg.VSep(pad=((0,0),(0,0))),
 
                 sg.Col(Parameters, element_justification='c', vertical_alignment='top'),
 
-                sg.VSep(pad=((30,30),(0,0))),
+                #sg.VSep(pad=((30,30),(0,0))),
+                sg.VSep(pad=((0,0),(0,0))),
 
                 sg.Col(Jogging, element_justification='c', vertical_alignment='top'),
 
-                sg.VSep(pad=((30,30),(0,0))),
+                #sg.VSep(pad=((30,30),(0,0))),
+                sg.VSep(pad=((0,0),(0,0))),
 
                 sg.Col(System, element_justification='c', vertical_alignment='top')],
 
@@ -174,7 +185,7 @@ Output2 = sg.Window('Student Radio Telescope Control Output', layout_output, fin
 #------------------------------------ System Init --------------------------------------------------
 
 # FOR TESTING, making up numbers here
-WindSpeed = 55
+WindSpeed = 0
 
 VAZ = 00.00
 VALT = 00.00
@@ -196,6 +207,7 @@ Output2.move(2000,50)
 AbsAZ = 0
 AbsALT = 0
 absPosTimer = 0
+SysTimer = 0
 
 # GUI Status bits
 #   bit7 - Stowed
@@ -205,7 +217,7 @@ absPosTimer = 0
 #   bit3 - Jogging Enabled
 #   bit2 - Servomotor ALT Enabled
 #   bit1 - Servomotor AZ Enabled
-#   bit0 - GUI opened
+#   bit0 - AFE Enabled
 GUIstatus = 0b00000000
 
 # Is there a better way doing this?
@@ -240,7 +252,7 @@ class GUI():
 #------------------------------------ GUI Event Loop -----------------------------------------------
 while True:
 
-    # check every 100 ms
+    # check every 35 ms
     #   The first values in event is the menu bar event
     event, values = window.read(timeout=35)
 
@@ -268,10 +280,10 @@ while True:
         print('Enabling Telescope Control')
         #TODO
 
-
     if event == '-EN-SRT-' and values['-EN-SRT-'] == False:
         print('Disabling Telescope Control')
         #TODO
+
 
     if event == '-EN-SERVO-' and values['-EN-SERVO-'] == True:
 
@@ -283,9 +295,7 @@ while True:
             print('Servomotor AZ enabled')
 
         except Exception as e:
-            print('Error: Cannot open serial port for AZ servo.')
             print(str(e))
-            print('Error: Cannot enable AZ servo.')
 
         try:
             Servo_ALT = mc.Init('/dev/ttyUSB1')
@@ -293,9 +303,7 @@ while True:
             print('Servomotor ALT enabled')
 
         except Exception as e:
-            print('Error: Cannot open serial port for ALT servo.')
             print(str(e))
-            print('Error: Cannot enable ALT servomotor.')
 
         if (GUIstatus & 0b0110) == 0:
             window['-EN-SERVO-'].update(value=False)
@@ -317,9 +325,21 @@ while True:
         GUIstatus &= 0b1001
 
 
-    if event == '-EN-AFE-':
+    if event == '-EN-AFE-' and values['-EN-AFE-'] == True:
+
         print('Enabling AnalogFrontEnd')
         #TODO
+
+        GUIstatus |= 0b00000001
+
+
+
+    if event == '-EN-AFE-' and values['-EN-AFE-'] == False:
+
+        print('Disabling AnalogFrontEnd')
+        #TODO
+
+        GUIstatus &= 0b11111110
 
 
     # Is there a better way to do this?
@@ -348,17 +368,27 @@ while True:
         GUIstatus &= 0b0111
 
 
+    if event == '-EN-ADV-' and values['-EN-ADV-'] == True:
+
+        window['-HOME-AZ-'].update(disabled=False)
+        window['-HOME-ALT-'].update(disabled=False)
+        window['-RESTART-'].update(disabled=False)
+
+    if event == '-EN-ADV-' and values['-EN-ADV-'] == False:
+
+        window['-HOME-AZ-'].update(disabled=True)
+        window['-HOME-ALT-'].update(disabled=True)
+        window['-RESTART-'].update(disabled=True)
+
+
     if event == 'Read':
 
-        print('Received coordinates')
+        print('Received coordinates (AZ, ALT): ', values['-IN-AZ-'], ', ', values['-IN-ALT-'])
         window['-OUT-AZ-'].update(values['-IN-AZ-'])
         window['-OUT-ALT-'].update(values['-IN-ALT-'])
         window['-POS-TGT-AZ-'].update(str(values['-IN-AZ-']) + '\N{DEGREE SIGN}')
         window['-POS-TGT-ALT-'].update(str(values['-IN-ALT-']) + '\N{DEGREE SIGN}')
 
-        # DEBUG
-        print(str(values['-IN-AZ-']))
-        print(str(values['-IN-ALT-']))
 
         if (GUIstatus & 0b0110) == 0b0110:
 
@@ -374,6 +404,7 @@ while True:
             else:
                 window['-POS-TGT-AZ-'].update('N/A')
                 window['-POS-TGT-ALT-'].update('N/A')
+
         else:
             print('No servo motors are enabled.')
 
@@ -540,30 +571,66 @@ while True:
         azDial.Update(round((AbsAZ/(-9365)), 1))
         window['-POS-CURR-AZ-'].update(round((AbsAZ/9365), 1))
 
+        # Update Voltage
+        VAZ = mc.GetVoltage(Servo_AZ)
+        window['-voltAZ-'].update(str(VAZ)+" V")
+
+        # Set the HOMED bit if zero pos
+        if AbsAZ == 0:
+            GUIstatus |= 0b00010000
+        else:
+            GUIstatus &= 0b01101111
+
+    else:
+        window['-voltAZ-'].update("N/A")
+
+
     if (GUIstatus & 0b0100) == 0b0100:
 
         AbsALT = mc.LimitALT_zenith(Servo_ALT)
         altDial.Update(round((AbsALT/(-1857)) + 90, 1))
         window['-POS-CURR-ALT-'].update(round((AbsALT/(-1857)) + 90, 1))
 
+        # Update Voltage
+        VALT = mc.GetVoltage(Servo_ALT)
+        window['-voltALT-'].update(str(VALT)+" V")
 
-    # if pos is zero, set the HOMED bit
-    if AbsAZ == 0:
-        GUIstatus |= 0b00010000
+        # Set the HOMED bit if zero pos
+        if AbsALT == 0:
+            GUIstatus |= 0b00100000
+        else:
+            GUIstatus &= 0b01011111
+
     else:
-        GUIstatus &= 0b01101111
-
-    if AbsALT == 0:
-        GUIstatus |= 0b00100000
-    else:
-        GUIstatus &= 0b01011111
+        window['-voltALT-'].update("N/A")
 
 
-    # Software limit switch
-    absPosTimer += 1
+    # If both axis are homed, set the Stowed bit
+    if (GUIstatus & 0b00110000) == 0b00110000:
+        GUIstatus |= 0b10110000
+
+
+    # Updating the System Status every 1s
+    SysTimer += 1
+
+    if SysTimer == 29:
+
+        if (GUIstatus & 0b0001) == 0b0001:
+            # Get windspeed from AFE
+            window['-WIND-'].update(str(WindSpeed)+" m/s")
+            window['-SYS-'].update('Updating wind speed every second')
+
+        else:
+            window['-WIND-'].update('N/A')
+            window['-SYS-'].update('Enable AFE to update wind speed')
+
+        SysTimer = 0
+
 
     # Save absolute Position externally every 2s
-    if absPosTimer == 20:
+    absPosTimer += 1
+
+    if absPosTimer == 57:
 
         with open('absPos.dat', 'a') as absPos:
             absPos.writelines( dt.now().strftime('%Y-%m-%d %H:%M:%S\n') )
