@@ -1,18 +1,21 @@
+# Team 21039 - Radio Telescope
 # Modules for AFE
 #   Analog Front-End, handles the control of brakes and ADC for anemometer
 
 import serial
 import time
 
+def Test():
+    print("AFE TEST")
+
+
 # Open Serial port for AFE
 #
 # Input: Name of the serial port, Baud rate
 # Return: the serial object
 #
-# This also set the timeout for readline to 2s
-#
 def Init(_port_, _Baud_):
-    _AFE_ = serial.Serial(_port_, _Baud_, timeout=None)
+    _AFE_ = serial.Serial(_port_, _Baud_, timeout=0.025)
     return _AFE_
 
 
@@ -25,14 +28,7 @@ def Init(_port_, _Baud_):
 #
 def Activate(_AFE_):
     _AFE_.is_open
-
-    while True:
-        # Here K stands for ACK, but it can be anything
-        _AFE_.write(b'K')
-        time.sleep(2)
-        if _AFE_.readline().decode('ascii') == 'AFE Active\n':
-            print('AFE is now active')
-            break
+    _AFE_.write(b'K')
 
 
 # Engage brake
@@ -61,15 +57,19 @@ def ReleaseBrake(_AFE_):
     return _AFE_.readline().decode('ascii')
 
 
-# Get the raw ADC value
+# Get the mapped wind speed in m/s
 #
 # Input: The serial object
-# Return: Raw ADC value
+# Return: wind speed
 #
 def GetWindRaw(_AFE_):
     _AFE_.is_open
     _AFE_.write(b'A')
-    return _AFE_.readline().decode('ascii')
+    test = _AFE_.readline().decode('ascii')
+    print('AFE:')
+    print(test)
+    #return _AFE_.readline().decode('ascii')
+    return test
 
 
 # Close Serial port

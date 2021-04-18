@@ -1,4 +1,8 @@
+# Team 21039 - Radio Telescope
+# Date: 2020 Fall - 2021 Spring
+#
 # Modules for Servomotor Controls
+#######################################
 
 import serial
 from time import sleep
@@ -459,8 +463,6 @@ def GetVoltage(_Serial_):
     line2 = ReadRegister(_Serial_, 214)
 
     voltage = round( int(line2[3], 16) / int(line1[4], 16), 2 )
-
-    print(f'V+ Voltage: {voltage}')
 
     return voltage
 

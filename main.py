@@ -23,11 +23,11 @@ from time import sleep
 import PySimpleGUI as sg
 import Dials.Dial_AZ as daz
 import Dials.Dial_ALT as dalt
+import AnalogFrontEnd.AFE as afe
 from datetime import datetime as dt
 
 import sys
 sys.path.append("~/SRT-GUI/")
-import AnalogFrontEnd.AFE
 import Servomotor.MotorControl as mc
 
 #sg.theme('LightGrey5')
@@ -198,10 +198,6 @@ azDial.Dial.move(1300,50)
 altDial.Dial.move(1300,700)
 Output2.move(2000,50)
 
-# Serial connection to Analog Front-End Control
-#AnalogControl = AFE.Init(9600)
-#AFE.Activate(AnalogControl)
-
 
 # Abs Position of Servomotors
 AbsAZ = 0
@@ -249,7 +245,10 @@ class GUI():
 
 
 #---------------------------------------------------------------------------------------------------
+#---------------------------------------------------------------------------------------------------
 #------------------------------------ GUI Event Loop -----------------------------------------------
+#---------------------------------------------------------------------------------------------------
+#---------------------------------------------------------------------------------------------------
 while True:
 
     # check every 35 ms
@@ -272,6 +271,15 @@ while True:
         window['-CALIB-'].Update(button_color=('black', 'gray'))
 
 
+    # ------------------!!! Place Holder as written, need future work !!!----------------
+    if event == '-CALIB-'and (GUIstatus & 0b0110) == 0b0110:
+
+        print('Homing AZ and ALT')
+        print(mc.Zero(Servo_AZ))
+        print(mc.Zero(Servo_ALT))
+        GUIstatus |= 0b00110000
+
+
     if event == sg.WIN_CLOSED or event == 'Exit':
         # GUI is closed either by using 'X', or the Exit button
         break
@@ -280,9 +288,19 @@ while True:
         print('Enabling Telescope Control')
         #TODO
 
+        window['-EN-SERVO-'].update(disabled=True)
+        window['-EN-AFE-'].update(disabled=True)
+        window['-EN-JOG-'].update(disabled=True)
+        window['-EN-ADV-'].update(disabled=True)
+
     if event == '-EN-SRT-' and values['-EN-SRT-'] == False:
         print('Disabling Telescope Control')
         #TODO
+
+        window['-EN-SERVO-'].update(disabled=False)
+        window['-EN-AFE-'].update(disabled=False)
+        window['-EN-JOG-'].update(disabled=False)
+        window['-EN-ADV-'].update(disabled=False)
 
 
     if event == '-EN-SERVO-' and values['-EN-SERVO-'] == True:
@@ -328,7 +346,11 @@ while True:
     if event == '-EN-AFE-' and values['-EN-AFE-'] == True:
 
         print('Enabling AnalogFrontEnd')
-        #TODO
+
+        #AFE = afe.Init('/dev/ttyUSB3', 57600)
+        AFE = afe.Init('/dev/ttyUSB0', 57600)
+        sleep(0.5)
+        afe.Activate(AFE)
 
         GUIstatus |= 0b00000001
 
@@ -337,7 +359,8 @@ while True:
     if event == '-EN-AFE-' and values['-EN-AFE-'] == False:
 
         print('Disabling AnalogFrontEnd')
-        #TODO
+
+        afe.CloseSerial(AFE)
 
         GUIstatus &= 0b11111110
 
@@ -422,29 +445,7 @@ while True:
         if (GUIstatus & 0b0110) == 0b0000:
             print('No servo motors are enabled.')
 
-        #TODO, need to check how brake engages
-        #AFE.EngageBrake(AnalogControl)
-
-
-    if event == '-UPDATE-':
-
-        # When Update button is pressed, retreive ADC value from AFE
-        print("Updating System Status")
-
-        #WindSpeed = AFE.GetWindRaw(AnalogControl)
-        window['-WIND-'].update(str(WindSpeed)+" m/s")
-
-        if (GUIstatus & 0b0010) == 0b0010:
-            VAZ = mc.GetVoltage(Servo_AZ)
-
-        if (GUIstatus & 0b0100) == 0b0100:
-            VALT = mc.GetVoltage(Servo_ALT)
-
-        if (GUIstatus & 0b0110) == 0b0000:
-            print('No servomotors are enabled.')
-
-        window['-voltAZ-'].update(str(VAZ)+" V")
-        window['-voltALT-'].update(str(VALT)+" V")
+        AFE.EngageBrake(AFE_inst)
 
 
     if event == '-STEP1-':
@@ -515,15 +516,6 @@ while True:
 
         print('Jogging Altitude Negative')
         mc.Jogging(Servo_ALT, JogStepALT, 2, 2)
-
-
-    # ------------------!!! Place Holder as written, need future work !!!----------------
-    if event == '-CALIB-'and (GUIstatus & 0b0110) == 0b0110:
-
-        print('Homing AZ and ALT')
-        print(mc.Zero(Servo_AZ))
-        print(mc.Zero(Servo_ALT))
-        GUIstatus |= 0b00110000
 
 
     if event == '-HOME-AZ-' and (GUIstatus & 0b0010) == 0b0010:
@@ -610,21 +602,16 @@ while True:
         GUIstatus |= 0b10110000
 
 
-    # Updating the System Status every 1s
-    SysTimer += 1
+    if (GUIstatus & 0b0001) == 0b0001:
+        # Get windspeed from AFE
+        WindSpeed = afe.GetWindRaw(AFE)
+        print( WindSpeed )
+        window['-WIND-'].update( str(WindSpeed) + " m/s" )
+        window['-SYS-'].update('')
 
-    if SysTimer == 29:
-
-        if (GUIstatus & 0b0001) == 0b0001:
-            # Get windspeed from AFE
-            window['-WIND-'].update(str(WindSpeed)+" m/s")
-            window['-SYS-'].update('Updating wind speed every second')
-
-        else:
-            window['-WIND-'].update('N/A')
-            window['-SYS-'].update('Enable AFE to update wind speed')
-
-        SysTimer = 0
+    else:
+        window['-WIND-'].update('N/A')
+        window['-SYS-'].update('Enable AFE to update wind speed')
 
 
     # Save absolute Position externally every 2s

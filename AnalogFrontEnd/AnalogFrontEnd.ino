@@ -60,8 +60,8 @@ void loop() {
 		wind = map(analogRead(A0), 82, 410, 0, 32.4);
 
 		//Serial.print(String(analogRead(A0), HEX));
-		Serial.print(wind);
-		Serial.print('\r');
+		Serial.print(wind, 0);
+		//Serial.print('\r');
 
 		Status |= 0x0002;
 	}
@@ -99,10 +99,12 @@ void loop() {
 		Serial.print('\r');
 	}
 
+	/*
 	// Anything else
 	else {
 		Serial.println(Command);
 	}
+	*/
 
 	// Clear command
 	Command = 0;
@@ -112,7 +114,7 @@ void loop() {
 	
 }
 
-/* Sends a byte to the Serial line every 1s, until a byte is received */
+/* Sends a byte to the Serial line every 20ms, until a byte is received */
 void WaitingHost() {
 
 	int _temp_ = 0;
@@ -121,19 +123,17 @@ void WaitingHost() {
 	while ( (Serial.available() <= 0) ) {
 
 		// Sends 10 bytes in 1s interval
-		Serial.print(_counter_);
-		Serial.print(": Waiting\n\r");
+		//Serial.print(_counter_);
+		//Serial.print(": Waiting\n\r");
 
-		delay(1500);
-
-		if ( _counter_ == 0xFFFF ) _counter_ = 1;
-		else ++_counter_;
+		//if ( _counter_ == 0xFFFF ) _counter_ = 1;
+		//else ++_counter_;
 	}
 
 	// Empty the data
 	_temp_ = Serial.read();
 
-	Serial.print("AFE Active\r");
+	//Serial.print("AFE Active\r");
 
 	Status = 0b1100;
 }
