@@ -11,7 +11,7 @@
 
 char Command = 0;
 
-float wind = 0.0;
+int wind = 0;
 
 /* Using last 4 bit for Status
 	bit 0: Brake Status(0: engaged; 1: released))
@@ -57,10 +57,11 @@ void loop() {
 	// 'A' received, return ADC value
 	if ( Command == 'A' ) {
 
-		wind = map(analogRead(A0), 82, 410, 0, 32.4);
+		// Refer to the Anemometer Datasheet for voltage mapping
+		wind = map(analogRead(A0), 82, 470, 0, 33);
+		//wind =analogRead(A0);
 
-		//Serial.print(String(analogRead(A0), HEX));
-		Serial.print(wind, 0);
+		Serial.print(wind);
 		//Serial.print('\r');
 
 		Status |= 0x0002;

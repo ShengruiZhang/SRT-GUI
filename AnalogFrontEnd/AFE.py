@@ -65,11 +65,9 @@ def ReleaseBrake(_AFE_):
 def GetWindRaw(_AFE_):
     _AFE_.is_open
     _AFE_.write(b'A')
-    test = _AFE_.readline().decode('ascii')
-    print('AFE:')
-    print(test)
-    #return _AFE_.readline().decode('ascii')
-    return test
+    #test = _AFE_.readline().decode('ascii')
+
+    return _AFE_.readline().decode('ascii')
 
 
 # Close Serial port

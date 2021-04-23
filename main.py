@@ -266,18 +266,7 @@ while True:
         print("Starting Calibration")
         #30 degrees past zenith/0.09 motor counts = 333 counts
 
-        JogStepALT = 333
-        mc.Jogging(Servo_ALT, -JogStepALT)
         window['-CALIB-'].Update(button_color=('black', 'gray'))
-
-
-    # ------------------!!! Place Holder as written, need future work !!!----------------
-    if event == '-CALIB-'and (GUIstatus & 0b0110) == 0b0110:
-
-        print('Homing AZ and ALT')
-        print(mc.Zero(Servo_AZ))
-        print(mc.Zero(Servo_ALT))
-        GUIstatus |= 0b00110000
 
 
     if event == sg.WIN_CLOSED or event == 'Exit':
@@ -349,7 +338,6 @@ while True:
 
         #AFE = afe.Init('/dev/ttyUSB3', 57600)
         AFE = afe.Init('/dev/ttyUSB0', 57600)
-        sleep(0.5)
         afe.Activate(AFE)
 
         GUIstatus |= 0b00000001
@@ -556,7 +544,8 @@ while True:
         GUIstatus &= 0b11111001
 
 
-    # Poll Abs Position, and update dials
+    # -------------Polling Servo Data------------
+    # Poll AZ Abs Position, and update AZ dial
     if (GUIstatus & 0b0010) == 0b0010:
 
         AbsAZ = mc.LimitAZ(Servo_AZ)
@@ -577,6 +566,7 @@ while True:
         window['-voltAZ-'].update("N/A")
 
 
+    # Poll ALT Abs Position, and update ALT dial
     if (GUIstatus & 0b0100) == 0b0100:
 
         AbsALT = mc.LimitALT_zenith(Servo_ALT)
@@ -604,10 +594,17 @@ while True:
 
     if (GUIstatus & 0b0001) == 0b0001:
         # Get windspeed from AFE
-        WindSpeed = afe.GetWindRaw(AFE)
-        print( WindSpeed )
+        WindSpeed = int( afe.GetWindRaw(AFE) )
         window['-WIND-'].update( str(WindSpeed) + " m/s" )
-        window['-SYS-'].update('')
+
+        if WindSpeed > 5 and WindSpeed < 25:
+            window['-SYS-'].update('Wind speed exceeds op. limit')
+
+        elif WindSpeed >= 25:
+            window['-SYS-'].update('Wind speed exceeds survival limit')
+
+        else:
+            window['-SYS-'].update('Wind speed normal')
 
     else:
         window['-WIND-'].update('N/A')
@@ -650,6 +647,7 @@ with open('gui.log', 'a') as log:
     log.writelines( 'Last GUIstatus: ' + str(bin(GUIstatus)) + '\n' )
     log.writelines( 'Last AZ Position: ' + str(AbsAZ) + '\n' )
     log.writelines( 'Last ALT Position: ' + str(AbsALT) + '\n' )
+    log.writelines( 'Last Detected Wind Speed: ' + str(WindSpeed) + '\n' )
 
     log.writelines(';GUI log ends here\n\n\n')
 
