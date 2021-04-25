@@ -44,7 +44,7 @@ void setup() {
 	Serial.begin(57600, SERIAL_8N2);
 
 	// Keep sending a byte to host computer and wait for responds
-	WaitingHost();
+	//WaitingHost();
 
 	// Turn off indicator after a byte is received
 	digitalWrite(13, LOW);
@@ -53,6 +53,9 @@ void setup() {
 void loop() {
 	// Get a byte from Serial line
 	Serial.readBytes(&Command, 1);
+
+	wind = map(analogRead(A0), 82, 470, 0, 33);
+	Serial.print(wind);
 
 	// 'A' received, return ADC value
 	if ( Command == 'A' ) {
@@ -111,7 +114,7 @@ void loop() {
 	Command = 0;
 
 	// Wait until data presents
-	while ( Serial.available() <= 0 );
+	//while ( Serial.available() <= 0 );
 	
 }
 
@@ -119,22 +122,14 @@ void loop() {
 void WaitingHost() {
 
 	int _temp_ = 0;
-	unsigned int _counter_ = 1;
 
 	while ( (Serial.available() <= 0) ) {
-
-		// Sends 10 bytes in 1s interval
-		//Serial.print(_counter_);
-		//Serial.print(": Waiting\n\r");
-
-		//if ( _counter_ == 0xFFFF ) _counter_ = 1;
-		//else ++_counter_;
 	}
 
 	// Empty the data
 	_temp_ = Serial.read();
 
-	//Serial.print("AFE Active\r");
+	Serial.print("AFE Active");
 
 	Status = 0b1100;
 }
