@@ -3,10 +3,6 @@
 #   Analog Front-End, handles the control of brakes and ADC for anemometer
 
 import serial
-import time
-
-def Test():
-    print("AFE TEST")
 
 
 # Open Serial port for AFE
@@ -15,8 +11,13 @@ def Test():
 # Return: the serial object
 #
 def Init(_port_, _Baud_):
-    _AFE_ = serial.Serial(_port_, _Baud_, timeout=0.025)
-    return _AFE_
+
+    try:
+        _AFE_ = serial.Serial(_port_, _Baud_, timeout=0.025)
+        return _AFE_
+
+    except Exception as err:
+        print(err)
 
 
 # Activate AFE
@@ -29,6 +30,7 @@ def Init(_port_, _Baud_):
 def Activate(_AFE_):
     _AFE_.is_open
     _AFE_.write(b'K')
+    print('AFE Response: ',  _AFE_.readline().decode('ascii'))
 
 
 # Engage brake
@@ -68,6 +70,35 @@ def GetWindRaw(_AFE_):
     #test = _AFE_.readline().decode('ascii')
 
     return _AFE_.readline().decode('ascii')
+
+
+# Get the mapped wind speed in m/s
+#
+# Input: The serial object
+# Return: mapped wind speed
+#
+def GetWind(_AFE_):
+
+    _AFE_.is_open
+
+    count = 0
+
+    while True:
+
+        try:
+            wind = _AFE_.readline().decode('ascii')
+
+        except Exception as error:
+            print(error)
+            count += 1
+
+        if wind != '':
+            break
+
+        if count >= 10:
+            return ''
+
+    return wind
 
 
 # Close Serial port

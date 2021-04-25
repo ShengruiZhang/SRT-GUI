@@ -19,15 +19,14 @@ AFE = serial.Serial('/dev/ttyUSB0', sys.argv[1], timeout=0.025)
 # Verify the Serial Port
 print(f'Current Serial Port: {AFE.name}')
 
-counter = 100;
-while counter < 10:
+counter = 1
+while counter < 100:
     # Read one byte
     # The data read from serial is in binary format,
     #   here decode such as ASCII
     line = AFE.readline().decode('ascii')
-    print(f'{counter} {line}', end='')
+    print(f'{counter} {line}')
     counter += 1
-    time.sleep(1)
 
 # Send an arbitrary byte to activate the Arduino
 print("Activate AFE...")

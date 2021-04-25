@@ -13,7 +13,7 @@
 #   9. [Verified]Implement Stow button
 #   10. [Verified]Check main additions
 #   11. [Obsoleted]Change coord entry to Celestial
-#   12. attach anemometer
+#   12. [Added, Need test]attach anemometer
 #   13. attach brake to jogging
 #   14. [Verified]fix stop indexerror
 #   15. [Verified]disabled absPos logging, need to reduce file size
@@ -77,7 +77,8 @@ Parameters = [  [sg.T('System Status:',font=("Helvetica 14 underline bold"))],
                     sg.T('N/A',size=(7,1),justification='l',key='-voltALT-')],
 
                 [sg.T('')],
-                [sg.T('',font=("OpenSans 12 italic"),size=(30,1),justification='c',key='-SYS-')]
+                [sg.T('',font=("OpenSans 12 italic"),size=(30,1),justification='c',key='-SYS-')],
+                [sg.T('',font=("OpenSans 12 italic"),size=(30,1),justification='c',key='-SYS2-')]
                 ]
 
 Jogging = [     [sg.T('Jogging',font=('Helvetica 14 underline bold'))],
@@ -98,25 +99,25 @@ Jogging = [     [sg.T('Jogging',font=('Helvetica 14 underline bold'))],
 System = [      [sg.T('System Settings',font=('Helvetica 14 underline bold'))],
 
                 [sg.Check('Enable Telescope',size=(20,1),default=False,
-                    enable_events=True,key='-EN-SRT-')],
+                    enable_events=True,disabled=False,key='-EN-SRT-')],
 
                 [sg.Check('Enable Servomotors',size=(20,1),default=False,
-                    enable_events=True,key='-EN-SERVO-')],
+                    enable_events=True,disabled=True,key='-EN-SERVO-')],
 
                 [sg.Check('Enable AnalogFrontEnd',size=(20,1),default=False,
-                    enable_events=True,key='-EN-AFE-')],
+                    enable_events=True,disabled=True,key='-EN-AFE-')],
 
                 [sg.Check('Enable Jogging',size=(20,1),default=False,
-                    enable_events=True,key='-EN-JOG-')],
+                    enable_events=True,disabled=True,key='-EN-JOG-')],
 
                 [sg.Check('Advance Features',size=(20,1),default=False,
-                    enable_events=True,key='-EN-ADV-')],
+                    enable_events=True,disabled=True,key='-EN-ADV-')],
 
                 [sg.T('')],
-                [sg.B('Home AZ',size=(9,1),key='-HOME-AZ-',disabled=True)],
-                [sg.B('Home ALT',size=(9,1),key='-HOME-ALT-',disabled=True)],
+                [sg.B('Home AZ',size=(9,1),key='-HOME-AZ-',disabled=True,visible=False),
+                    sg.B('Home ALT',size=(9,1),key='-HOME-ALT-',disabled=True,visible=False)],
 
-                [sg.B('Restart',key='-RESTART-',disabled=True)]
+                [sg.B('Restart',size=(9,1),key='-RESTART-',disabled=True,visible=False)]
                 ]
 
 data_recording = [
@@ -137,7 +138,7 @@ output =    [   [sg.T('Radio Telescope Control Output/Log')],
 
 layout = [  [sg.Menu(menu_def, tearoff=True)],
             [sg.T('Student Radio Telescope Control',size=(30,1),justification='c',font=("Helvetica 25"),
-                relief=sg.RELIEF_SOLID),sg.T('',font=("DejaVu 10"),size=(15,1),key='-datetime-')],
+                relief=sg.RELIEF_RAISED),sg.T('',font=("DejaVu 10"),size=(15,1),key='-datetime-')],
 
             [sg.T('')],
             [sg.B('Start Calibration',size=(15,1),font=("Helvetica 13"),key='-CALIB-'),
@@ -153,14 +154,14 @@ layout = [  [sg.Menu(menu_def, tearoff=True)],
                 sg.Col(Parameters, element_justification='c', vertical_alignment='top'),
 
                 #sg.VSep(pad=((30,30),(0,0))),
-                sg.VSep(pad=((0,0),(0,0))),
+                sg.VSep(pad=((0,30),(0,0))),
 
                 sg.Col(Jogging, element_justification='c', vertical_alignment='top'),
 
                 #sg.VSep(pad=((30,30),(0,0))),
-                sg.VSep(pad=((0,0),(0,0))),
+                sg.VSep(pad=((30,30),(0,0))),
 
-                sg.Col(System, element_justification='c', vertical_alignment='top')],
+                sg.Col(System, pad=((0,30),(0,0)), element_justification='c', vertical_alignment='top')],
 
             [sg.T('')],
             [sg.Frame(layout=data_recording, title='Data Output:',
@@ -275,21 +276,19 @@ while True:
 
     if event == '-EN-SRT-' and values['-EN-SRT-'] == True:
         print('Enabling Telescope Control')
-        #TODO
-
-        window['-EN-SERVO-'].update(disabled=True)
-        window['-EN-AFE-'].update(disabled=True)
-        window['-EN-JOG-'].update(disabled=True)
-        window['-EN-ADV-'].update(disabled=True)
-
-    if event == '-EN-SRT-' and values['-EN-SRT-'] == False:
-        print('Disabling Telescope Control')
-        #TODO
 
         window['-EN-SERVO-'].update(disabled=False)
         window['-EN-AFE-'].update(disabled=False)
         window['-EN-JOG-'].update(disabled=False)
         window['-EN-ADV-'].update(disabled=False)
+
+    if event == '-EN-SRT-' and values['-EN-SRT-'] == False:
+        print('Disabling Telescope Control')
+
+        window['-EN-SERVO-'].update(disabled=True)
+        window['-EN-AFE-'].update(disabled=True)
+        window['-EN-JOG-'].update(disabled=True)
+        window['-EN-ADV-'].update(disabled=True)
 
 
     if event == '-EN-SERVO-' and values['-EN-SERVO-'] == True:
@@ -338,9 +337,13 @@ while True:
 
         #AFE = afe.Init('/dev/ttyUSB3', 57600)
         AFE = afe.Init('/dev/ttyUSB0', 57600)
-        afe.Activate(AFE)
 
-        GUIstatus |= 0b00000001
+        if AFE == None:
+            print('Check AFE Connection')
+            window['-EN-AFE-'].update(value=False)
+
+        else:
+            GUIstatus |= 0b00000001
 
 
 
@@ -381,15 +384,15 @@ while True:
 
     if event == '-EN-ADV-' and values['-EN-ADV-'] == True:
 
-        window['-HOME-AZ-'].update(disabled=False)
-        window['-HOME-ALT-'].update(disabled=False)
-        window['-RESTART-'].update(disabled=False)
+        window['-HOME-AZ-'].update(disabled=False, visible=True)
+        window['-HOME-ALT-'].update(disabled=False, visible=True)
+        window['-RESTART-'].update(disabled=False, visible=True)
 
     if event == '-EN-ADV-' and values['-EN-ADV-'] == False:
 
-        window['-HOME-AZ-'].update(disabled=True)
-        window['-HOME-ALT-'].update(disabled=True)
-        window['-RESTART-'].update(disabled=True)
+        window['-HOME-AZ-'].update(disabled=True, visible=False)
+        window['-HOME-ALT-'].update(disabled=True, visible=False)
+        window['-RESTART-'].update(disabled=True, visible=False)
 
 
     if event == 'Read':
@@ -433,7 +436,8 @@ while True:
         if (GUIstatus & 0b0110) == 0b0000:
             print('No servo motors are enabled.')
 
-        AFE.EngageBrake(AFE_inst)
+        if (GUIstatus & 0b0001) == 0b0001:
+            afe.EngageBrake(AFE)
 
 
     if event == '-STEP1-':
@@ -592,16 +596,33 @@ while True:
         GUIstatus |= 0b10110000
 
 
+    # Get windspeed from AFE
     if (GUIstatus & 0b0001) == 0b0001:
-        # Get windspeed from AFE
-        WindSpeed = int( afe.GetWindRaw(AFE) )
+
+        try:
+            WindSpeed = int( afe.GetWind(AFE) )
+            window['-SYS2-'].update('')
+
+        except ValueError as e:
+            afe.CloseSerial(AFE)
+            window['-EN-AFE-'].update(value=False)
+            window['-SYS2-'].update('AFE Disconnected')
+            GUIstatus &= 0b11111110
+            print('AFE disconnected... Check AFE Connection.')
+
+            with open('gui.log','a') as log:
+                log.writelines( dt.now().strftime('%Y-%m-%d %H:%M:%S\n') )
+                log.writelines( 'AFE Disconnected\n' )
+
         window['-WIND-'].update( str(WindSpeed) + " m/s" )
 
         if WindSpeed > 5 and WindSpeed < 25:
             window['-SYS-'].update('Wind speed exceeds op. limit')
+            window['-SYS2-'].update('Stowing telescope advised')
 
         elif WindSpeed >= 25:
             window['-SYS-'].update('Wind speed exceeds survival limit')
+            window['-SYS2-'].update('Telescope must be stowed')
 
         else:
             window['-SYS-'].update('Wind speed normal')
@@ -623,11 +644,9 @@ while True:
 
         absPosTimer = 0
 
-
-# Close the Serial connection
-#AFE.CloseSerial(AnalogControl)
-
-# Dump some log
+#----------------------------------------------------------------------------
+# -----------------Dump some log---------------------------------------------
+#----------------------------------------------------------------------------
 with open('gui.log', 'a') as log:
 
     print('Saving logs before exiting')
