@@ -23,7 +23,7 @@ def Init(_port_):
     _Servo_ = serial.Serial(_port_,
                             _Baud_SilverMax_,
                             bytesize=8, parity='N', stopbits=2,
-                            timeout=0.025)
+                            timeout=0.02)
 
     return _Servo_
 
@@ -304,7 +304,7 @@ def Entry(_Serial_AZ_, _Serial_ALT_, _AZ_, _ALT_):
 
     print(_Serial_AZ_.readline())
 
-    _command_ = "@16 134 " + str( round((90 - _ALT_) * 1857) ) + ' ' + str(acc2nat(1)) + ' ' + str(rps2nat(1)) + " 0 0 \r"
+    _command_ = "@16 134 " + str( round((120 - _ALT_) * 1857) ) + ' ' + str(acc2nat(1)) + ' ' + str(rps2nat(1)) + " 0 0 \r"
 
     _Serial_ALT_.write(_command_.encode())
 
@@ -340,7 +340,7 @@ def Entry_AZ(_Serial_AZ_, _AZ_):
 #
 def Entry_ALT(_Serial_ALT_, _ALT_):
 
-    _command_ = "@16 134 " + str( round((90 - _ALT_) * 1857) ) + ' ' + str(acc2nat(1)) + ' ' + str(rps2nat(1)) + " 0 0 \r"
+    _command_ = "@16 134 " + str( round((120 - _ALT_) * 1857) ) + ' ' + str(acc2nat(1)) + ' ' + str(rps2nat(1)) + " 0 0 \r"
 
     _Serial_ALT_.write(_command_.encode())
 

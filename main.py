@@ -254,7 +254,7 @@ while True:
 
     # check every 35 ms
     #   The first values in event is the menu bar event
-    event, values = window.read(timeout=35)
+    event, values = window.read(timeout=50)
 
     # update time
     time = dt.now().strftime('%Y-%m-%d   %H:%M')
@@ -335,8 +335,7 @@ while True:
 
         print('Enabling AnalogFrontEnd')
 
-        #AFE = afe.Init('/dev/ttyUSB3', 57600)
-        AFE = afe.Init('/dev/ttyUSB0', 57600)
+        AFE = afe.Init('/dev/ttyUSB3', 57600)
 
         if AFE == None:
             print('Check AFE Connection')
@@ -528,7 +527,7 @@ while True:
     if event == '-STOW-' and (GUIstatus & 0b10000110) == 0b00000110:
 
         mc.Stow(Servo_AZ, 0, 2, 5)
-        mc.Stow(Servo_ALT, 0, 1, 2)
+        mc.Stow(Servo_ALT, 0, 1, 1)
         GUIstatus |= 0b10000000
 
 
@@ -557,7 +556,7 @@ while True:
         window['-POS-CURR-AZ-'].update(round((AbsAZ/9365), 1))
 
         # Update Voltage
-        VAZ = mc.GetVoltage(Servo_AZ)
+        #VAZ = mc.GetVoltage(Servo_AZ)
         window['-voltAZ-'].update(str(VAZ)+" V")
 
         # Set the HOMED bit if zero pos
@@ -573,12 +572,13 @@ while True:
     # Poll ALT Abs Position, and update ALT dial
     if (GUIstatus & 0b0100) == 0b0100:
 
-        AbsALT = mc.LimitALT_zenith(Servo_ALT)
-        altDial.Update(round((AbsALT/(-1857)) + 90, 1))
-        window['-POS-CURR-ALT-'].update(round((AbsALT/(-1857)) + 90, 1))
+        AbsALT = mc.LimitALT(Servo_ALT)
+        print( AbsALT/(1857) )
+        altDial.Update(round((AbsALT/(-1857)) + 120, 1))
+        window['-POS-CURR-ALT-'].update(round((AbsALT/(-1857)) + 120, 1))
 
         # Update Voltage
-        VALT = mc.GetVoltage(Servo_ALT)
+        #VALT = mc.GetVoltage(Servo_ALT)
         window['-voltALT-'].update(str(VALT)+" V")
 
         # Set the HOMED bit if zero pos
