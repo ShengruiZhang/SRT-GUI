@@ -9,7 +9,7 @@ from time import sleep
 import binascii
 from datetime import datetime as dt
 
-_Baud_SilverMax_ = 57600
+_Baud_SilverMax_ = 115200
 
 # Open Serial port for Servomotor: Azimuth
 #
@@ -23,7 +23,7 @@ def Init(_port_):
     _Servo_ = serial.Serial(_port_,
                             _Baud_SilverMax_,
                             bytesize=8, parity='N', stopbits=2,
-                            timeout=0.02)
+                            timeout=0.007)
 
     return _Servo_
 

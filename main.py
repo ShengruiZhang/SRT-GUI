@@ -19,7 +19,8 @@
 #   15. [Verified]disabled absPos logging, need to reduce file size
 
 
-from time import sleep
+#from time import sleep
+from time import perf_counter
 import PySimpleGUI as sg
 import Dials.Dial_AZ as daz
 import Dials.Dial_ALT as dalt
@@ -254,7 +255,7 @@ while True:
 
     # check every 35 ms
     #   The first values in event is the menu bar event
-    event, values = window.read(timeout=50)
+    event, values = window.read(timeout=35)
 
     # update time
     time = dt.now().strftime('%Y-%m-%d   %H:%M')
@@ -547,6 +548,10 @@ while True:
         GUIstatus &= 0b11111001
 
 
+
+    # DEBUG
+    start_time = perf_counter()
+
     # -------------Polling Servo Data------------
     # Poll AZ Abs Position, and update AZ dial
     if (GUIstatus & 0b0010) == 0b0010:
@@ -569,11 +574,13 @@ while True:
         window['-voltAZ-'].update("N/A")
 
 
+    print('Diff time: ', perf_counter() - start_time)
+
+
     # Poll ALT Abs Position, and update ALT dial
     if (GUIstatus & 0b0100) == 0b0100:
 
         AbsALT = mc.LimitALT(Servo_ALT)
-        print( AbsALT/(1857) )
         altDial.Update(round((AbsALT/(-1857)) + 120, 1))
         window['-POS-CURR-ALT-'].update(round((AbsALT/(-1857)) + 120, 1))
 
@@ -643,6 +650,8 @@ while True:
             absPos.writelines( str(AbsALT) + '\n' + '\n' )
 
         absPosTimer = 0
+
+
 
 #----------------------------------------------------------------------------
 # -----------------Dump some log---------------------------------------------
