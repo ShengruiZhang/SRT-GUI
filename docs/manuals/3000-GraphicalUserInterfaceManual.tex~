@@ -1,0 +1,50 @@
+\documentclass{article}
+
+\usepackage{amssymb}
+\usepackage{graphicx}
+\graphicspath{ {images/} }
+
+\usepackage[a4paper, left=25mm, top=25mm]{geometry}
+\usepackage[utf8]{inputenc}
+
+\setlength{\parskip}{1em}
+\setlength{\parindent}{0em}
+\setlength{\baselineskip}{2em}
+
+
+% --------------Main document------------------------------
+% ---------------------------------------------------------
+\begin{document}
+
+% -------Title page begins-------------
+\begin{titlepage}
+  \begin{center}
+    
+    \vspace*{5cm}
+    \huge Student Radio Telescope (SRT)
+    
+    \vspace*{2cm}
+    \Large Graphical User Interface User Manual
+    
+    \vspace*{2cm}
+    \large Document Number: 3000
+    
+    \vspace*{2.0cm}
+    \large
+    Team 21039\\
+    Spring 2021
+    
+  \end{center}
+\end{titlepage}
+% -------Title page ends---------------
+
+\tableofcontents
+\pagebreak
+
+\section{Graphical User Interface (GUI) Overview}
+
+\section{Open the GUI}
+
+\section{GUI Layout}
+
+\end{document}
