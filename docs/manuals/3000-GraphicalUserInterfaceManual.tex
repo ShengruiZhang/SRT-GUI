@@ -29,7 +29,7 @@
     
     \vspace*{2cm}
     \large Document Number: 3000\\
-    Revision: draft-0.1
+    Revision: draft-0.2
     
     \vspace*{2.0cm}
     \large
@@ -60,7 +60,22 @@ Python3.7 was used during the development, newer version might be used but they 
 
 The GUI was developed under a Debian 10 GNU/Linux environment, so the rest of this manual assumes such. Since Python and the GUI toolkit are corss-platform, there should be no problem to fork the software to other platforms; only slight modification are needed such as the name of the USB-Serial port. 
 
-\section{Open the GUI}
+\section{Dependency}
+
+The GUI is mainly written in Python, and Python3 and newer is required. To install python3 on Debian 10:\\
+sudo apt install python3.7\\
+
+To install other dependencies, Python's pip is recommended. To install pip on Debian 10:\\
+sudo apt install python3-pip\\
+
+With pip installed, check if package \textbf{PySimpleGUI} and \textbf{pyserial} exists using:\\
+pip3 list\\
+
+If not, install them using:\\
+pip3 install PySimpleGUI\\
+pip3 install pyserial\\
+
+As of writing this manual, PySimpleGUI is on 4.30.0, and pyserial sits on 3.5
 
 In an GNU/Linux environment, and after cloning the repo, the GUI can be opened via command line: python3.7 main.py
 
