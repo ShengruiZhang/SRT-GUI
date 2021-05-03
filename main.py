@@ -265,10 +265,19 @@ while True:
     #TODO, be careful to use
     if event == '-CALIB-':
 
-        print("Starting Calibration")
-        #30 degrees past zenith/0.09 motor counts = 333 counts
-
-        window['-CALIB-'].Update(button_color=('black', 'gray'))
+        print("Starting Calibration, be sure telescope points at zenith.")
+        #30 degrees past zenith -> 55,658 counts
+        
+        # Check motor status
+        if (GUIstatus & 0b0110) == 0b0110:
+			mc.Stow(Servo_AZ)
+			mc.Stow(Servo_ALT)
+			
+		else:
+			print('Servomotors are not enabled. Enable it to calibrate')
+        
+        # Once done calib, disable the button
+        window['-CALIB-'].Update(disable=True,button_color=('black', 'gray'))
 
 
     if event == sg.WIN_CLOSED or event == 'Exit':
