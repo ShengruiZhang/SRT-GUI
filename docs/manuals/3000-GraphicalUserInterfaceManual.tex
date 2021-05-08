@@ -20,22 +20,22 @@
 % -------Title page begins-------------
 \begin{titlepage}
   \begin{center}
-    
+
     \vspace*{5cm}
     \huge Student Radio Telescope (SRT)
-    
+
     \vspace*{2cm}
     \Large Graphical User Interface User Manual
-    
+
     \vspace*{2cm}
     \large Document Number: 3000\\
     Revision: draft-0.2
-    
+
     \vspace*{2.0cm}
     \large
     Team 21039\\
     Spring 2021
-    
+
   \end{center}
 \end{titlepage}
 % -------Title page ends---------------
@@ -58,7 +58,7 @@ As of most other Capstone projects, this GUI is written in \textbf{Python} for s
 
 Python3.7 was used during the development, newer version might be used but they are not tested and verified.
 
-The GUI was developed under a Debian 10 GNU/Linux environment, so the rest of this manual assumes such. Since Python and the GUI toolkit are corss-platform, there should be no problem to fork the software to other platforms; only slight modification are needed such as the name of the USB-Serial port. 
+The GUI was developed under a Debian 10 GNU/Linux environment, so the rest of this manual assumes such. Since Python and the GUI toolkit are corss-platform, there should be no problem to fork the software to other platforms; only slight modification are needed such as the name of the USB-Serial port.
 
 \section{Dependency}
 
@@ -90,7 +90,31 @@ Despite the output window mostly provides informational messages, it does output
 \section{Main Control Function}
 This section documents the various functions of the main control GUI window. This window has the title: \textbf{\textit{Student Radio Telescope Control}}
 \subsection{Menu Bar}
+
+The menu bar contains three buttons: File, Edit, and Help.
+
+From the file button you can exit the GUI.
+
+The Edit button has the subbuttons of Edit, Copy, and Paste, which you can use when entering in coordinates.
+
+The Help button will will show a link to this instruction manual.
+
 \subsection{Three main buttons}
+
+The three main buttons at the top of the GUI are Start Calibration, Telescope Stop, and Stow Telescope.
+
+\subsubsection{Start Calibration}
+
+The Start Calibration button should be pushed after the enable telescope and enable servomotor options are selected. This button runs a function which moves the telescope from its stow position to zenith.
+
+\subsubsection{Telescope Stop}
+
+The Telescope Stop button is available for users if a wrong input was pushed, or if there is a need for the telescope to be stopped immediately. This does not take the place of the emergency stop button. If a hard stop is needed, the user should use the red button that is immediately connected to the power supply. However, in the case of an incorrect entry, or any other reason, one can user the Telescope Stop button to stop the telescope immediately without shutting off the power or the GUI.
+
+\subsubsection{Stow Telescope}
+
+Once the user has finished using the PORT, they must stow the telescope by clicking this button before shutting down the GUI. This button takes in the current position of the telescope and moves the telescope to the stow position, 30 degrees past zenith.
+
 \subsection{Coordinate Entry}
 \subsection{System Status}
 \subsection{Jogging}
