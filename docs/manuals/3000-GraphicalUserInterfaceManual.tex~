@@ -101,7 +101,6 @@ The Telescope Stop button is available for users if a wrong input was pushed, or
 
 Once the user has finished using the PORT, they must stow the telescope by clicking this button before shutting down the GUI. This button takes in the current position of the telescope and moves the telescope to the stow position, 30 degrees past zenith.
 
-\subsection{Three main buttons}
 \subsection{Coordinate Entry}
 \subsection{System Status}
 \subsection{Jogging}

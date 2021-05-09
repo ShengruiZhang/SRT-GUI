@@ -113,9 +113,11 @@ The Telescope Stop button is available for users if a wrong input was pushed, or
 
 \subsubsection{Stow Telescope}
 
-Once the user has finished using the PORT, they must stow the telescope by clicking this button before shutting down the GUI. This button takes in the current position of the telescope and moves the telescope to the stow position, 30 degrees past zenith.
+Once the user has finished using the PORT, they must stow the telescope by clicking this button before shutting down the GUI. This button takes in the current position of the telescope and moves the telescope to the stow position, 30 degrees past zenith. 
 
 \subsection{Coordinate Entry}
+
+The coordinate entry inputs are in terms of ALT/AZ. Therefore, the user must input only azimuthal and altitudinal values. The user simply has to enter a value between 15-120 degrees for the altitude, and a value between 0-360 for the azimuth axis. Then, you click the read button. The telescope then moves to the inputted coordinates. If the user enters a value that exceeds the mechanical limit, there is a software limit which will not allow the telescope to move past either 120 degrees altitudinally (stow position), or past horizon.
 \subsection{System Status}
 \subsection{Jogging}
 \subsection{System Settings}
