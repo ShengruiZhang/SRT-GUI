@@ -22,7 +22,7 @@
   \begin{center}
 
     \vspace*{5cm}
-    \huge Student Radio Telescope (SRT)
+    \huge Public Outreach Radio Telescope (PORT)
 
     \vspace*{2cm}
     \Large Graphical User Interface User Manual
@@ -46,11 +46,12 @@
 \section{Revision History}
 \begin{itemize}
   \item 2021-04-28: Draft created
+  \item 2021-05-09: Draft edited
 \end{itemize}
 
 
 \section{Graphical User Interface (GUI) Overview}
-The Student Radio Telescope (SRT) Graphical User Interface (GUI) is the front-end for interfacing and controlling the SRT.
+The Public Outreach Radio Telescope (PORT) Graphical User Interface (GUI) is the front-end for interfacing and controlling the PORT.
 
 As of writing this manual, the GUI only have capability to perform basic telescope movement. Tracking and other improvement are future goals and were outside the requirement/scope of the Team 21039.
 
@@ -88,7 +89,7 @@ The main control is where essential operations take place; position dials simply
 Despite the output window mostly provides informational messages, it does output error and debug messages. Keep in mind that currently the outputs will not be saved upon exiting the GUI.
 
 \section{Main Control Function}
-This section documents the various functions of the main control GUI window. This window has the title: \textbf{\textit{Student Radio Telescope Control}}
+This section documents the various functions of the main control GUI window. This window has the title: \textbf{\textit{Public Outreach Radio Telescope Control}}
 \subsection{Menu Bar}
 
 The menu bar contains three buttons: File, Edit, and Help.
@@ -99,7 +100,7 @@ The Edit button has the subbuttons of Edit, Copy, and Paste, which you can use w
 
 The Help button will will show a link to this instruction manual.
 
-\subsection{Three main buttons}
+\subsection{Three Main Buttons}
 
 The three main buttons at the top of the GUI are Start Calibration, Telescope Stop, and Stow Telescope.
 
@@ -117,12 +118,45 @@ Once the user has finished using the PORT, they must stow the telescope by click
 
 \subsection{Coordinate Entry}
 
-The coordinate entry inputs are in terms of ALT/AZ. Therefore, the user must input only azimuthal and altitudinal values. The user simply has to enter a value between 15-120 degrees for the altitude, and a value between 0-360 for the azimuth axis. Then, you click the read button. The telescope then moves to the inputted coordinates. If the user enters a value that exceeds the mechanical limit, there is a software limit which will not allow the telescope to move past either 120 degrees altitudinally (stow position), or past horizon.
+The coordinate entry inputs are in terms of ALT/AZ. Therefore, the user must input only azimuthal and altitudinal values. The user simply has to enter a value between 15-120 degrees for the altitude, and a value between 0-360 for the azimuth axis. Then, you click the read button. The PORT then moves to the inputted coordinates. If the user enters a value that exceeds the mechanical limit, there is a software limit which will not allow the telescope to move past either 120 degrees altitudinally (stow position), or past horizon.
+
 \subsection{System Status}
+
+The system operator shall be able to know the current status of the telescope in order to perform the current operation. The System Status section fillfulls such requirements. The Current/Target Position indicates telescope position in Az-Alt coordinates. Wind Speed is an important parameter, because the telescope needs to be stowed when the operating wind speed limit is exceeded. If the wind speed is above 5 m/s, a warning is shown. If the wind speed exceeds 25 m/s, a text is shown to stow the telescope immediately. The voltage display of both servo motors gives the operator insight of the power supply. The motion accuracy of servo motors deteriorates as the operating voltage drops, which is why when voltage starts to drop, troubleshooting is advised.
+
 \subsection{Jogging}
+
+Jogging is a convenient way to position the telescope for small movements, as it is often required when performing maintenance/troubleshooting. The operator must click the Enable Jogging button in the System Settings section before the user can jog the telescope. The operator can choose one of the four available jogging steps for each axis, ranging from a half-degree to ten degrees each time the corresponding button is clicked. This is useful if the telescope position is needed to be adjusted in small increments, especially when stowing the telescope. Simply click which axis you wish to move, and then click the increment (in degrees) that you want to move. It is advised to click the Disble Jogging feature when not in use to avoid accidental movement of the PORT.
+
 \subsection{System Settings}
+
+It was decided to include the System Settings feature to prevent unintentional movement or use of the PORT. To be able to move the telescope in the first place, the user must enable that specific feature on the GUI, such as jogging. This design was included because this telescope will be used by the public, so any additional layer of protection is seen as beneficial. The Enable Telescope and Enable Servomotors options must be clicked to operate the PORT.
+
 \subsection{Data Output}
 
+The Data Output feature is a placeholder for future teams so that they can save data and create graphs for future information received from the PORT. 
+
 \section{Operating Procedure}
+
+For the GUI to run correctly, the user must turn on the telescope in a specific order. The following outlines the steps needed to turn on the telescope correctly.
+
+\begin{enumerate}
+	\item First, ensure that the power supply is plugged in.
+	\item Check to make sure the USB to DB9 cables are plugged in. They are labelled Servo-AZ and Servo-ALT. If they are not plugged in, make sure to plug in the Servo-AZ cable in first,         followed by the Servo-ALT cable.
+	\item Next, unlock the disconnect switch, ensuring you are following the LOTO procedure.
+	\item Then, on the command line, enter the following lines of code:\\
+	\\
+	\hspace*{10mm} cd SRT-GUI\\
+	\hspace*{10mm} python3.7 main.py
+	\item  You should now see the GUI. If you do not, go back over the steps and make sure you did not miss any connections.
+	\item Once operating the GUI, the first action is to click the Enable Telescope, Enable Servomotors, and Enable AFE in the System Settings section of the GUI.
+	\item Next, click the Start Calibration button.
+	\item You are now free to operate the PORT as you wish.
+	\item Once you are done using the PORT, you must stow the telescope. Do this by clicking the Stow Telescope button.
+	\item After stowing the PORT, you can now exit the GUI.
+	\item Ensure the disconnect switch is turned off and LOTO procedure is followed.
+
+\end{enumerate}
+
 
 \end{document}
