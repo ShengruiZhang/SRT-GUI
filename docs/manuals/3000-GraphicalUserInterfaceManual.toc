@@ -1,0 +1,20 @@
+\contentsline {section}{\numberline {1}Revision History}{2}% 
+\contentsline {section}{\numberline {2}Graphical User Interface (GUI) Overview}{2}% 
+\contentsline {section}{\numberline {3}Dependency}{2}% 
+\contentsline {section}{\numberline {4}GUI Layout}{3}% 
+\contentsline {section}{\numberline {5}Main Control Function}{3}% 
+\contentsline {subsection}{\numberline {5.1}Menu Bar}{3}% 
+\contentsline {subsection}{\numberline {5.2}Three Main Buttons}{3}% 
+\contentsline {subsubsection}{\numberline {5.2.1}Start Calibration}{3}% 
+\contentsline {subsubsection}{\numberline {5.2.2}Telescope Stop}{3}% 
+\contentsline {subsubsection}{\numberline {5.2.3}Stow Telescope}{4}% 
+\contentsline {subsection}{\numberline {5.3}Coordinate Entry}{4}% 
+\contentsline {subsection}{\numberline {5.4}System Status}{4}% 
+\contentsline {subsection}{\numberline {5.5}Jogging}{4}% 
+\contentsline {subsection}{\numberline {5.6}System Settings}{5}% 
+\contentsline {subsubsection}{\numberline {5.6.1}Enable Telescope}{5}% 
+\contentsline {subsubsection}{\numberline {5.6.2}Enable Servomotors}{5}% 
+\contentsline {subsubsection}{\numberline {5.6.3}Enable AnalogFrontEnd}{5}% 
+\contentsline {subsubsection}{\numberline {5.6.4}Advance Features}{5}% 
+\contentsline {subsection}{\numberline {5.7}Data Output}{6}% 
+\contentsline {section}{\numberline {6}Operating Procedure}{6}% 

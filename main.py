@@ -267,15 +267,15 @@ while True:
 
         print("Starting Calibration, be sure telescope points at zenith.")
         #30 degrees past zenith -> 55,658 counts
-        
+
         # Check motor status
         if (GUIstatus & 0b0110) == 0b0110:
-			mc.Stow(Servo_AZ)
-			mc.Stow(Servo_ALT)
-			
-		else:
-			print('Servomotors are not enabled. Enable it to calibrate')
-        
+            mc.Stow(Servo_AZ)
+            mc.Stow(Servo_ALT)
+
+        else:
+            print('Servomotors are not enabled. Enable it to calibrate')
+
         # Once done calib, disable the button
         window['-CALIB-'].Update(disable=True,button_color=('black', 'gray'))
 
@@ -558,9 +558,6 @@ while True:
 
 
 
-    # DEBUG
-    start_time = perf_counter()
-
     # -------------Polling Servo Data------------
     # Poll AZ Abs Position, and update AZ dial
     if (GUIstatus & 0b0010) == 0b0010:
@@ -582,8 +579,6 @@ while True:
     else:
         window['-voltAZ-'].update("N/A")
 
-
-    print('Diff time: ', perf_counter() - start_time)
 
 
     # Poll ALT Abs Position, and update ALT dial

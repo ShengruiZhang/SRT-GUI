@@ -97,7 +97,7 @@ Despite the output window mostly provides informational messages, it does output
 
 
 \section{Main Control Function}
-This section documents the various functions of the main control GUI window. This window has the title: \textbf{Public Outreach Radio Telescope Control}.
+This section documents the various functions of the main control GUI window. This window has the title: \textbf{\textit{Public Outreach Radio Telescope Control}}
 
 
 \subsection{Menu Bar}
@@ -112,11 +112,11 @@ The Help button will will show a link to this instruction manual.
 
 \subsection{Three Main Buttons}
 
-The three main buttons at the top of the GUI are \textbf{Start Calibration}, \textbf{Telescope Stop}, and \textbf{\textit{Stow Telescope}}.
+The three main buttons at the top of the GUI are \textbf{\textit{Start Calibration}}, \textbf{\textit{Telescope Stop}}, and \textbf{\textit{Stow Telescope}}.
 
 \subsubsection{Start Calibration}
 
-The \textbf{Start Calibration} button should be used after \textbf{Enable Telescope} and \textbf{Enable Servomtors} are selected. This button runs a function which moves the telescope from its stow position to zenith.
+The \textbf{\textit{Start Calibration}} button should be used after \textbf{\textit{Enable Telescope}} and \textbf{\textit{Enable Servomtors}} are selected. This button runs a function which moves the telescope from its stow position to zenith.
 
 The idea is that, since the dish is off-axis, it's easy to find a spot on the counter-weight arm or the ALT arm and calibrate it to zenith using a level or angle meter.
 
@@ -130,7 +130,7 @@ In the case of an incorrect coord. entry, or any other reason, one can use the T
 
 \subsubsection{Stow Telescope}
 
-\textbf{Stow Telescope} brings the telescope back to its stow position. It only works if \textbf{Enable Telescope} and \textbf{Enable Servomotors} are both selected.
+\textbf{\textit{Stow Telescope}} brings the telescope back to its stow position. It only works if \textbf{\textit{Enable Telescope}} and \textbf{\textit{Enable Servomotors}} are both selected.
 
 The telescope stowing position is 30\textdegree\ pass zenith (relative to the ALT or counter-weight arm).
 
@@ -139,7 +139,7 @@ Once the user has finished using the PORT, they \textbf{MUST} stow the telescope
 
 \subsection{Coordinate Entry}
 
-The coordinate entry inputs are in terms of ALT/AZ. Therefore, the user must input only azimuthal and altitudinal values. The user simply has to enter a value between 15-120 degrees for the altitude, and a value between 0-360 for the azimuth axis. Then, you click the \textbf{Read} button. The PORT then moves to the inputted coordinates. If the user enters a value that exceeds the mechanical limit, there is a software limit which will not allow the telescope to move past either 120 degrees altitudinally (stow position), or past horizon.
+The coordinate entry inputs are in terms of ALT/AZ. Therefore, the user must input only azimuthal and altitudinal values. The user simply has to enter a value between 15-120 degrees for the altitude, and a value between 0-360 for the azimuth axis. Then, you click the \textbf{\textit{Read}} button. The PORT then moves to the inputted coordinates. If the user enters a value that exceeds the mechanical limit, there is a software limit which will not allow the telescope to move past either 120 degrees altitudinally (stow position), or past horizon.
 
 
 \subsection{System Status}
@@ -157,9 +157,9 @@ The voltage display of both servo motors gives the operator insight of the power
 
 Jogging is a convenient way to position the telescope for small movements, as it is often required when performing maintenance/troubleshooting.
 
-The operator must select \textbf{Enable Jogging} in System Settings section before the user can jog the telescope. The operator can choose one of the four available jogging steps for each axis, ranging from a 0.5 to 10\textdegree\ per click. This is useful if the telescope position is needed to be adjusted in small increments, especially when stowing the telescope. Simply click which axis you wish to move, and then click the increment (in degrees) that you want to move.
+The operator must select \textbf{\textit{Enable Jogging}} in System Settings section before the user can jog the telescope. The operator can choose one of the four available jogging steps for each axis, ranging from a 0.5 to 10\textdegree\ per click. This is useful if the telescope position is needed to be adjusted in small increments, especially when stowing the telescope. Simply click which axis you wish to move, and then click the increment (in degrees) that you want to move.
 
-It is advised to deselect the \textbf{Enable Jogging} when not in use to avoid accidental movement of the PORT.
+It is advised to deselect the \textbf{\textit{Enable Jogging}} when not in use to avoid accidental movement of the PORT.
 
 
 \subsection{System Settings}
@@ -167,29 +167,21 @@ It is advised to deselect the \textbf{Enable Jogging} when not in use to avoid a
 It was decided to include the System Settings feature to prevent unintentional movement or use of the PORT. To be able to move the telescope in the first place, the user must enable that specific feature on the GUI, such as jogging. This design was included because this telescope will be used by the public, so any additional layer of protection is seen as beneficial.
 
 \subsubsection{Enable Telescope}
-The \textbf{Enable Telescope} and \textbf{Enable Servomotors} options must be selected to operate the PORT.
+The \textbf{\textit{Enable Telescope}} and \textbf{\textit{Enable Servomotors}} options must be selected to operate the PORT.
 
-The \textbf{Enable Telescope} only effects the ability to select other options and doesn't effect the status of the radio telescope when it is toggled on or off. This can be deselected after selecting the \textbf{\textit{Enable Servomotors}}, so that servomotors cannot be disabled accidentially.
+The \textbf{\textit{Enable Telescope}} only effects the ability to select other options and doesn't effect the status of the radio telescope when it is toggled on or off. This can be deselected after selecting the \textbf{\textit{Enable Servomotors}}, so that servomotors cannot be disabled accidentially.
 
 \subsubsection{Enable Servomotors}
-Selecting \textbf{Enable Servomotors} initiates the RS-232 serial connections to both ALT/AZ motors. According to servomotor's datasheet, the serial connection has parameters of 8N2, baudrate of 115200k.
+Selecting \textbf{\textit{Enable Servomotors}} initiates the RS-232 serial connections to both ALT/AZ motors. According to servomotor's datasheet, the serial connection has parameters of 8N2, baudrate of 115200k.
 
 This option needs to stay selected if telescope motions are to be performed. When the serial connection to any of the servomotors is lost, there may be error message show up on the \textbf{Output} window, and there is a slight chance that the GUI may crash.
 
-\subsubsection{Enable AnalogFrontEnd}
-Selecting \textbf{Enable AnalogFrontEnd} causes the GUI polls AnalogFrontEnd (AFE) data. At the of writing, only the wind speed reading is polled, to update the \textbf{Wind Speed} in \textbf{System Status}.
+\subsubsection{Enable AnalogFrontend}
+Selecting \textbf{\textit{Enable AnalogFrontEnd}} causes the GUI polls AnalogFrontEnd (AFE) data. At the of writing, only the wind speed reading is polled, to update the \textbf{Wind Speed} in \textbf{System Status}.
 
 The physcial AFE is an Arduino Nano, and is connected to the Raspberry Pi via USB. They communicate using RS-232 with 8N2, baudrate 57,600. Arduino pin A0 is used as ADC input for anemometer analog output.
 
 It is planned that in the future AFE will be used to control the brake system, and sense the E-STOP that will be mounted on-site with the telescope.
-
-\subsubsection{Advance Features}
-
-Selecting this will enable 3 buttons, \textbf{Home AZ}, \textbf{Home ALT}, and \textbf{Restart}.
-
-\textbf{Home AZ} and \textbf{Home ALT} set the current position as the home/zero absolute position for that servomotor. This could be useful to recover the telescope after an unexpected power interruption and the system fails stow.
-
-\textbf{Restart} sends signal to both servo motors and they restart. Sometimes this is needed after an unexpected power interrpution, where servomotors can throw \textit{Hold Error} or something like that. This can also be used if \textbf{Jogging} is not working.
 
 
 \subsection{Data Output}
